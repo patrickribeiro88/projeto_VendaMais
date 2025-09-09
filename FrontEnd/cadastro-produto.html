@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Produto - Venda+</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="d-flex" id="dashboard-wrapper">
+        <div class="sidebar bg-dark" id="sidebar-wrapper">
+            <div class="sidebar-heading text-center py-4">
+                <h1 class="logo-sidebar">VENDA<i>+</i></h1>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.html">
+                        <i class="fas fa-chart-line"></i> Relatório de Vendas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="registro-vendas.html">
+                        <i class="fas fa-cash-register"></i> Registro de Vendas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="cadastro-cliente.html">
+                        <i class="fas fa-user-plus"></i> Cadastro Clientes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="cadastro-produto.html">
+                        <i class="fas fa-box-open"></i> Cadastro Produto
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="consulta.html">
+                        <i class="fas fa-search"></i> Consulta
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="cliente-inativos.html">
+                        <i class="fas fa-user-slash"></i> Clientes Inativos
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-primary d-md-none" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                    <div class="collapse navbar-collapse">
+                        <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle me-2"></i>Usuário Admin
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" href="index.html">Sair</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="container-fluid p-4">
+                <h1 class="h3 mb-4">Cadastro de Produto</h1>
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-4">Informações do Produto</h5>
+                        <form class="row g-3">
+                            <div class="col-12">
+                                <label for="productName" class="form-label">Nome do produto</label>
+                                <input type="text" class="form-control" id="productName">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="productCategory" class="form-label">Categoria</label>
+                                <input type="text" class="form-control" id="productCategory">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="productPrice" class="form-label">Preço de Venda</label>
+                                <input type="text" class="form-control" id="productPrice" placeholder="R$ 0,00">
+                            </div>
+                            <div class="col-12 text-end mt-4">
+                                <button type="button" class="btn btn-secondary me-2">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Salvar Produto</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 mt-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-dark">Lista de Produtos</h6>
+                        <div class="input-group" style="max-width: 300px;">
+                            <input type="text" class="form-control" placeholder="Pesquisar produtos...">
+                            <button class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table client-list-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Produto</th>
+                                        <th>Categoria</th>
+                                        <th>Preço de Venda</th>
+                                        <th class="text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>Perfume Y</td>
+                                        <td>Perfumaria</td>
+                                        <td>R$ 69,00</td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-primary" title="Editar"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>Creme Hidratante Facial</td>
+                                        <td>Skincare</td>
+                                        <td>R$ 89,90</td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-primary" title="Editar"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white d-flex justify-content-end">
+                        <nav aria-label="Navegação da lista de clientes">
+                            <ul class="pagination mb-0">
+                                <li class="page-item"><a class="page-link" href="#">Anterior</a></li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item"><a class="page-link" href="#">Próximo</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('menu-toggle')?.addEventListener('click', function() {
+            document.getElementById('dashboard-wrapper').classList.toggle('toggled');
+        });
+    </script>
+</body>
+</html>
