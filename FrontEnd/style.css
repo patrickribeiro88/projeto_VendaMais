@@ -23,24 +23,89 @@ body {
 /* =================================================================== */
 /* ==================== ESTILOS DO DASHBOARD ========================= */
 /* =================================================================== */
-#dashboard-wrapper, .sidebar, #page-content-wrapper { transition: all 0.4s ease; }
-.sidebar { position: fixed; top: 0; left: 0; width: 250px; height: 100vh; z-index: 1000; }
+
+/* --- ESTRUTURA PRINCIPAL DO DASHBOARD COM SIDEBAR COLAPSÁVEL --- */
+#dashboard-wrapper {
+    display: flex;
+    transition: margin-left .3s;
+}
+
+/* --- SIDEBAR --- */
+#sidebar-wrapper {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    transition: width .3s, left .3s;
+    background-color: #212529;
+}
+
 .logo-sidebar { font-weight: 700; font-size: 1.8rem; color: white; letter-spacing: 1px; }
 .logo-sidebar i { font-style: normal; display: inline-block; background-color: white; color: black; padding: 0 6px; border-radius: 4px; margin-left: 4px; }
-.sidebar .nav-link { color: rgba(255, 255, 255, 0.7); padding: 0.8rem 1.5rem; font-weight: 500; transition: all 0.2s; border-left: 4px solid transparent; }
-.sidebar .nav-link:hover { color: white; background-color: rgba(255, 255, 255, 0.1); border-left-color: #fff; }
-.sidebar .nav-link.active { color: white; font-weight: 600; background-color: #0d6efd; border-left-color: #a0c7ff; }
-.sidebar .nav-link i { width: 25px; margin-right: 10px; }
-#page-content-wrapper { width: calc(100% - 250px); margin-left: 250px; }
-#dashboard-wrapper.toggled #sidebar-wrapper { left: -250px; }
-#dashboard-wrapper.toggled #page-content-wrapper { width: 100%; margin-left: 0; }
-@media (max-width: 768px) {
-    #sidebar-wrapper { left: -250px; }
-    #page-content-wrapper { width: 100%; margin-left: 0; }
-    #dashboard-wrapper.toggled #sidebar-wrapper { left: 0; }
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.7); 
+    padding: 0.8rem 1.5rem; 
+    font-weight: 500; 
+    transition: all 0.2s; 
+    border-left: 4px solid transparent;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
 }
-.modal-content.modal-glass-effect { background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(0, 0, 0, 0.1); }
-.modal-glass-effect .modal-header, .modal-glass-effect .modal-footer { border-color: rgba(0, 0, 0, 0.1); }
+.sidebar .nav-link .sidebar-text {
+    opacity: 1;
+    transition: opacity .2s;
+}
+.sidebar .nav-link:hover {
+    color: white; 
+    background-color: rgba(255, 255, 255, 0.1); 
+    border-left-color: #fff;
+}
+.sidebar .nav-link.active {
+    color: white; 
+    font-weight: 600; 
+    background-color: #0d6efd; 
+    border-left-color: #a0c7ff;
+}
+.sidebar .nav-link i {
+    width: 25px; 
+    margin-right: 10px;
+    font-size: 1rem;
+}
+
+/* --- CONTEÚDO PRINCIPAL --- */
+#page-content-wrapper {
+    width: 100%;
+    padding-left: 250px;
+    transition: padding-left .3s;
+}
+
+/* --- ESTADO "ENCOLHIDO" (COLLAPSED) */
+#dashboard-wrapper.collapsed #sidebar-wrapper {
+    width: 80px; /* Define a nova largura da sidebar encolhida */
+}
+
+#dashboard-wrapper.collapsed #page-content-wrapper {
+    padding-left: 80px; /* Ajusta o espaço do conteúdo principal */
+}
+
+/*Esconde completamente o texto para corrigir o alinhamento e o fundo */
+#dashboard-wrapper.collapsed .sidebar .nav-link .sidebar-text,
+#dashboard-wrapper.collapsed .logo-sidebar {
+    display: none; /* Em vez de invisível, removemos o elemento do layout */
+}
+
+/*Ajusta o link para centralizar o ícone perfeitamente */
+#dashboard-wrapper.collapsed .sidebar .nav-link {
+    justify-content: center; /* Centraliza o ícone horizontalmente */
+}
+
+#dashboard-wrapper.collapsed .sidebar .nav-link i {
+    margin-right: 0; /* Remove a margem do ícone que empurrava o texto */
+}
 
 /* =================================================================== */
 /* ============ ESTILOS DOS CARDS DE RELATÓRIO (ATUALIZADO) =========== */

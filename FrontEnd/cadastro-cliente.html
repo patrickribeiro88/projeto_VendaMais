@@ -13,7 +13,7 @@
 </head>
 
 <body>
-    <div class="d-flex" id="dashboard-wrapper">
+    <div id="dashboard-wrapper">
         <div class="sidebar bg-dark" id="sidebar-wrapper">
             <div class="sidebar-heading text-center py-4">
                 <h1 class="logo-sidebar">VENDA<i>+</i></h1>
@@ -21,32 +21,38 @@
             <ul class="nav flex-column">
                 <li class="nav-item">
                     <a class="nav-link" href="dashboard.html">
-                        <i class="fas fa-chart-line"></i> Relatório de Vendas
+                        <i class="fas fa-chart-line"></i>
+                        <span class="sidebar-text">Relatório de Vendas</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="registro-vendas.html">
-                        <i class="fas fa-cash-register"></i> Registro de Vendas
+                        <i class="fas fa-cash-register"></i>
+                        <span class="sidebar-text">Registro de Vendas</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" href="cadastro-cliente.html">
-                        <i class="fas fa-user-plus"></i> Cadastro Clientes
+                        <i class="fas fa-user-plus"></i>
+                        <span class="sidebar-text">Cadastro Clientes</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="cadastro-produto.html">
-                        <i class="fas fa-box-open"></i> Cadastro Produto
+                        <i class="fas fa-box-open"></i>
+                        <span class="sidebar-text">Cadastro Produto</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="consulta.html">
-                        <i class="fas fa-search"></i> Consulta
+                        <i class="fas fa-search"></i>
+                        <span class="sidebar-text">Consulta</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="cliente-inativos.html">
-                        <i class="fas fa-user-slash"></i> Clientes Inativos
+                    <a class="nav-link" href="vendas-inativas.html">
+                        <i class="fas fa-user-slash"></i>
+                        <span class="sidebar-text">Vendas Inativas</span>
                     </a>
                 </li>
             </ul>
@@ -55,9 +61,20 @@
         <div id="page-content-wrapper">
             <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
                 <div class="container-fluid">
-                    <button class="btn btn-primary d-md-none" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                    <button class="btn btn-primary" id="menu-toggle"><i class="fas fa-bars"></i></button>
                     <div class="collapse navbar-collapse">
                         <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link position-relative" href="vendas-inativas.html"
+                                    title="Ver clientes inativos">
+                                    <i class="fas fa-bell"></i>
+                                    <span
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        2
+                                        <span class="visually-hidden">notificações não lidas</span>
+                                    </span>
+                                </a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                                     data-bs-toggle="dropdown" aria-expanded="false">
@@ -71,7 +88,6 @@
                     </div>
                 </div>
             </nav>
-
             <main class="container-fluid p-4">
                 <h1 class="h3 mb-4">Formulário de Cadastro</h1>
 
@@ -310,9 +326,14 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.getElementById('menu-toggle')?.addEventListener('click', function () {
-            document.getElementById('dashboard-wrapper').classList.toggle('toggled');
-        });
+        const menuToggle = document.getElementById('menu-toggle');
+        const wrapper = document.getElementById('dashboard-wrapper');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function () {
+                wrapper.classList.toggle('collapsed');
+            });
+        }
     </script>
 </body>
 

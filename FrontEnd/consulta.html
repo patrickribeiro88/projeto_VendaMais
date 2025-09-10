@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="d-flex" id="dashboard-wrapper">
+    <div id="dashboard-wrapper">
         <div class="sidebar bg-dark" id="sidebar-wrapper">
             <div class="sidebar-heading text-center py-4">
                 <h1 class="logo-sidebar">VENDA<i>+</i></h1>
@@ -18,32 +18,38 @@
             <ul class="nav flex-column">
                 <li class="nav-item">
                     <a class="nav-link" href="dashboard.html">
-                        <i class="fas fa-chart-line"></i> Relatório de Vendas
+                        <i class="fas fa-chart-line"></i>
+                        <span class="sidebar-text">Relatório de Vendas</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="registro-vendas.html">
-                        <i class="fas fa-cash-register"></i> Registro de Vendas
+                        <i class="fas fa-cash-register"></i>
+                        <span class="sidebar-text">Registro de Vendas</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="cadastro-cliente.html">
-                        <i class="fas fa-user-plus"></i> Cadastro Clientes
+                        <i class="fas fa-user-plus"></i>
+                        <span class="sidebar-text">Cadastro Clientes</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="cadastro-produto.html">
-                        <i class="fas fa-box-open"></i> Cadastro Produto
+                        <i class="fas fa-box-open"></i>
+                        <span class="sidebar-text">Cadastro Produto</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" href="consulta.html">
-                        <i class="fas fa-search"></i> Consulta
+                        <i class="fas fa-search"></i>
+                        <span class="sidebar-text">Consulta</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="cliente-inativos.html">
-                        <i class="fas fa-user-slash"></i> Clientes Inativos
+                    <a class="nav-link" href="vendas-inativas.html">
+                        <i class="fas fa-user-slash"></i>
+                        <span class="sidebar-text">Vendas Inativas</span>
                     </a>
                 </li>
             </ul>
@@ -52,9 +58,18 @@
         <div id="page-content-wrapper">
             <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
                 <div class="container-fluid">
-                    <button class="btn btn-primary d-md-none" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                    <button class="btn btn-primary" id="menu-toggle"><i class="fas fa-bars"></i></button>
                     <div class="collapse navbar-collapse">
                         <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link position-relative" href="vendas-inativas.html" title="Ver clientes inativos">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        2
+                                        <span class="visually-hidden">notificações não lidas</span>
+                                    </span>
+                                </a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-user-circle me-2"></i>Usuário Admin
@@ -132,43 +147,26 @@
                     
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-white">
-                            <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-history me-2"></i>Histórico de Compras</h6>
+                            <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-history me-2"></i>Histórico das Últimas 3 Compras</h6>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table client-list-table">
                                     <thead>
-                                        <tr>
-                                            <th>ID Venda</th>
-                                            <th>Data</th>
-                                            <th>Total</th>
-                                            <th class="text-center">Ações</th>
-                                        </tr>
+                                        <tr><th>ID Venda</th><th>Data</th><th>Total</th><th class="text-center">Ações</th></tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>101</td>
-                                            <td>08/09/2025</td>
-                                            <td>R$ 120,50</td>
-                                            <td class="text-center">
-                                                <button class="btn btn-sm btn-outline-info" title="Ver Detalhes da Venda" data-bs-toggle="modal" data-bs-target="#purchaseDetailsModal"><i class="fas fa-info-circle"></i></button>
-                                            </td>
+                                            <td>101</td><td>09/09/2025</td><td>R$ 120,50</td>
+                                            <td class="text-center"><button class="btn btn-sm btn-outline-info" title="Ver Detalhes da Venda" data-bs-toggle="modal" data-bs-target="#purchaseDetailsModal"><i class="fas fa-info-circle"></i></button></td>
                                         </tr>
                                         <tr>
-                                            <td>98</td>
-                                            <td>15/08/2025</td>
-                                            <td>R$ 45,00</td>
-                                            <td class="text-center">
-                                                <button class="btn btn-sm btn-outline-info" title="Ver Detalhes da Venda" data-bs-toggle="modal" data-bs-target="#purchaseDetailsModal"><i class="fas fa-info-circle"></i></button>
-                                            </td>
+                                            <td>98</td><td>15/08/2025</td><td>R$ 45,00</td>
+                                            <td class="text-center"><button class="btn btn-sm btn-outline-info" title="Ver Detalhes da Venda" data-bs-toggle="modal" data-bs-target="#purchaseDetailsModal"><i class="fas fa-info-circle"></i></button></td>
                                         </tr>
                                         <tr>
-                                            <td>95</td>
-                                            <td>01/08/2025</td>
-                                            <td>R$ 315,80</td>
-                                            <td class="text-center">
-                                                <button class="btn btn-sm btn-outline-info" title="Ver Detalhes da Venda" data-bs-toggle="modal" data-bs-target="#purchaseDetailsModal"><i class="fas fa-info-circle"></i></button>
-                                            </td>
+                                            <td>95</td><td>01/08/2025</td><td>R$ 315,80</td>
+                                            <td class="text-center"><button class="btn btn-sm btn-outline-info" title="Ver Detalhes da Venda" data-bs-toggle="modal" data-bs-target="#purchaseDetailsModal"><i class="fas fa-info-circle"></i></button></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -190,9 +188,7 @@
                 <div class="modal-body">
                     <div class="table-responsive">
                         <table class="table client-list-table">
-                            <thead>
-                                <tr><th>Nome</th><th>CPF</th><th>Data de Nascimento</th><th class="text-center">Ação</th></tr>
-                            </thead>
+                            <thead><tr><th>Nome</th><th>CPF</th><th>Data de Nascimento</th><th class="text-center">Ação</th></tr></thead>
                             <tbody>
                                 <tr>
                                     <td>Ana Maria Braga</td>
@@ -221,32 +217,15 @@
                 </div>
                 <div class="modal-body">
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p class="mb-1"><strong>Cliente:</strong> Ana Maria Braga</p>
-                            <p class="mb-0"><strong>Data:</strong> 08 de Setembro de 2025</p>
-                        </div>
-                        <div class="col-md-6 text-md-end">
-                             <p class="mb-1"><strong>Valor Total:</strong> R$ 120,50</p>
-                        </div>
+                        <div class="col-md-6"><p class="mb-1"><strong>Cliente:</strong> Ana Maria Braga</p><p class="mb-0"><strong>Data:</strong> 09 de Setembro de 2025</p></div>
+                        <div class="col-md-6 text-md-end"><p class="mb-1"><strong>Valor Total:</strong> R$ 120,50</p></div>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-sm client-list-table">
-                            <thead>
-                                <tr><th>Produto</th><th>Qtd.</th><th class="text-end">Preço Unit.</th><th class="text-end">Subtotal</th></tr>
-                            </thead>
+                            <thead><tr><th>Produto</th><th>Qtd.</th><th class="text-end">Preço Unit.</th><th class="text-end">Subtotal</th></tr></thead>
                             <tbody>
-                                <tr>
-                                    <td>Perfume Y</td>
-                                    <td>1</td>
-                                    <td class="text-end">R$ 69,00</td>
-                                    <td class="text-end">R$ 69,00</td>
-                                </tr>
-                                <tr>
-                                    <td>Creme Hidratante</td>
-                                    <td>1</td>
-                                    <td class="text-end">R$ 51,50</td>
-                                    <td class="text-end">R$ 51,50</td>
-                                </tr>
+                                <tr><td>Perfume Y</td><td>1</td><td class="text-end">R$ 69,00</td><td class="text-end">R$ 69,00</td></tr>
+                                <tr><td>Creme Hidratante</td><td>1</td><td class="text-end">R$ 51,50</td><td class="text-end">R$ 51,50</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -260,9 +239,14 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.getElementById('menu-toggle')?.addEventListener('click', function() {
-            document.getElementById('dashboard-wrapper').classList.toggle('toggled');
-        });
+        const menuToggle = document.getElementById('menu-toggle');
+        const wrapper = document.getElementById('dashboard-wrapper');
+        
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                wrapper.classList.toggle('collapsed');
+            });
+        }
 
         const selectClientButton = document.getElementById('selectClientBtn');
         const detailsView = document.getElementById('detailsView');

@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Vendas (PDV) - Venda+</title>
+    <title>Registro de Vendas - Venda+</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="d-flex" id="dashboard-wrapper">
+    <div id="dashboard-wrapper">
         <div class="sidebar bg-dark" id="sidebar-wrapper">
             <div class="sidebar-heading text-center py-4">
                 <h1 class="logo-sidebar">VENDA<i>+</i></h1>
@@ -18,32 +21,38 @@
             <ul class="nav flex-column">
                 <li class="nav-item">
                     <a class="nav-link" href="dashboard.html">
-                        <i class="fas fa-chart-line"></i> Relatório de Vendas
+                        <i class="fas fa-chart-line"></i>
+                        <span class="sidebar-text">Relatório de Vendas</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" href="registro-vendas.html">
-                        <i class="fas fa-cash-register"></i> Registro de Vendas
+                        <i class="fas fa-cash-register"></i>
+                        <span class="sidebar-text">Registro de Vendas</span>
                     </a>
                 </li>
-                 <li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link" href="cadastro-cliente.html">
-                        <i class="fas fa-user-plus"></i> Cadastro Clientes
+                        <i class="fas fa-user-plus"></i>
+                        <span class="sidebar-text">Cadastro Clientes</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="cadastro-produto.html">
-                        <i class="fas fa-box-open"></i> Cadastro Produto
+                        <i class="fas fa-box-open"></i>
+                        <span class="sidebar-text">Cadastro Produto</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="consulta.html">
-                        <i class="fas fa-search"></i> Consulta
+                        <i class="fas fa-search"></i>
+                        <span class="sidebar-text">Consulta</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="cliente-inativos.html">
-                        <i class="fas fa-user-slash"></i> Clientes Inativos
+                    <a class="nav-link" href="vendas-inativas.html">
+                        <i class="fas fa-user-slash"></i>
+                        <span class="sidebar-text">Vendas Inativas</span>
                     </a>
                 </li>
             </ul>
@@ -52,11 +61,23 @@
         <div id="page-content-wrapper">
             <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
                 <div class="container-fluid">
-                    <button class="btn btn-primary d-md-none" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                    <button class="btn btn-primary" id="menu-toggle"><i class="fas fa-bars"></i></button>
                     <div class="collapse navbar-collapse">
                         <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link position-relative" href="vendas-inativas.html"
+                                    title="Ver clientes inativos">
+                                    <i class="fas fa-bell"></i>
+                                    <span
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        2
+                                        <span class="visually-hidden">notificações não lidas</span>
+                                    </span>
+                                </a>
+                            </li>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-user-circle me-2"></i>Usuário Admin
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -67,12 +88,11 @@
                     </div>
                 </div>
             </nav>
-
             <main class="container-fluid p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1 class="h3 mb-0">Registro de Vendas (PDV)</h1>
+                    <h1 class="h3 mb-0">Registro de Vendas</h1>
                 </div>
-                
+
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-body p-4">
                         <div class="row g-3 mb-3">
@@ -80,7 +100,8 @@
                                 <label class="form-label">Cliente</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="Consumidor Final" disabled>
-                                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#clientSearchModal" title="Buscar Cliente">
+                                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#clientSearchModal" title="Buscar Cliente">
                                         <i class="fas fa-search"></i>
                                     </button>
                                 </div>
@@ -88,42 +109,58 @@
                             <div class="col-md-6">
                                 <label for="addProduct" class="form-label">Adicionar Produto</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="addProduct" placeholder="Digite o nome ou código...">
-                                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#productSearchModal" title="Buscar Produto"><i class="fas fa-search"></i></button>
+                                    <input type="text" class="form-control" id="addProduct"
+                                        placeholder="Digite o nome ou código...">
+                                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal"
+                                        data-bs-target="#productSearchModal" title="Buscar Produto"><i
+                                            class="fas fa-search"></i></button>
                                     <button class="btn btn-primary" type="button">Adicionar</button>
                                 </div>
                             </div>
                         </div>
                         <hr>
-                        
+
                         <h5 class="card-title mb-3">Itens da Venda</h5>
                         <div class="table-responsive">
                             <table class="table client-list-table">
                                 <thead>
                                     <tr>
-                                        <th>Item</th><th>Produto</th><th>Qtd.</th><th>Preço Unit.</th><th>Subtotal</th><th class="text-center">Ação</th>
+                                        <th>Item</th>
+                                        <th>Produto</th>
+                                        <th>Qtd.</th>
+                                        <th>Preço Unit.</th>
+                                        <th>Subtotal</th>
+                                        <th class="text-center">Ação</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>1</td><td>Perfume Y</td><td>1</td><td>R$ 69,00</td><td>R$ 69,00</td>
-                                        <td class="text-center"><button class="btn btn-sm btn-outline-danger" title="Remover"><i class="fas fa-times"></i></button></td>
+                                        <td>1</td>
+                                        <td>Perfume Y</td>
+                                        <td>1</td>
+                                        <td>R$ 69,00</td>
+                                        <td>R$ 69,00</td>
+                                        <td class="text-center"><button class="btn btn-sm btn-outline-danger"
+                                                title="Remover"><i class="fas fa-times"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        
+
                         <div class="totals-section mt-4">
-                            <div class="d-flex justify-content-between"><span>Subtotal:</span> <span>R$ 69,00</span></div>
+                            <div class="d-flex justify-content-between"><span>Subtotal:</span> <span>R$ 69,00</span>
+                            </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span>Desconto:</span>
                                 <div>
                                     <span class="text-danger me-2">- R$ 0,00</span>
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#discountModal">Aplicar Desconto</button>
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                        data-bs-target="#discountModal">Aplicar Desconto</button>
                                 </div>
                             </div>
                             <hr>
-                            <div class="d-flex justify-content-between total-display"><strong>Total a Pagar:</strong> <strong>R$ 69,00</strong></div>
+                            <div class="d-flex justify-content-between total-display"><strong>Total a Pagar:</strong>
+                                <strong>R$ 69,00</strong></div>
                         </div>
                     </div>
                     <div class="card-footer bg-white text-end p-3">
@@ -137,7 +174,8 @@
                         <h6 class="m-0 font-weight-bold text-dark">Vendas Realizadas Hoje</h6>
                         <div class="input-group" style="max-width: 300px;">
                             <input type="text" class="form-control" placeholder="Pesquisar vendas...">
-                            <button class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button>
+                            <button class="btn btn-outline-secondary" type="button"><i
+                                    class="fas fa-search"></i></button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -159,9 +197,13 @@
                                         <td>R$ 120,50</td>
                                         <td>07/09/2025</td>
                                         <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-primary" title="Editar Venda"><i class="fas fa-pencil-alt"></i></button>
-                                            <button class="btn btn-sm btn-outline-info" title="Ver Detalhes" data-bs-toggle="modal" data-bs-target="#saleDetailsModal"><i class="fas fa-info-circle"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" title="Excluir Venda"><i class="fas fa-trash-alt"></i></button>
+                                            <button class="btn btn-sm btn-outline-primary" title="Editar Venda"><i
+                                                    class="fas fa-pencil-alt"></i></button>
+                                            <button class="btn btn-sm btn-outline-info" title="Ver Detalhes"
+                                                data-bs-toggle="modal" data-bs-target="#saleDetailsModal"><i
+                                                    class="fas fa-info-circle"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" title="Excluir Venda"><i
+                                                    class="fas fa-trash-alt"></i></button>
                                         </td>
                                     </tr>
                                     <tr>
@@ -170,9 +212,13 @@
                                         <td>R$ 45,00</td>
                                         <td>07/09/2025</td>
                                         <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-primary" title="Editar Venda"><i class="fas fa-pencil-alt"></i></button>
-                                            <button class="btn btn-sm btn-outline-info" title="Ver Detalhes" data-bs-toggle="modal" data-bs-target="#saleDetailsModal"><i class="fas fa-info-circle"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" title="Excluir Venda"><i class="fas fa-trash-alt"></i></button>
+                                            <button class="btn btn-sm btn-outline-primary" title="Editar Venda"><i
+                                                    class="fas fa-pencil-alt"></i></button>
+                                            <button class="btn btn-sm btn-outline-info" title="Ver Detalhes"
+                                                data-bs-toggle="modal" data-bs-target="#saleDetailsModal"><i
+                                                    class="fas fa-info-circle"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" title="Excluir Venda"><i
+                                                    class="fas fa-trash-alt"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -195,7 +241,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="clientSearchModal" tabindex="-1" aria-labelledby="clientSearchModalLabel" aria-hidden="true">
+    <div class="modal fade" id="clientSearchModal" tabindex="-1" aria-labelledby="clientSearchModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -204,19 +251,30 @@
                 </div>
                 <div class="modal-body">
                     <form class="row g-3 mb-3">
-                        <div class="col-sm-4"><input type="text" class="form-control" placeholder="Buscar por ID..."></div>
-                        <div class="col-sm-4"><input type="text" class="form-control" placeholder="Buscar por CPF..."></div>
-                        <div class="col-sm-4"><input type="text" class="form-control" placeholder="Buscar por Nome..."></div>
+                        <div class="col-sm-4"><input type="text" class="form-control" placeholder="Buscar por ID...">
+                        </div>
+                        <div class="col-sm-4"><input type="text" class="form-control" placeholder="Buscar por CPF...">
+                        </div>
+                        <div class="col-sm-4"><input type="text" class="form-control" placeholder="Buscar por Nome...">
+                        </div>
                     </form>
                     <hr>
                     <h6 class="mb-3">Resultados da Busca</h6>
                     <div class="table-responsive">
                         <table class="table table-hover client-list-table">
                             <thead>
-                                <tr><th>CPF</th><th>Nome Completo</th><th>Ação</th></tr>
+                                <tr>
+                                    <th>CPF</th>
+                                    <th>Nome Completo</th>
+                                    <th>Ação</th>
+                                </tr>
                             </thead>
                             <tbody>
-                                <tr><td>123.456.789-00</td><td>Ana Maria Braga</td><td><button class="btn btn-sm btn-success">Selecionar</button></td></tr>
+                                <tr>
+                                    <td>123.456.789-00</td>
+                                    <td>Ana Maria Braga</td>
+                                    <td><button class="btn btn-sm btn-success">Selecionar</button></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -225,7 +283,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="productSearchModal" tabindex="-1" aria-labelledby="productSearchModalLabel" aria-hidden="true">
+    <div class="modal fade" id="productSearchModal" tabindex="-1" aria-labelledby="productSearchModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -233,19 +292,31 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                     <form class="row g-3 mb-3">
-                        <div class="col-sm-6"><input type="text" class="form-control" placeholder="Buscar por ID..."></div>
-                        <div class="col-sm-6"><input type="text" class="form-control" placeholder="Buscar por Nome do Produto..."></div>
+                    <form class="row g-3 mb-3">
+                        <div class="col-sm-6"><input type="text" class="form-control" placeholder="Buscar por ID...">
+                        </div>
+                        <div class="col-sm-6"><input type="text" class="form-control"
+                                placeholder="Buscar por Nome do Produto..."></div>
                     </form>
                     <hr>
                     <h6 class="mb-3">Resultados da Busca</h6>
-                     <div class="table-responsive">
+                    <div class="table-responsive">
                         <table class="table table-hover client-list-table">
                             <thead>
-                                <tr><th>ID</th><th>Nome do Produto</th><th>Categoria</th><th>Ação</th></tr>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome do Produto</th>
+                                    <th>Categoria</th>
+                                    <th>Ação</th>
+                                </tr>
                             </thead>
                             <tbody>
-                                <tr><td>1</td><td>Perfume Y</td><td>Perfumaria</td><td><button class="btn btn-sm btn-success">Selecionar</button></td></tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Perfume Y</td>
+                                    <td>Perfumaria</td>
+                                    <td><button class="btn btn-sm btn-success">Selecionar</button></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -254,7 +325,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="saleDetailsModal" tabindex="-1" aria-labelledby="saleDetailsModalLabel" aria-hidden="true">
+    <div class="modal fade" id="saleDetailsModal" tabindex="-1" aria-labelledby="saleDetailsModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -303,12 +375,17 @@
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.getElementById('menu-toggle')?.addEventListener('click', function() {
-            document.getElementById('dashboard-wrapper').classList.toggle('toggled');
-        });
+        const menuToggle = document.getElementById('menu-toggle');
+        const wrapper = document.getElementById('dashboard-wrapper');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function () {
+                wrapper.classList.toggle('collapsed');
+            });
+        }
     </script>
 </body>
+
 </html>
