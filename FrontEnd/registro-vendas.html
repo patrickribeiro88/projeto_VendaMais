@@ -16,7 +16,10 @@
     <div id="dashboard-wrapper">
         <div class="sidebar bg-dark" id="sidebar-wrapper">
             <div class="sidebar-heading text-center py-4">
-                <h1 class="logo-sidebar">VENDA<i>+</i></h1>
+                <a href="dashboard.html" class="text-decoration-none">
+                    <h1 class="logo-sidebar logo-full">VENDA<i>+</i></h1>
+                    <h1 class="logo-sidebar logo-compact">V<i>+</i></h1>
+                </a>
             </div>
             <ul class="nav flex-column">
                 <li class="nav-item">
@@ -50,9 +53,9 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="vendas-inativas.html">
+                    <a class="nav-link" href="inativos.html">
                         <i class="fas fa-user-slash"></i>
-                        <span class="sidebar-text">Vendas Inativas</span>
+                        <span class="sidebar-text">Inativos</span>
                     </a>
                 </li>
             </ul>
@@ -65,14 +68,12 @@
                     <div class="collapse navbar-collapse">
                         <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
                             <li class="nav-item">
-                                <a class="nav-link position-relative" href="vendas-inativas.html"
-                                    title="Ver clientes inativos">
+                                <a class="nav-link position-relative" href="inativos.html"
+                                    title="Ver vendas inativas">
                                     <i class="fas fa-bell"></i>
                                     <span
-                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                        2
-                                        <span class="visually-hidden">notificações não lidas</span>
-                                    </span>
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">2<span
+                                            class="visually-hidden">notificações não lidas</span></span>
                                 </a>
                             </li>
                             <li class="nav-item dropdown">
@@ -88,6 +89,7 @@
                     </div>
                 </div>
             </nav>
+
             <main class="container-fluid p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h1 class="h3 mb-0">Registro de Vendas</h1>
@@ -101,9 +103,8 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="Consumidor Final" disabled>
                                     <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal"
-                                        data-bs-target="#clientSearchModal" title="Buscar Cliente">
-                                        <i class="fas fa-search"></i>
-                                    </button>
+                                        data-bs-target="#clientSearchModal" title="Buscar Cliente"><i
+                                            class="fas fa-search"></i></button>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -165,7 +166,7 @@
                     </div>
                     <div class="card-footer bg-white text-end p-3">
                         <button type="button" class="btn btn-secondary me-2">Limpar</button>
-                        <button type="button" class="btn btn-success btn-lg">Registrar Venda</button>
+                        <button type="button" class="btn btn-primary btn-lg">Registrar Venda</button>
                     </div>
                 </div>
 
@@ -195,22 +196,7 @@
                                         <td>101</td>
                                         <td>Ana Maria Braga</td>
                                         <td>R$ 120,50</td>
-                                        <td>07/09/2025</td>
-                                        <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-primary" title="Editar Venda"><i
-                                                    class="fas fa-pencil-alt"></i></button>
-                                            <button class="btn btn-sm btn-outline-info" title="Ver Detalhes"
-                                                data-bs-toggle="modal" data-bs-target="#saleDetailsModal"><i
-                                                    class="fas fa-info-circle"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" title="Excluir Venda"><i
-                                                    class="fas fa-trash-alt"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>102</td>
-                                        <td>Consumidor Final</td>
-                                        <td>R$ 45,00</td>
-                                        <td>07/09/2025</td>
+                                        <td>10/09/2025</td>
                                         <td class="text-center">
                                             <button class="btn btn-sm btn-outline-primary" title="Editar Venda"><i
                                                     class="fas fa-pencil-alt"></i></button>
@@ -226,9 +212,9 @@
                         </div>
                     </div>
                     <div class="card-footer bg-white d-flex justify-content-end">
-                        <nav aria-label="Navegação da lista de clientes">
+                        <nav aria-label="Navegação da lista de vendas">
                             <ul class="pagination mb-0">
-                                <li class="page-item"><a class="page-link" href="#">Anterior</a></li>
+                                <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
                                 <li class="page-item active"><a class="page-link" href="#">1</a></li>
                                 <li class="page-item"><a class="page-link" href="#">2</a></li>
                                 <li class="page-item"><a class="page-link" href="#">3</a></li>
@@ -246,8 +232,8 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="clientSearchModalLabel">Buscar Cliente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="clientSearchModalLabel">Buscar Cliente</h5><button type="button"
+                        class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form class="row g-3 mb-3">
@@ -282,14 +268,13 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="productSearchModal" tabindex="-1" aria-labelledby="productSearchModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="productSearchModalLabel">Buscar Produto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="productSearchModalLabel">Buscar Produto</h5><button type="button"
+                        class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form class="row g-3 mb-3">
@@ -324,57 +309,49 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="saleDetailsModal" tabindex="-1" aria-labelledby="saleDetailsModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="saleDetailsModalLabel">Detalhes da Venda #101</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="saleDetailsModalLabel">Detalhes da Venda #101</h5><button type="button"
+                        class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p><strong>ID da Venda:</strong> 101</p>
-                    <p><strong>Data:</strong> 07/09/2025</p>
+                    <p><strong>Data:</strong> 10/09/2025</p>
                     <p><strong>Cliente:</strong> Ana Maria Braga</p>
                     <p><strong>Valor Total:</strong> R$ 120,50</p>
                     <hr>
                     <h6>Produtos Vendidos:</h6>
                     <ul class="list-group">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Creme Hidratante Facial (1x R$ 120,50)
-                            <span>R$ 120,50</span>
-                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">Creme Hidratante
+                            Facial (1x R$ 120,50)<span>R$ 120,50</span></li>
                     </ul>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Fechar</button></div>
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="discountModal" tabindex="-1" aria-labelledby="discountModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="discountModalLabel">Aplicar Desconto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="discountModalLabel">Aplicar Desconto</h5><button type="button"
+                        class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <label for="discountValue" class="form-label">Valor do Desconto</label>
-                    <div class="input-group">
-                        <span class="input-group-text">R$</span>
-                        <input type="text" class="form-control" id="discountValue" placeholder="0,00">
-                    </div>
+                <div class="modal-body"><label for="discountValue" class="form-label">Valor do Desconto</label>
+                    <div class="input-group"><span class="input-group-text">R$</span><input type="text"
+                            class="form-control" id="discountValue" placeholder="0,00"></div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary">Aplicar</button>
-                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cancelar</button><button type="button"
+                        class="btn btn-primary">Aplicar</button></div>
             </div>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const menuToggle = document.getElementById('menu-toggle');

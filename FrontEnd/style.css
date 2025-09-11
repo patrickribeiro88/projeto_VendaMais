@@ -42,8 +42,20 @@ body {
     background-color: #212529;
 }
 
-.logo-sidebar { font-weight: 700; font-size: 1.8rem; color: white; letter-spacing: 1px; }
+/* LOGOS DA SIDEBAR */
+.logo-sidebar { font-weight: 700; color: white; letter-spacing: 1px; }
 .logo-sidebar i { font-style: normal; display: inline-block; background-color: white; color: black; padding: 0 6px; border-radius: 4px; margin-left: 4px; }
+
+/* Logo completo (padrão) */
+.logo-full {
+    font-size: 1.8rem;
+}
+/* Logo compacto (escondido por padrão) */
+.logo-compact {
+    font-size: 1.5rem; /* Um pouco menor para caber melhor */
+    display: none; /* Começa escondido */
+}
+
 
 .sidebar .nav-link {
     color: rgba(255, 255, 255, 0.7); 
@@ -83,30 +95,31 @@ body {
     transition: padding-left .3s;
 }
 
-/* --- ESTADO "ENCOLHIDO" (COLLAPSED) */
+/* --- ESTADO "ENCOLHIDO" (COLLAPSED) --- */
 #dashboard-wrapper.collapsed #sidebar-wrapper {
-    width: 80px; /* Define a nova largura da sidebar encolhida */
+    width: 80px;
 }
-
 #dashboard-wrapper.collapsed #page-content-wrapper {
-    padding-left: 80px; /* Ajusta o espaço do conteúdo principal */
+    padding-left: 80px;
 }
 
-/*Esconde completamente o texto para corrigir o alinhamento e o fundo */
+/* Esconde o texto e o logo completo */
 #dashboard-wrapper.collapsed .sidebar .nav-link .sidebar-text,
-#dashboard-wrapper.collapsed .logo-sidebar {
-    display: none; /* Em vez de invisível, removemos o elemento do layout */
+#dashboard-wrapper.collapsed .logo-full {
+    display: none;
 }
 
-/*Ajusta o link para centralizar o ícone perfeitamente */
+/* Mostra o logo compacto */
+#dashboard-wrapper.collapsed .logo-compact {
+    display: block;
+}
+
 #dashboard-wrapper.collapsed .sidebar .nav-link {
-    justify-content: center; /* Centraliza o ícone horizontalmente */
+    justify-content: center;
 }
-
 #dashboard-wrapper.collapsed .sidebar .nav-link i {
-    margin-right: 0; /* Remove a margem do ícone que empurrava o texto */
+    margin-right: 0;
 }
-
 /* =================================================================== */
 /* ============ ESTILOS DOS CARDS DE RELATÓRIO (ATUALIZADO) =========== */
 /* =================================================================== */
