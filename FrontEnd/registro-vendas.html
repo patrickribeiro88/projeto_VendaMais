@@ -23,40 +23,28 @@
             </div>
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link" href="dashboard.html">
-                        <i class="fas fa-chart-line"></i>
-                        <span class="sidebar-text">Relatório de Vendas</span>
-                    </a>
+                    <a class="nav-link" href="dashboard.html"><i class="fas fa-chart-line"></i><span
+                            class="sidebar-text">Relatório de Vendas</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="registro-vendas.html">
-                        <i class="fas fa-cash-register"></i>
-                        <span class="sidebar-text">Registro de Vendas</span>
-                    </a>
+                    <a class="nav-link active" href="registro-vendas.html"><i class="fas fa-cash-register"></i><span
+                            class="sidebar-text">Registro de Vendas</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="cadastro-cliente.html">
-                        <i class="fas fa-user-plus"></i>
-                        <span class="sidebar-text">Cadastro Clientes</span>
-                    </a>
+                    <a class="nav-link" href="cadastro-cliente.html"><i class="fas fa-user-plus"></i><span
+                            class="sidebar-text">Cadastro Clientes</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="cadastro-produto.html">
-                        <i class="fas fa-box-open"></i>
-                        <span class="sidebar-text">Cadastro Produto</span>
-                    </a>
+                    <a class="nav-link" href="cadastro-produto.html"><i class="fas fa-box-open"></i><span
+                            class="sidebar-text">Cadastro Produto</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="consulta.html">
-                        <i class="fas fa-search"></i>
-                        <span class="sidebar-text">Consulta</span>
-                    </a>
+                    <a class="nav-link" href="consulta.html"><i class="fas fa-search"></i><span
+                            class="sidebar-text">Consulta</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="inativos.html">
-                        <i class="fas fa-user-slash"></i>
-                        <span class="sidebar-text">Inativos</span>
-                    </a>
+                    <a class="nav-link" href="inativos.html"><i class="fas fa-user-slash"></i><span
+                            class="sidebar-text">Inativos</span></a>
                 </li>
             </ul>
         </div>
@@ -68,8 +56,7 @@
                     <div class="collapse navbar-collapse">
                         <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
                             <li class="nav-item">
-                                <a class="nav-link position-relative" href="inativos.html"
-                                    title="Ver vendas inativas">
+                                <a class="nav-link position-relative" href="inativos.html" title="Ver inativos">
                                     <i class="fas fa-bell"></i>
                                     <span
                                         class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">2<span
@@ -97,8 +84,8 @@
 
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-body p-4">
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
+                        <div class="row g-3 mb-3 align-items-end">
+                            <div class="col-md-4">
                                 <label class="form-label">Cliente</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="Consumidor Final" disabled>
@@ -107,16 +94,26 @@
                                             class="fas fa-search"></i></button>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="addProduct" class="form-label">Adicionar Produto</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="addProduct"
-                                        placeholder="Digite o nome ou código...">
+                                        placeholder="Clique na lupa para buscar...">
                                     <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal"
                                         data-bs-target="#productSearchModal" title="Buscar Produto"><i
                                             class="fas fa-search"></i></button>
-                                    <button class="btn btn-primary" type="button">Adicionar</button>
                                 </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="quantity" class="form-label">Qtd.</label>
+                                <div class="input-group">
+                                    <button class="btn btn-outline-secondary" type="button">-</button>
+                                    <input type="text" class="form-control text-center" id="quantity" value="1">
+                                    <button class="btn btn-outline-secondary" type="button">+</button>
+                                </div>
+                            </div>
+                            <div class="col-md-2 d-grid">
+                                <button class="btn btn-primary" type="button">Adicionar</button>
                             </div>
                         </div>
                         <hr>
@@ -196,7 +193,7 @@
                                         <td>101</td>
                                         <td>Ana Maria Braga</td>
                                         <td>R$ 120,50</td>
-                                        <td>10/09/2025</td>
+                                        <td>14/09/2025</td>
                                         <td class="text-center">
                                             <button class="btn btn-sm btn-outline-primary" title="Editar Venda"><i
                                                     class="fas fa-pencil-alt"></i></button>
@@ -319,7 +316,7 @@
                 </div>
                 <div class="modal-body">
                     <p><strong>ID da Venda:</strong> 101</p>
-                    <p><strong>Data:</strong> 10/09/2025</p>
+                    <p><strong>Data:</strong> 14/09/2025</p>
                     <p><strong>Cliente:</strong> Ana Maria Braga</p>
                     <p><strong>Valor Total:</strong> R$ 120,50</p>
                     <hr>
