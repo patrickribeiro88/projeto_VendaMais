@@ -1,6 +1,6 @@
 // ======== MODEL DO PRODUTO ========
 
-const db = require('../config/db');
+const db = require('../config/database');
 
 // Criar produto
 exports.criarProduto = (produto, callback) => {

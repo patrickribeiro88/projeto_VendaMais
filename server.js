@@ -18,6 +18,7 @@ app.use('/api/clientes', clienteRoutes);
 app.use('/api/produtos', produtoRoutes);
 
 
+
 // Página inicial (teste rápido)
 app.get('/', (req, res) => {
   res.send('Servidor do Venda+ está rodando com estrutura MVC!');

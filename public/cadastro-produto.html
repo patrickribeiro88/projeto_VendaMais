@@ -2,199 +2,369 @@
 <html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Produto - Venda+</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro de Produto - Venda+</title>
+
+  <!-- ===== CSS E FONTES ===== -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-    <div id="dashboard-wrapper">
-        <div class="sidebar bg-dark" id="sidebar-wrapper">
-            <div class="sidebar-heading text-center py-4">
-                <a href="dashboard.html" class="text-decoration-none">
-                    <h1 class="logo-sidebar logo-full">VENDA<i>+</i></h1>
-                    <h1 class="logo-sidebar logo-compact">V<i>+</i></h1>
-                </a>
-            </div>
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="dashboard.html">
-                        <i class="fas fa-chart-line"></i>
-                        <span class="sidebar-text">Relatório de Vendas</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="registro-vendas.html">
-                        <i class="fas fa-cash-register"></i>
-                        <span class="sidebar-text">Registro de Vendas</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="cadastro-cliente.html">
-                        <i class="fas fa-user-plus"></i>
-                        <span class="sidebar-text">Cadastro Clientes</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="cadastro-produto.html">
-                        <i class="fas fa-box-open"></i>
-                        <span class="sidebar-text">Cadastro Produto</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="consulta.html">
-                        <i class="fas fa-search"></i>
-                        <span class="sidebar-text">Consulta</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="inativos.html">
-                        <i class="fas fa-user-slash"></i>
-                        <span class="sidebar-text">Inativos</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <div id="page-content-wrapper">
-            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
-                <div class="container-fluid">
-                    <button class="btn btn-primary" id="menu-toggle"><i class="fas fa-bars"></i></button>
-                    <div class="collapse navbar-collapse">
-                        <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link position-relative" href="inativos.html"
-                                    title="Ver inativos">
-                                    <i class="fas fa-bell"></i>
-                                    <span
-                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                        2
-                                        <span class="visually-hidden">notificações não lidas</span>
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle me-2"></i>Usuário Admin
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" href="index.html">Sair</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-
-            <main class="container-fluid p-4">
-                <h1 class="h3 mb-4">Cadastro de Produto</h1>
-
-                <div class="card shadow-sm border-0">
-                    <div class="card-body p-4">
-                        <h5 class="card-title mb-4">Informações do Produto</h5>
-                        <form class="row g-3">
-                            <div class="col-12">
-                                <label for="productName" class="form-label">Nome do produto</label>
-                                <input type="text" class="form-control" id="productName">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="productCategory" class="form-label">Categoria</label>
-                                <input type="text" class="form-control" id="productCategory">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="productPrice" class="form-label">Preço de Venda</label>
-                                <input type="text" class="form-control" id="productPrice" placeholder="R$ 0,00">
-                            </div>
-                            <div class="col-12 text-end mt-4">
-                                <button type="button" class="btn btn-secondary me-2">Cancelar</button>
-                                <button type="submit" class="btn btn-primary">Salvar Produto</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm border-0 mt-4">
-                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-dark">Lista de Produtos</h6>
-                        <div class="input-group" style="max-width: 300px;">
-                            <input type="text" class="form-control" placeholder="Pesquisar produtos...">
-                            <button class="btn btn-outline-secondary" type="button"><i
-                                    class="fas fa-search"></i></button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table client-list-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Produto</th>
-                                        <th>Categoria</th>
-                                        <th>Preço de Venda</th>
-                                        <th class="text-center">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>Perfume Y</td>
-                                        <td>Perfumaria</td>
-                                        <td>R$ 69,00</td>
-                                        <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-primary" title="Editar"><i
-                                                    class="fas fa-pencil-alt"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" title="Excluir"><i
-                                                    class="fas fa-trash-alt"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>Creme Hidratante Facial</td>
-                                        <td>Skincare</td>
-                                        <td>R$ 89,90</td>
-                                        <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-primary" title="Editar"><i
-                                                    class="fas fa-pencil-alt"></i></button>
-                                            <button class="btn btn-sm btn-outline-danger" title="Excluir"><i
-                                                    class="fas fa-trash-alt"></i></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-white d-flex justify-content-end">
-                        <nav aria-label="Navegação da lista de clientes">
-                            <ul class="pagination mb-0">
-                                <li class="page-item"><a class="page-link" href="#">Anterior</a></li>
-                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item"><a class="page-link" href="#">Próximo</a></li>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </main>
-        </div>
+  <div id="dashboard-wrapper">
+    <!-- ===== SIDEBAR ===== -->
+    <div class="sidebar bg-dark" id="sidebar-wrapper">
+      <div class="sidebar-heading text-center py-4">
+        <a href="dashboard.html" class="text-decoration-none">
+          <h1 class="logo-sidebar logo-full">VENDA<i>+</i></h1>
+          <h1 class="logo-sidebar logo-compact">V<i>+</i></h1>
+        </a>
+      </div>
+      <ul class="nav flex-column">
+        <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-chart-line"></i><span class="sidebar-text">Relatório de Vendas</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="registro-vendas.html"><i class="fas fa-cash-register"></i><span class="sidebar-text">Registro de Vendas</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="cadastro-cliente.html"><i class="fas fa-user-plus"></i><span class="sidebar-text">Cadastro Clientes</span></a></li>
+        <li class="nav-item"><a class="nav-link active" href="cadastro-produto.html"><i class="fas fa-box-open"></i><span class="sidebar-text">Cadastro Produto</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="consulta.html"><i class="fas fa-search"></i><span class="sidebar-text">Consulta</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="inativos.html"><i class="fas fa-user-slash"></i><span class="sidebar-text">Inativos</span></a></li>
+      </ul>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const menuToggle = document.getElementById('menu-toggle');
-        const wrapper = document.getElementById('dashboard-wrapper');
 
-        if (menuToggle) {
-            menuToggle.addEventListener('click', function () {
-                wrapper.classList.toggle('collapsed');
-            });
+    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
+    <div id="page-content-wrapper">
+      <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container-fluid">
+          <button class="btn btn-primary" id="menu-toggle"><i class="fas fa-bars"></i></button>
+          <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+              <li class="nav-item">
+                <a class="nav-link position-relative" href="inativos.html" title="Ver inativos">
+                  <i class="fas fa-bell"></i>
+                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    2
+                    <span class="visually-hidden">notificações não lidas</span>
+                  </span>
+                </a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  <i class="fas fa-user-circle me-2"></i>Usuário Admin
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item" href="index.html">Sair</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <!-- ===== CONTEÚDO ===== -->
+      <main class="container-fluid p-4">
+
+        <!-- CARD DE CADASTRO -->
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4">
+            <div id="feedbackMessage" class="mb-3"></div>
+            <form id="formProduto" novalidate>
+              <div class="row g-3">
+                <div class="col-md-5">
+                  <label for="nome" class="form-label">Nome do Produto</label>
+                  <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite o nome do produto" required>
+                  <div class="invalid-feedback">Nome é obrigatório.</div>
+                </div>
+
+                <div class="col-md-4">
+                  <label for="categoria" class="form-label">Categoria</label>
+                  <input type="text" class="form-control" id="categoria" name="categoria" placeholder="Ex: Perfumaria">
+                </div>
+
+                <div class="col-md-3">
+                  <label for="precoVenda" class="form-label">Preço de Venda</label>
+                  <input type="text" class="form-control" id="precoVenda" name="precoVenda" placeholder="R$ 0,00" required>
+                  <div class="invalid-feedback">Preço é obrigatório.</div>
+                </div>
+              </div>
+
+              <div class="d-flex gap-2 justify-content-end mt-4">
+                <button type="button" id="btnCancelarEdicao" class="btn btn-outline-secondary d-none">Cancelar Alterações</button>
+                <button type="submit" id="btnSalvarProduto" class="btn btn-primary px-4 btn-lg">Salvar Produto</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- LISTA DE PRODUTOS -->
+        <div class="card shadow-sm border-0 mt-4">
+          <div class="card-header bg-white d-flex flex-wrap gap-2 justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-dark">Lista de Produtos</h6>
+            <div class="input-group" style="max-width: 320px;">
+              <input type="text" id="pesquisarProduto" class="form-control" placeholder="Pesquisar produtos...">
+              <button class="btn btn-outline-secondary" id="btnPesquisarProduto" type="button" title="Pesquisar">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover table-sm">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Produto</th>
+                    <th>Categoria</th>
+                    <th>Preço</th>
+                    <th class="text-center">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="tabelaProdutos"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card-footer bg-white">
+            <nav aria-label="Paginação">
+              <ul class="pagination justify-content-end mb-0" id="paginacaoProdutos"></ul>
+            </nav>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ===== MENU LATERAL =====
+    const wrapper = document.getElementById('dashboard-wrapper');
+    document.getElementById('menu-toggle').addEventListener('click', () => wrapper.classList.toggle('collapsed'));
+
+    // ===== VARIÁVEIS GLOBAIS =====
+    let todosProdutos = [];
+    let filtrados = [];
+    let produtoEditando = null;
+    let currentPage = 1;
+    const pageSize = 10;
+
+    const feedback = document.getElementById('feedbackMessage');
+    function flash(msg, type = 'success', ms = 4000) {
+      feedback.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+      setTimeout(() => feedback.innerHTML = '', ms);
+    }
+
+    // ===== VALIDAÇÃO =====
+    function validarCampos() {
+      let ok = true;
+      ['nome', 'precoVenda'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) {
+          el.classList.add('is-invalid');
+          ok = false;
+        } else {
+          el.classList.remove('is-invalid');
+          el.classList.add('is-valid');
         }
-    </script>
+      });
+      return ok;
+    }
+
+    // ===== MÁSCARA MONETÁRIA (R$) =====
+    const precoInput = document.getElementById('precoVenda');
+    if (precoInput) {
+      precoInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        value = (parseInt(value || 0, 10) / 100).toFixed(2);
+        value = value.replace('.', ',');
+        e.target.value = 'R$ ' + value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      });
+
+      precoInput.addEventListener('focus', (e) => {
+        if (!e.target.value.startsWith('R$')) e.target.value = 'R$ ';
+      });
+
+      precoInput.addEventListener('blur', (e) => {
+        if (e.target.value === 'R$ ' || e.target.value.trim() === '') e.target.value = '';
+      });
+    }
+
+    function limparPreco(precoStr) {
+      return parseFloat(precoStr.replace('R$', '').replace(/\./g, '').replace(',', '.')) || 0;
+    }
+
+    // ===== CRUD =====
+    async function fetchProdutos() {
+      const tbody = document.getElementById('tabelaProdutos');
+      tbody.innerHTML = '<tr><td colspan="5">Carregando...</td></tr>';
+      try {
+        const resp = await fetch('http://localhost:3000/api/produtos');
+        const data = await resp.json();
+        todosProdutos = Array.isArray(data) ? data : [];
+        aplicarFiltroEPaginar();
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-danger text-center">Erro ao carregar produtos.</td></tr>';
+      }
+    }
+
+    function aplicarFiltroEPaginar() {
+      const termo = (document.getElementById('pesquisarProduto').value || '').toLowerCase().trim();
+      filtrados = !termo
+        ? [...todosProdutos]
+        : todosProdutos.filter(p =>
+          (p.nome || '').toLowerCase().includes(termo) ||
+          (p.categoria || '').toLowerCase().includes(termo)
+        );
+      filtrados.sort((a, b) => b.idProduto - a.idProduto);
+      renderTabela();
+      renderPaginacao();
+    }
+
+    function getPaginaAtual() {
+      const start = (currentPage - 1) * pageSize;
+      return filtrados.slice(start, start + pageSize);
+    }
+
+    function renderTabela() {
+      const tbody = document.getElementById('tabelaProdutos');
+      const page = getPaginaAtual();
+      if (!page.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum produto encontrado.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      page.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.idProduto}</td>
+          <td>${p.nome}</td>
+          <td>${p.categoria || '-'}</td>
+          <td>R$ ${parseFloat(p.precoVenda).toFixed(2).replace('.', ',')}</td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-outline-primary me-2" title="Editar" onclick="editarProduto(${p.idProduto})">
+              <i class="fas fa-pencil-alt"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" title="Excluir" onclick="excluirProduto(${p.idProduto})">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderPaginacao() {
+      const ul = document.getElementById('paginacaoProdutos');
+      ul.innerHTML = '';
+      const total = filtrados.length;
+      const totalPages = Math.ceil(total / pageSize);
+
+      const prev = document.createElement('li');
+      prev.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+      prev.innerHTML = `<a class="page-link" href="#">&laquo;</a>`;
+      prev.onclick = (e) => { e.preventDefault(); if (currentPage > 1) { currentPage--; renderTabela(); renderPaginacao(); } };
+      ul.appendChild(prev);
+
+      for (let p = 1; p <= totalPages; p++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${p === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#">${p}</a>`;
+        li.onclick = (e) => { e.preventDefault(); currentPage = p; renderTabela(); renderPaginacao(); };
+        ul.appendChild(li);
+      }
+
+      const next = document.createElement('li');
+      next.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+      next.innerHTML = `<a class="page-link" href="#">&raquo;</a>`;
+      next.onclick = (e) => { e.preventDefault(); if (currentPage < totalPages) { currentPage++; renderTabela(); renderPaginacao(); } };
+      ul.appendChild(next);
+    }
+
+    document.getElementById('pesquisarProduto').addEventListener('input', () => {
+      currentPage = 1;
+      aplicarFiltroEPaginar();
+    });
+
+    document.getElementById('formProduto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validarCampos()) return flash('⚠️ Preencha os campos obrigatórios.', 'danger');
+
+      const dados = Object.fromEntries(new FormData(e.target).entries());
+      dados.precoVenda = limparPreco(dados.precoVenda);
+      const url = produtoEditando ? `http://localhost:3000/api/produtos/${produtoEditando}` : 'http://localhost:3000/api/produtos';
+      const method = produtoEditando ? 'PUT' : 'POST';
+
+      try {
+        const resp = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+        const result = await resp.json();
+        if (resp.ok) {
+          flash(produtoEditando ? 'Produto atualizado com sucesso!' : 'Produto cadastrado com sucesso!');
+          e.target.reset();
+          produtoEditando = null;
+          document.getElementById('btnSalvarProduto').textContent = 'Salvar Produto';
+          document.getElementById('btnSalvarProduto').classList.replace('btn-warning', 'btn-primary');
+          document.getElementById('btnCancelarEdicao').classList.add('d-none');
+          fetchProdutos();
+        } else {
+          flash(result.message || 'Erro ao salvar produto.', 'danger');
+        }
+      } catch {
+        flash('Erro ao conectar com o servidor.', 'danger');
+      }
+    });
+
+    async function editarProduto(id) {
+      try {
+        const resp = await fetch(`http://localhost:3000/api/produtos/${id}`);
+        const p = await resp.json();
+        document.getElementById('nome').value = p.nome;
+        document.getElementById('categoria').value = p.categoria;
+        document.getElementById('precoVenda').value = `R$ ${parseFloat(p.precoVenda).toFixed(2).replace('.', ',')}`;
+        produtoEditando = id;
+        document.getElementById('btnSalvarProduto').textContent = 'Salvar Alterações';
+        document.getElementById('btnSalvarProduto').classList.replace('btn-primary', 'btn-warning');
+        document.getElementById('btnCancelarEdicao').classList.remove('d-none');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch {
+        flash('Erro ao carregar produto.', 'danger');
+      }
+    }
+
+    document.getElementById('btnCancelarEdicao').addEventListener('click', () => {
+      produtoEditando = null;
+      document.getElementById('formProduto').reset();
+      document.getElementById('btnSalvarProduto').textContent = 'Salvar Produto';
+      document.getElementById('btnSalvarProduto').classList.replace('btn-warning', 'btn-primary');
+      document.getElementById('btnCancelarEdicao').classList.add('d-none');
+    });
+
+    async function excluirProduto(id) {
+      if (!confirm('Deseja realmente excluir este produto?')) return;
+      try {
+        const resp = await fetch(`http://localhost:3000/api/produtos/${id}`, { method: 'DELETE' });
+        const result = await resp.json();
+        if (resp.ok) {
+          flash('Produto excluído com sucesso!');
+          fetchProdutos();
+        } else {
+          flash(result.message || 'Erro ao excluir produto.', 'danger');
+        }
+      } catch {
+        flash('Erro ao excluir produto.', 'danger');
+      }
+    }
+
+    // ===== INICIALIZAÇÃO =====
+    document.addEventListener('DOMContentLoaded', fetchProdutos);
+  </script>
 </body>
 
 </html>

@@ -2,60 +2,77 @@
 // =============== CONTROLLER: PRODUTO =======================
 // ==========================================================
 
-const Produto = require('../models/produtoModel');
+const db = require('../config/database');
 
-// Criar produto
-exports.criarProduto = (req, res) => {
-  const { nome, categoria, precoVenda } = req.body;
-
-  if (!nome || !precoVenda) {
-    return res.status(400).json({ message: 'Nome e preço são obrigatórios.' });
+// LISTAR
+exports.listarProdutos = async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM produto');
+    res.json(rows);
+  } catch (error) {
+    console.error('Erro ao listar produtos:', error);
+    res.status(500).json({ message: 'Erro ao listar produtos.' });
   }
+};
 
-  Produto.criarProduto({ nome, categoria, precoVenda }, (err, result) => {
-    if (err) return res.status(500).json({ message: 'Erro ao cadastrar produto.' });
+// BUSCAR POR ID
+exports.buscarProdutoPorId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await db.query('SELECT * FROM produto WHERE idProduto = ?', [id]);
+    if (rows.length === 0) return res.status(404).json({ message: 'Produto não encontrado.' });
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Erro ao buscar produto:', error);
+    res.status(500).json({ message: 'Erro ao buscar produto.' });
+  }
+};
+
+// CRIAR
+exports.criarProduto = async (req, res) => {
+  try {
+    const { nome, categoria, precoVenda } = req.body;
+    if (!nome || !precoVenda)
+      return res.status(400).json({ message: 'Nome e preço são obrigatórios.' });
+
+    await db.query(
+      'INSERT INTO produto (nome, categoria, precoVenda) VALUES (?, ?, ?)',
+      [nome, categoria, precoVenda]
+    );
+
     res.status(201).json({ message: 'Produto cadastrado com sucesso!' });
-  });
-};
-
-// Listar produtos
-exports.listarProdutos = (req, res) => {
-  Produto.listarProdutos((err, results) => {
-    if (err) return res.status(500).json({ message: 'Erro ao buscar produtos.' });
-    res.status(200).json(results);
-  });
-};
-
-// Buscar produto por ID
-exports.buscarPorId = (req, res) => {
-  const { id } = req.params;
-  Produto.buscarPorId(id, (err, results) => {
-    if (err) return res.status(500).json({ message: 'Erro ao buscar produto.' });
-    if (results.length === 0) return res.status(404).json({ message: 'Produto não encontrado.' });
-    res.status(200).json(results[0]);
-  });
-};
-
-// Atualizar produto
-exports.atualizarProduto = (req, res) => {
-  const { id } = req.params;
-  const { nome, categoria, precoVenda } = req.body;
-
-  if (!nome || !precoVenda) {
-    return res.status(400).json({ message: 'Nome e preço são obrigatórios.' });
+  } catch (error) {
+    console.error('Erro ao cadastrar produto:', error);
+    res.status(500).json({ message: 'Erro ao cadastrar produto.' });
   }
-
-  Produto.atualizarProduto(id, { nome, categoria, precoVenda }, (err, result) => {
-    if (err) return res.status(500).json({ message: 'Erro ao atualizar produto.' });
-    res.status(200).json({ message: 'Produto atualizado com sucesso!' });
-  });
 };
 
-// Excluir produto
-exports.excluirProduto = (req, res) => {
-  const { id } = req.params;
-  Produto.excluirProduto(id, (err, result) => {
-    if (err) return res.status(500).json({ message: 'Erro ao excluir produto.' });
-    res.status(200).json({ message: 'Produto excluído com sucesso!' });
-  });
+// ATUALIZAR
+exports.atualizarProduto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nome, categoria, precoVenda } = req.body;
+
+    await db.query(
+      'UPDATE produto SET nome = ?, categoria = ?, precoVenda = ? WHERE idProduto = ?',
+      [nome, categoria, precoVenda, id]
+    );
+
+    res.json({ message: 'Produto atualizado com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao atualizar produto:', error);
+    res.status(500).json({ message: 'Erro ao atualizar produto.' });
+  }
+};
+
+// EXCLUIR
+exports.excluirProduto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.query('DELETE FROM produto WHERE idProduto = ?', [id]);
+    res.json({ message: 'Produto excluído com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao excluir produto:', error);
+    res.status(500).json({ message: 'Erro ao excluir produto.' });
+  }
 };
