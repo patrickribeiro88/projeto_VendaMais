@@ -12,10 +12,12 @@ app.use(express.json());
 const vendedorRoutes = require('./src/routes/vendedorRoutes');
 const clienteRoutes = require('./src/routes/clienteRoutes');
 const produtoRoutes = require('./src/routes/produtoRoutes');
+const vendaRoutes = require("./src/routes/vendaRoutes");
 
 app.use('/api/vendedor', vendedorRoutes);
 app.use('/api/clientes', clienteRoutes);
 app.use('/api/produtos', produtoRoutes);
+app.use("/api/vendas", vendaRoutes);
 
 
 

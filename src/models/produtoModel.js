@@ -1,48 +1,100 @@
-// ======== MODEL DO PRODUTO ========
+// ==========================================================
+// =============== MODEL: PRODUTO ===========================
+// ==========================================================
+const pool = require("../config/database");
 
-const db = require('../config/database');
+// ==========================================================
+// LISTAR PRODUTOS (com filtros opcionais)
+// ==========================================================
+async function listarProdutos(filtros = {}) {
+  try {
+    let sql = "SELECT * FROM produto";
+    const params = [];
 
-// Criar produto
-exports.criarProduto = (produto, callback) => {
-  const sql = `
-    INSERT INTO produto (nome, categoria, precoVenda)
-    VALUES (?, ?, ?)
-  `;
-  db.query(sql, [produto.nome, produto.categoria, produto.precoVenda], callback);
-};
+    if (filtros.id) {
+      sql += " WHERE idProduto = ?";
+      params.push(filtros.id);
+    } else if (filtros.nome) {
+      sql += " WHERE nome LIKE ?";
+      params.push(`%${filtros.nome}%`);
+    }
 
-// Listar produtos
-exports.listarProdutos = (callback) => {
-  const sql = `
-    SELECT idProduto, nome, categoria, precoVenda
-    FROM produto
-    ORDER BY idProduto DESC
-  `;
-  db.query(sql, callback);
-};
+    const [rows] = await pool.query(sql, params);
+    return rows;
+  } catch (error) {
+    console.error("❌ Erro ao listar produtos (model):", error);
+    throw error;
+  }
+}
 
-// Buscar produto por ID
-exports.buscarPorId = (id, callback) => {
-  const sql = `
-    SELECT idProduto, nome, categoria, precoVenda
-    FROM produto
-    WHERE idProduto = ?
-  `;
-  db.query(sql, [id], callback);
-};
+// ==========================================================
+// BUSCAR POR ID
+// ==========================================================
+async function buscarPorId(idProduto) {
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM produto WHERE idProduto = ?",
+      [idProduto]
+    );
+    return rows[0] || null;
+  } catch (error) {
+    console.error("❌ Erro ao buscar produto por ID (model):", error);
+    throw error;
+  }
+}
 
-// Atualizar produto
-exports.atualizarProduto = (id, produto, callback) => {
-  const sql = `
-    UPDATE produto
-    SET nome = ?, categoria = ?, precoVenda = ?
-    WHERE idProduto = ?
-  `;
-  db.query(sql, [produto.nome, produto.categoria, produto.precoVenda, id], callback);
-};
+// ==========================================================
+// CRIAR PRODUTO
+// ==========================================================
+async function criarProduto({ nome, categoria, precoVenda }) {
+  try {
+    await pool.query(
+      "INSERT INTO produto (nome, categoria, precoVenda) VALUES (?, ?, ?)",
+      [nome, categoria || null, precoVenda]
+    );
+    return { message: "✅ Produto cadastrado com sucesso!" };
+  } catch (error) {
+    console.error("❌ Erro ao criar produto (model):", error);
+    throw error;
+  }
+}
 
-// Excluir produto
-exports.excluirProduto = (id, callback) => {
-  const sql = `DELETE FROM produto WHERE idProduto = ?`;
-  db.query(sql, [id], callback);
+// ==========================================================
+// ATUALIZAR PRODUTO
+// ==========================================================
+async function atualizarProduto(idProduto, { nome, categoria, precoVenda }) {
+  try {
+    const [result] = await pool.query(
+      "UPDATE produto SET nome = ?, categoria = ?, precoVenda = ? WHERE idProduto = ?",
+      [nome, categoria || null, precoVenda, idProduto]
+    );
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error("❌ Erro ao atualizar produto (model):", error);
+    throw error;
+  }
+}
+
+// ==========================================================
+// EXCLUIR PRODUTO
+// ==========================================================
+async function excluirProduto(idProduto) {
+  try {
+    const [result] = await pool.query(
+      "DELETE FROM produto WHERE idProduto = ?",
+      [idProduto]
+    );
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error("❌ Erro ao excluir produto (model):", error);
+    throw error;
+  }
+}
+
+module.exports = {
+  listarProdutos,
+  buscarPorId,
+  criarProduto,
+  atualizarProduto,
+  excluirProduto,
 };
