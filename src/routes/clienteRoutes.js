@@ -6,20 +6,33 @@ const router = express.Router();
 const clienteController = require('../controllers/clienteController');
 
 // ----------------------------------------------------------
-// ROTAS DISPONÍVEIS
+// Cadastrar novo cliente
 // ----------------------------------------------------------
-
-// Rota para cadastrar um novo cliente
 router.post('/', clienteController.criarCliente);
 
-// Rota para listar todos os clientes
-router.get('/', clienteController.listarClientes);
+// ----------------------------------------------------------
+// Buscar clientes (precisa ou geral)
+// ----------------------------------------------------------
+router.get('/', async (req, res) => {
+  const { id, cpf, nome } = req.query;
 
-// Rota para buscar cliente por ID (edição futura)
+  // Se houver filtros → busca precisa
+  if (id || cpf || nome) {
+    return clienteController.buscarClientesFiltrado(req, res);
+  }
+
+  // Caso contrário → lista todos
+  return clienteController.listarClientes(req, res);
+});
+
+// ----------------------------------------------------------
+// Buscar cliente por ID (edição)
+// ----------------------------------------------------------
 router.get('/:id', clienteController.buscarClientePorId);
 
-// Rota para atualizar cliente existente
+// ----------------------------------------------------------
+// Atualizar cliente
+// ----------------------------------------------------------
 router.put('/:id', clienteController.atualizarCliente);
 
-// Exporta o router para uso no server.js
 module.exports = router;

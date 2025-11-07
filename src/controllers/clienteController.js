@@ -4,7 +4,7 @@
 const clienteModel = require('../models/clienteModel');
 
 // ----------------------------------------------------------
-// Cadastrar novo cliente
+// Criar novo cliente
 // ----------------------------------------------------------
 async function criarCliente(req, res) {
   try {
@@ -14,12 +14,10 @@ async function criarCliente(req, res) {
       email, observacao
     } = req.body;
 
-    // Validação simples
     if (!nome) {
       return res.status(400).json({ message: 'O nome do cliente é obrigatório.' });
     }
 
-    // Cria o cliente
     const id = await clienteModel.criarCliente({
       nome, cpf, dataNascimento, genero, cep, endereco,
       numero, bairro, cidade, estado, telefone1, telefone2,
@@ -34,7 +32,7 @@ async function criarCliente(req, res) {
 }
 
 // ----------------------------------------------------------
-// Listar todos os clientes ativos
+// Listar clientes ativos
 // ----------------------------------------------------------
 async function listarClientes(req, res) {
   try {
@@ -47,7 +45,32 @@ async function listarClientes(req, res) {
 }
 
 // ----------------------------------------------------------
-// Buscar cliente por ID (para edição futura)
+// 🔍 Buscar clientes com filtros exatos (ID, CPF, Nome)
+// ----------------------------------------------------------
+async function buscarClientesFiltrado(req, res) {
+  try {
+    const { id, cpf, nome } = req.query;
+    const filtros = {};
+
+    if (id) filtros.idCliente = id;
+    if (cpf) filtros.cpf = cpf;
+    if (nome) filtros.nome = nome;
+
+    const clientes = await clienteModel.buscarClientesFiltrado(filtros);
+
+    if (!clientes || clientes.length === 0) {
+      return res.status(404).json({ message: 'Nenhum cliente encontrado.' });
+    }
+
+    res.status(200).json(clientes);
+  } catch (error) {
+    console.error('Erro ao buscar clientes filtrados:', error);
+    res.status(500).json({ message: 'Erro no servidor ao buscar clientes.' });
+  }
+}
+
+// ----------------------------------------------------------
+// Buscar cliente por ID (edição futura)
 // ----------------------------------------------------------
 async function buscarClientePorId(req, res) {
   try {
@@ -64,8 +87,9 @@ async function buscarClientePorId(req, res) {
     res.status(500).json({ message: 'Erro no servidor ao buscar cliente.' });
   }
 }
+
 // ----------------------------------------------------------
-// Atualizar cliente existente
+// Atualizar cliente
 // ----------------------------------------------------------
 async function atualizarCliente(req, res) {
   try {
@@ -88,6 +112,7 @@ async function atualizarCliente(req, res) {
 module.exports = {
   criarCliente,
   listarClientes,
+  buscarClientesFiltrado,
   buscarClientePorId,
   atualizarCliente 
 };

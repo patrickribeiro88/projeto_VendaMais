@@ -3,7 +3,9 @@
 // ==========================================================
 const db = require('../config/database');
 
-// Função para cadastrar novo cliente
+// ----------------------------------------------------------
+// Criar novo cliente
+// ----------------------------------------------------------
 async function criarCliente(cliente) {
   const sql = `
     INSERT INTO cliente 
@@ -31,7 +33,9 @@ async function criarCliente(cliente) {
   return result.insertId;
 }
 
-// Função para listar clientes ativos
+// ----------------------------------------------------------
+// Listar todos os clientes ativos
+// ----------------------------------------------------------
 async function listarClientes() {
   const sql = `
     SELECT 
@@ -48,15 +52,46 @@ async function listarClientes() {
   return rows;
 }
 
-// Função para buscar cliente por ID (para edição futura)
+// ----------------------------------------------------------
+// 🔍 Buscar clientes com filtros (ID e CPF exatos, nome parcial)
+// ----------------------------------------------------------
+async function buscarClientesFiltrado(filtros = {}) {
+  let sql = `
+    SELECT 
+      idCliente, nome, cpf, telefone1, email
+    FROM cliente
+    WHERE status = 'Ativo'
+  `;
+  const params = [];
+
+  if (filtros.idCliente) {
+    sql += " AND idCliente = ?";
+    params.push(filtros.idCliente);
+  } else if (filtros.cpf) {
+    sql += " AND cpf = ?";
+    params.push(filtros.cpf);
+  } else if (filtros.nome) {
+    sql += " AND nome LIKE ?";
+    params.push(`%${filtros.nome}%`); // 🔸 Busca parcial pelo nome
+  }
+
+  sql += " ORDER BY nome ASC";
+  const [rows] = await db.query(sql, params);
+  return rows;
+}
+
+// ----------------------------------------------------------
+// Buscar cliente por ID (para edição)
+// ----------------------------------------------------------
 async function buscarClientePorId(idCliente) {
   const sql = `SELECT * FROM cliente WHERE idCliente = ?`;
   const [rows] = await db.query(sql, [idCliente]);
   return rows[0];
 }
 
-// Função para atualizar dados de um cliente existente
-
+// ----------------------------------------------------------
+// Atualizar cliente existente
+// ----------------------------------------------------------
 async function atualizarCliente(idCliente, dados) {
   const sql = `
     UPDATE cliente
@@ -79,6 +114,7 @@ async function atualizarCliente(idCliente, dados) {
 module.exports = {
   criarCliente,
   listarClientes,
+  buscarClientesFiltrado,
   buscarClientePorId,
   atualizarCliente 
 };

@@ -681,7 +681,7 @@ function inicializarCadastroProdutos() {
 }
 
 // ==========================================================
-// 4️⃣ REGISTRO DE VENDAS (com busca dinâmica de produtos)
+// 4️⃣ FUNÇÃO: REGISTRO DE VENDAS
 // ==========================================================
 function inicializarRegistroVendas() {
   console.log("✅ Página: registro-vendas.html detectada");
@@ -691,28 +691,32 @@ function inicializarRegistroVendas() {
   const tabelaItensVenda = document.getElementById("tabelaItensVenda");
   const totalVendaEl = document.getElementById("totalVenda");
 
-  // 🔹 Modal e campos
+  // 🔹 Modais e campos principais
   const productModal = document.getElementById("productSearchModal");
-  const buscarProdutoId = document.getElementById("buscarProdutoId");
-  const buscarProdutoNome = document.getElementById("buscarProdutoNome");
-  const btnBuscarProdutoModal = document.getElementById("btnBuscarProdutoModal");
-  const tabelaModalProdutos = document.querySelector("#tabelaModalProdutos tbody");
+  const clientModal = document.getElementById("clientSearchModal");
   const campoAddProduto = document.getElementById("addProduct");
+  const campoClienteSelecionado = document.getElementById("clienteSelecionado");
+  const campoQuantidade = document.getElementById("quantity");
 
   const API_BASE = "http://localhost:3000";
 
-  // ================================
-  // 💬 Função para exibir feedback
-  // ================================
+  // ==========================================================
+  // 💬 Função: Exibir feedback
+  // ==========================================================
   function flash(msg, type = "success", ms = 4000) {
     if (!feedback) return;
     feedback.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
     setTimeout(() => (feedback.innerHTML = ""), ms);
   }
 
-  // ================================
-  // 🔍 Função: Buscar produtos no modal
-  // ================================
+  // ==========================================================
+  // 🔍 BUSCA DE PRODUTOS (Modal)
+  // ==========================================================
+  const buscarProdutoId = document.getElementById("buscarProdutoId");
+  const buscarProdutoNome = document.getElementById("buscarProdutoNome");
+  const btnBuscarProdutoModal = document.getElementById("btnBuscarProdutoModal");
+  const tabelaModalProdutos = document.querySelector("#tabelaModalProdutos tbody");
+
   async function buscarProdutosModal(termoId = "", termoNome = "") {
     tabelaModalProdutos.innerHTML = "";
 
@@ -737,6 +741,7 @@ function inicializarRegistroVendas() {
         return;
       }
 
+      tabelaModalProdutos.innerHTML = "";
       produtos.forEach((p) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -760,35 +765,22 @@ function inicializarRegistroVendas() {
     }
   }
 
-  // ================================
-  // 🧭 Eventos do modal
-  // ================================
-
-  // Impede submit (Enter) recarregar página
   const formBuscaProduto = document.getElementById("formBuscaProduto");
   formBuscaProduto?.addEventListener("submit", (e) => e.preventDefault());
-
-  // Botão Buscar → executa busca
   btnBuscarProdutoModal?.addEventListener("click", () => {
     const id = buscarProdutoId?.value || "";
     const nome = buscarProdutoNome?.value || "";
     buscarProdutosModal(id, nome);
   });
 
-  // Limpa campos e tabela ao abrir o modal
   productModal?.addEventListener("shown.bs.modal", () => {
-    if (buscarProdutoId) buscarProdutoId.value = "";
-    if (buscarProdutoNome) {
-      buscarProdutoNome.value = "";
-      buscarProdutoNome.focus();
-    }
+    buscarProdutoId.value = "";
+    buscarProdutoNome.value = "";
+    buscarProdutoNome.focus();
     tabelaModalProdutos.innerHTML = `
       <tr><td colspan="4" class="text-center text-muted py-3">Nenhum resultado ainda.</td></tr>`;
   });
 
-  // ================================
-  // 🧩 Selecionar produto do modal
-  // ================================
   tabelaModalProdutos?.addEventListener("click", (e) => {
     const btn = e.target.closest(".btn-selecionar-produto");
     if (!btn) return;
@@ -797,24 +789,131 @@ function inicializarRegistroVendas() {
     const nomeProduto = btn.dataset.nome;
     const precoProduto = parseFloat(btn.dataset.preco);
 
-    if (campoAddProduto) {
-      campoAddProduto.value = `${nomeProduto} - R$ ${precoProduto.toFixed(2).replace(".", ",")}`;
-      campoAddProduto.dataset.idProduto = idProduto;
-      campoAddProduto.dataset.preco = precoProduto;
-    }
+    campoAddProduto.value = `${nomeProduto} - R$ ${precoProduto.toFixed(2).replace(".", ",")}`;
+    campoAddProduto.dataset.idProduto = idProduto;
+    campoAddProduto.dataset.preco = precoProduto;
 
-    // Fecha modal com Bootstrap 5 API
     const modalInstance = bootstrap.Modal.getInstance(productModal);
     modalInstance?.hide();
 
     flash("✅ Produto selecionado com sucesso!");
   });
 
-  // ================================
-  // 🧮 Adicionar produto à venda
-  // ================================
+  // ==========================================================
+  // 🔍 BUSCA DE CLIENTES (Modal)
+  // ==========================================================
+  const formBuscaCliente = document.getElementById("formBuscaCliente");
+  const buscarClienteId = document.getElementById("buscarClienteId");
+  const buscarClienteCpf = document.getElementById("buscarClienteCpf");
+  const buscarClienteNome = document.getElementById("buscarClienteNome");
+  const btnBuscarClienteModal = document.getElementById("btnBuscarClienteModal");
+  const tabelaModalClientes = document.querySelector("#tabelaModalClientes tbody");
+
+  async function buscarClientesModal(id = "", cpf = "", nome = "") {
+    tabelaModalClientes.innerHTML =
+      `<tr><td colspan="4" class="text-center text-muted py-3">🔎 Buscando cliente...</td></tr>`;
+
+    if (!id && !cpf && !nome) {
+      tabelaModalClientes.innerHTML =
+        `<tr><td colspan="4" class="text-center text-muted py-3">Digite um ID, CPF ou Nome.</td></tr>`;
+      return;
+    }
+
+    try {
+      let url = `${API_BASE}/api/clientes`;
+      const params = [];
+      if (id) params.push(`id=${encodeURIComponent(id)}`);
+      if (cpf) params.push(`cpf=${encodeURIComponent(cpf)}`);
+      if (nome) params.push(`nome=${encodeURIComponent(nome)}`);
+      if (params.length > 0) url += `?${params.join("&")}`;
+
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`Erro ${resp.status}`);
+      const clientes = await resp.json();
+
+      tabelaModalClientes.innerHTML = "";
+
+      if (!clientes || clientes.length === 0) {
+        tabelaModalClientes.innerHTML =
+          `<tr><td colspan="4" class="text-center text-muted py-3">Nenhum cliente encontrado.</td></tr>`;
+        return;
+      }
+
+      clientes.forEach((c) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${c.idCliente}</td>
+          <td>${c.nome}</td>
+          <td>${c.cpf || "-"}</td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-success btn-selecionar-cliente"
+              data-id="${c.idCliente}" data-nome="${c.nome}">
+              Selecionar
+            </button>
+          </td>`;
+        tabelaModalClientes.appendChild(tr);
+      });
+    } catch (err) {
+      console.error("Erro ao buscar clientes:", err);
+      tabelaModalClientes.innerHTML =
+        `<tr><td colspan="4" class="text-center text-danger py-3">Erro ao carregar clientes.</td></tr>`;
+    }
+  }
+
+  btnBuscarClienteModal?.addEventListener("click", () => {
+    const id = buscarClienteId?.value.trim();
+    const cpf = buscarClienteCpf?.value.trim();
+    const nome = buscarClienteNome?.value.trim();
+    buscarClientesModal(id, cpf, nome);
+  });
+
+  formBuscaCliente?.addEventListener("submit", (e) => e.preventDefault());
+
+  clientModal?.addEventListener("shown.bs.modal", () => {
+    buscarClienteId.value = "";
+    buscarClienteCpf.value = "";
+    buscarClienteNome.value = "";
+    buscarClienteNome.focus();
+    tabelaModalClientes.innerHTML =
+      `<tr><td colspan="4" class="text-center text-muted py-3">Nenhum resultado ainda.</td></tr>`;
+  });
+
+  tabelaModalClientes?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".btn-selecionar-cliente");
+    if (!btn) return;
+
+    const idCliente = btn.dataset.id;
+    const nomeCliente = btn.dataset.nome;
+
+    campoClienteSelecionado.value = nomeCliente;
+    campoClienteSelecionado.dataset.idCliente = idCliente;
+
+    const modalInstance = bootstrap.Modal.getInstance(clientModal);
+    modalInstance?.hide();
+
+    flash("✅ Cliente selecionado com sucesso!");
+  });
+
+  // ==========================================================
+  // 🧮 Controle de Quantidade (+ e –)
+  // ==========================================================
+  const btnMenos = campoQuantidade?.parentElement.querySelectorAll(".btn-outline-secondary")[0];
+  const btnMais = campoQuantidade?.parentElement.querySelectorAll(".btn-outline-secondary")[1];
+
+  btnMenos?.addEventListener("click", () => {
+    let qtd = parseInt(campoQuantidade.value) || 1;
+    if (qtd > 1) campoQuantidade.value = qtd - 1;
+  });
+
+  btnMais?.addEventListener("click", () => {
+    let qtd = parseInt(campoQuantidade.value) || 1;
+    campoQuantidade.value = qtd + 1;
+  });
+
+  // ==========================================================
+  // 🧩 Adicionar produto à venda
+  // ==========================================================
   const btnAdicionarProduto = document.getElementById("btnAdicionarProduto");
-  const campoQuantidade = document.getElementById("quantity");
   let itensVenda = [];
 
   btnAdicionarProduto?.addEventListener("click", () => {
@@ -875,21 +974,125 @@ function inicializarRegistroVendas() {
     const total = itensVenda.reduce((acc, item) => acc + item.subtotal, 0);
     totalVendaEl.textContent = `R$ ${total.toFixed(2).replace(".", ",")}`;
   }
+  // ==========================================================
+  // 💸 Modal de Desconto
+  // ==========================================================
+  const discountModal = document.getElementById("discountModal");
+  const discountValueInput = document.getElementById("discountValue");
+  const btnAplicarDesconto = discountModal?.querySelector(".btn-primary");
+  const btnRemoverDesconto = document.getElementById("btnRemoverDesconto");
+  const btnAbrirDesconto = document.getElementById("btnAbrirDesconto");
+  const valorDescontoEl = document.getElementById("valorDesconto");
+  const subtotalEl = document.getElementById("subtotalVenda");
+  const btnLimparVenda = document.getElementById("btnLimparVenda");
 
-  // ================================
-  // 🧹 Limpar venda
-  // ================================
-  const btnLimpar = document.getElementById("btnLimparVenda");
-  btnLimpar?.addEventListener("click", () => {
-    itensVenda = [];
-    renderItensVenda();
-    atualizarTotal();
-    flash("Venda limpa com sucesso!", "info");
+  let descontoAtual = 0;
+
+  // ✅ Máscara automática de valor (R$)
+  discountValueInput?.addEventListener("input", (e) => {
+    let valor = e.target.value.replace(/\D/g, "");
+    valor = (parseInt(valor || "0", 10) / 100).toFixed(2);
+    e.target.value = valor.replace(".", ",");
   });
 
-  // ================================
-  // 💾 Registrar venda (futuro POST)
-  // ================================
+  // 🟡 Mostrar/ocultar botão de desconto dinamicamente
+  function verificarVisibilidadeDesconto() {
+    if (itensVenda.length > 0) {
+      btnAbrirDesconto?.classList.remove("d-none");
+    } else {
+      btnAbrirDesconto?.classList.add("d-none");
+      btnRemoverDesconto?.classList.add("d-none");
+      descontoAtual = 0;
+      atualizarTotal();
+    }
+  }
+
+  // 🟢 Abrir modal de desconto
+  btnAbrirDesconto?.addEventListener("click", () => {
+    discountValueInput.value = descontoAtual.toFixed(2).replace(".", ",");
+    const modal = new bootstrap.Modal(discountModal);
+    modal.show();
+  });
+
+  // 🟣 Aplicar desconto com validação
+  btnAplicarDesconto?.addEventListener("click", () => {
+    const valorDigitado = discountValueInput.value.replace(",", ".").trim();
+    const valor = parseFloat(valorDigitado);
+    const totalBruto = itensVenda.reduce((acc, item) => acc + item.subtotal, 0);
+
+    if (isNaN(valor) || valor < 0) {
+      flash("Digite um valor de desconto válido.", "warning");
+      return;
+    }
+
+    if (valor >= totalBruto) {
+      flash("O desconto não pode ser igual ou maior que o total da venda!", "danger");
+      return;
+    }
+
+    descontoAtual = valor;
+    atualizarTotal();
+
+    const modal = bootstrap.Modal.getInstance(discountModal);
+    modal?.hide();
+    btnRemoverDesconto?.classList.remove("d-none");
+    flash(`💸 Desconto de R$ ${valor.toFixed(2).replace(".", ",")} aplicado com sucesso!`);
+  });
+
+  // 🔴 Remover desconto
+  btnRemoverDesconto?.addEventListener("click", () => {
+    descontoAtual = 0;
+    atualizarTotal();
+    btnRemoverDesconto?.classList.add("d-none");
+    flash("❌ Desconto removido com sucesso!", "info");
+  });
+
+  // 🔵 Atualizar subtotal e total (inclui desconto)
+  function atualizarTotal() {
+    const totalBruto = itensVenda.reduce((acc, item) => acc + item.subtotal, 0);
+    const totalComDesconto = Math.max(totalBruto - descontoAtual, 0);
+
+    subtotalEl.textContent = `R$ ${totalBruto.toFixed(2).replace(".", ",")}`;
+    valorDescontoEl.textContent = `- R$ ${descontoAtual.toFixed(2).replace(".", ",")}`;
+    totalVendaEl.textContent = `R$ ${totalComDesconto.toFixed(2).replace(".", ",")}`;
+
+    verificarVisibilidadeDesconto();
+  }
+
+  // ==========================================================
+  // 🧹 Limpar venda 
+  // ==========================================================
+
+ const btnLimpar = document.getElementById("btnLimparVenda");
+btnLimpar?.addEventListener("click", () => {
+  itensVenda = [];
+  descontoAtual = 0;
+  renderItensVenda();
+  atualizarTotal();
+});
+
+  // ==========================================================
+  // 🧩 Remover item (zera desconto se lista ficar vazia)
+  // ==========================================================
+  tabelaItensVenda?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".btn-remover-item");
+    if (!btn) return;
+
+    const index = btn.dataset.index;
+    itensVenda.splice(index, 1);
+    renderItensVenda();
+    atualizarTotal();
+
+    if (itensVenda.length === 0) {
+      descontoAtual = 0;
+      btnRemoverDesconto?.classList.add("d-none");
+      flash("🧾 Todos os itens foram removidos. Desconto zerado automaticamente.", "info");
+    }
+  });
+
+  // ==========================================================
+  // 💾 Registrar venda
+  // ==========================================================
   const btnRegistrar = document.getElementById("btnRegistrarVenda");
   btnRegistrar?.addEventListener("click", async () => {
     if (itensVenda.length === 0) {
@@ -898,12 +1101,13 @@ function inicializarRegistroVendas() {
     }
 
     const valorTotal = itensVenda.reduce((acc, i) => acc + i.subtotal, 0);
+    const idCliente = campoClienteSelecionado.dataset.idCliente || null;
 
     try {
       const resp = await fetch(`${API_BASE}/api/vendas`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ valorTotal, itens: itensVenda }),
+        body: JSON.stringify({ idCliente, valorTotal, itens: itensVenda }),
       });
       if (!resp.ok) throw new Error("Erro ao registrar venda");
 
