@@ -94,7 +94,6 @@ function inicializarCadastroClientes() {
   console.log("✅ Página: cadastro-cliente.html detectada");
 
   const form = document.getElementById("clienteForm");
-  const feedback = document.getElementById("feedbackMessage");
   const tabela = document.getElementById("listaClientesBody");
   const cancelarBtn = document.getElementById("cancelarBtn");
   const submitBtn = document.getElementById("submitBtn");
@@ -679,29 +678,37 @@ function inicializarCadastroProdutos() {
   // Inicialização
   fetchProdutos();
 }
-
 // ==========================================================
-// 4️⃣ FUNÇÃO: REGISTRO DE VENDAS
+// 🧾 REGISTRO DE VENDAS - COMPLETO E ATUALIZADO
 // ==========================================================
 function inicializarRegistroVendas() {
   console.log("✅ Página: registro-vendas.html detectada");
+
+  // ==========================================================
+  // 🔧 VARIÁVEIS GERAIS E ELEMENTOS
+  // ==========================================================
+  const API_BASE = "http://localhost:3000";
 
   const feedback = document.getElementById("feedbackMessage");
   const tabelaVendas = document.getElementById("tabelaVendas");
   const tabelaItensVenda = document.getElementById("tabelaItensVenda");
   const totalVendaEl = document.getElementById("totalVenda");
+  const subtotalEl = document.getElementById("subtotalVenda");
+  const valorDescontoEl = document.getElementById("valorDesconto");
 
-  // 🔹 Modais e campos principais
-  const productModal = document.getElementById("productSearchModal");
-  const clientModal = document.getElementById("clientSearchModal");
   const campoAddProduto = document.getElementById("addProduct");
   const campoClienteSelecionado = document.getElementById("clienteSelecionado");
   const campoQuantidade = document.getElementById("quantity");
 
-  const API_BASE = "http://localhost:3000";
+  const btnAdicionarProduto = document.getElementById("btnAdicionarProduto");
+  const btnRegistrar = document.getElementById("btnRegistrarVenda");
+  const btnLimpar = document.getElementById("btnLimparVenda");
+
+  let itensVenda = [];
+  let descontoAtual = 0;
 
   // ==========================================================
-  // 💬 Função: Exibir feedback
+  // 💬 Função: Exibir mensagens de feedback
   // ==========================================================
   function flash(msg, type = "success", ms = 4000) {
     if (!feedback) return;
@@ -710,34 +717,48 @@ function inicializarRegistroVendas() {
   }
 
   // ==========================================================
-  // 🔍 BUSCA DE PRODUTOS (Modal)
+  // 🔍 MODAL: BUSCA DE PRODUTOS
   // ==========================================================
+  const productModal = document.getElementById("productSearchModal");
   const buscarProdutoId = document.getElementById("buscarProdutoId");
   const buscarProdutoNome = document.getElementById("buscarProdutoNome");
-  const btnBuscarProdutoModal = document.getElementById("btnBuscarProdutoModal");
   const tabelaModalProdutos = document.querySelector("#tabelaModalProdutos tbody");
+  const btnBuscarProdutoModal = document.getElementById("btnBuscarProdutoModal");
 
-  async function buscarProdutosModal(termoId = "", termoNome = "") {
-    tabelaModalProdutos.innerHTML = "";
+  async function buscarProdutosModal(id = "", nome = "") {
+    tabelaModalProdutos.innerHTML = `
+    <tr><td colspan="4" class="text-center text-muted py-3">🔎 Buscando produtos...</td></tr>
+  `;
 
-    if (!termoId.trim() && !termoNome.trim()) {
+    if (!id && !nome) {
       tabelaModalProdutos.innerHTML = `
-        <tr><td colspan="4" class="text-center text-muted py-3">Digite ID ou Nome para buscar.</td></tr>`;
+      <tr><td colspan="4" class="text-center text-muted py-3">Digite ID ou Nome para buscar.</td></tr>
+    `;
       return;
     }
 
     try {
       let url = `${API_BASE}/api/produtos`;
-      if (termoId.trim()) url += `?id=${encodeURIComponent(termoId)}`;
-      else if (termoNome.trim()) url += `?nome=${encodeURIComponent(termoNome)}`;
+      if (id) url += `?id=${encodeURIComponent(id)}`;
+      else if (nome) url += `?nome=${encodeURIComponent(nome)}`;
 
       const resp = await fetch(url);
-      if (!resp.ok) throw new Error("Erro ao buscar produtos.");
+      if (!resp.ok) throw new Error(`Erro ${resp.status}`);
       const produtos = await resp.json();
 
-      if (!Array.isArray(produtos) || produtos.length === 0) {
+      // ✅ Verificação robusta
+      if (!Array.isArray(produtos)) {
+        console.warn("⚠️ Resposta inesperada da API de produtos:", produtos);
         tabelaModalProdutos.innerHTML = `
-          <tr><td colspan="4" class="text-center text-muted py-3">Nenhum produto encontrado.</td></tr>`;
+        <tr><td colspan="4" class="text-center text-danger py-3">Erro inesperado ao carregar produtos.</td></tr>
+      `;
+        return;
+      }
+
+      if (produtos.length === 0) {
+        tabelaModalProdutos.innerHTML = `
+        <tr><td colspan="4" class="text-center text-muted py-3">Nenhum produto encontrado.</td></tr>
+      `;
         return;
       }
 
@@ -745,79 +766,57 @@ function inicializarRegistroVendas() {
       produtos.forEach((p) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${p.idProduto}</td>
-          <td>${p.nome}</td>
-          <td>${p.categoria || "-"}</td>
-          <td class="text-center">
-            <button class="btn btn-sm btn-success btn-selecionar-produto"
-              data-id="${p.idProduto}"
-              data-nome="${p.nome}"
-              data-preco="${p.precoVenda}">
-              Selecionar
-            </button>
-          </td>`;
+        <td>${p.idProduto}</td>
+        <td>${p.nome}</td>
+        <td>${p.categoria || "-"}</td>
+        <td class="text-center">
+          <button class="btn btn-sm btn-success btn-selecionar-produto"
+            data-id="${p.idProduto}"
+            data-nome="${p.nome}"
+            data-preco="${p.precoVenda}">
+            Selecionar
+          </button>
+        </td>`;
         tabelaModalProdutos.appendChild(tr);
       });
     } catch (err) {
-      console.error("Erro ao buscar produtos:", err);
+      console.error("❌ Erro ao buscar produtos:", err);
       tabelaModalProdutos.innerHTML = `
-        <tr><td colspan="4" class="text-center text-danger py-3">Erro ao carregar produtos.</td></tr>`;
+      <tr><td colspan="4" class="text-center text-danger py-3">Erro ao carregar produtos.</td></tr>
+    `;
     }
   }
 
-  const formBuscaProduto = document.getElementById("formBuscaProduto");
-  formBuscaProduto?.addEventListener("submit", (e) => e.preventDefault());
   btnBuscarProdutoModal?.addEventListener("click", () => {
-    const id = buscarProdutoId?.value || "";
-    const nome = buscarProdutoNome?.value || "";
-    buscarProdutosModal(id, nome);
-  });
-
-  productModal?.addEventListener("shown.bs.modal", () => {
-    buscarProdutoId.value = "";
-    buscarProdutoNome.value = "";
-    buscarProdutoNome.focus();
-    tabelaModalProdutos.innerHTML = `
-      <tr><td colspan="4" class="text-center text-muted py-3">Nenhum resultado ainda.</td></tr>`;
+    buscarProdutosModal(buscarProdutoId.value.trim(), buscarProdutoNome.value.trim());
   });
 
   tabelaModalProdutos?.addEventListener("click", (e) => {
     const btn = e.target.closest(".btn-selecionar-produto");
     if (!btn) return;
 
-    const idProduto = btn.dataset.id;
-    const nomeProduto = btn.dataset.nome;
-    const precoProduto = parseFloat(btn.dataset.preco);
+    const { id, nome, preco } = btn.dataset;
+    campoAddProduto.value = `${nome} - R$ ${parseFloat(preco).toFixed(2).replace(".", ",")}`;
+    campoAddProduto.dataset.idProduto = id;
+    campoAddProduto.dataset.preco = preco;
 
-    campoAddProduto.value = `${nomeProduto} - R$ ${precoProduto.toFixed(2).replace(".", ",")}`;
-    campoAddProduto.dataset.idProduto = idProduto;
-    campoAddProduto.dataset.preco = precoProduto;
-
-    const modalInstance = bootstrap.Modal.getInstance(productModal);
-    modalInstance?.hide();
-
-    flash("✅ Produto selecionado com sucesso!");
+    bootstrap.Modal.getInstance(productModal)?.hide();
+    flash("✅ Produto selecionado!");
   });
 
   // ==========================================================
-  // 🔍 BUSCA DE CLIENTES (Modal)
+  // 🔍 MODAL: BUSCA DE CLIENTES
   // ==========================================================
-  const formBuscaCliente = document.getElementById("formBuscaCliente");
+  const clientModal = document.getElementById("clientSearchModal");
   const buscarClienteId = document.getElementById("buscarClienteId");
   const buscarClienteCpf = document.getElementById("buscarClienteCpf");
   const buscarClienteNome = document.getElementById("buscarClienteNome");
-  const btnBuscarClienteModal = document.getElementById("btnBuscarClienteModal");
   const tabelaModalClientes = document.querySelector("#tabelaModalClientes tbody");
+  const btnBuscarClienteModal = document.getElementById("btnBuscarClienteModal");
 
   async function buscarClientesModal(id = "", cpf = "", nome = "") {
     tabelaModalClientes.innerHTML =
-      `<tr><td colspan="4" class="text-center text-muted py-3">🔎 Buscando cliente...</td></tr>`;
-
-    if (!id && !cpf && !nome) {
-      tabelaModalClientes.innerHTML =
-        `<tr><td colspan="4" class="text-center text-muted py-3">Digite um ID, CPF ou Nome.</td></tr>`;
-      return;
-    }
+      `<tr><td colspan="4" class="text-center text-muted py-3">Buscando...</td></tr>`;
 
     try {
       let url = `${API_BASE}/api/clientes`;
@@ -828,10 +827,16 @@ function inicializarRegistroVendas() {
       if (params.length > 0) url += `?${params.join("&")}`;
 
       const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`Erro ${resp.status}`);
       const clientes = await resp.json();
 
-      tabelaModalClientes.innerHTML = "";
+      if (!Array.isArray(clientes)) {
+        console.warn("⚠️ Resposta inesperada da API de clientes:", clientes);
+        tabelaModalClientes.innerHTML = `
+        <tr><td colspan="4" class="text-center text-warning py-3">
+          Resposta inesperada da API. Verifique o backend.
+        </td></tr>`;
+        return;
+      }
 
       if (!clientes || clientes.length === 0) {
         tabelaModalClientes.innerHTML =
@@ -839,6 +844,7 @@ function inicializarRegistroVendas() {
         return;
       }
 
+      tabelaModalClientes.innerHTML = "";
       clientes.forEach((c) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -856,49 +862,34 @@ function inicializarRegistroVendas() {
     } catch (err) {
       console.error("Erro ao buscar clientes:", err);
       tabelaModalClientes.innerHTML =
-        `<tr><td colspan="4" class="text-center text-danger py-3">Erro ao carregar clientes.</td></tr>`;
+        `<tr><td colspan="4" class="text-danger text-center py-3">Erro ao carregar clientes.</td></tr>`;
     }
   }
 
   btnBuscarClienteModal?.addEventListener("click", () => {
-    const id = buscarClienteId?.value.trim();
-    const cpf = buscarClienteCpf?.value.trim();
-    const nome = buscarClienteNome?.value.trim();
-    buscarClientesModal(id, cpf, nome);
-  });
-
-  formBuscaCliente?.addEventListener("submit", (e) => e.preventDefault());
-
-  clientModal?.addEventListener("shown.bs.modal", () => {
-    buscarClienteId.value = "";
-    buscarClienteCpf.value = "";
-    buscarClienteNome.value = "";
-    buscarClienteNome.focus();
-    tabelaModalClientes.innerHTML =
-      `<tr><td colspan="4" class="text-center text-muted py-3">Nenhum resultado ainda.</td></tr>`;
+    buscarClientesModal(
+      buscarClienteId.value.trim(),
+      buscarClienteCpf.value.trim(),
+      buscarClienteNome.value.trim()
+    );
   });
 
   tabelaModalClientes?.addEventListener("click", (e) => {
     const btn = e.target.closest(".btn-selecionar-cliente");
     if (!btn) return;
 
-    const idCliente = btn.dataset.id;
-    const nomeCliente = btn.dataset.nome;
+    const { id, nome } = btn.dataset;
+    campoClienteSelecionado.value = nome;
+    campoClienteSelecionado.dataset.idCliente = id;
 
-    campoClienteSelecionado.value = nomeCliente;
-    campoClienteSelecionado.dataset.idCliente = idCliente;
-
-    const modalInstance = bootstrap.Modal.getInstance(clientModal);
-    modalInstance?.hide();
-
-    flash("✅ Cliente selecionado com sucesso!");
+    bootstrap.Modal.getInstance(clientModal)?.hide();
+    flash("✅ Cliente selecionado!");
   });
 
   // ==========================================================
-  // 🧮 Controle de Quantidade (+ e –)
+  // 🧮 CONTROLE DE QUANTIDADE
   // ==========================================================
-  const btnMenos = campoQuantidade?.parentElement.querySelectorAll(".btn-outline-secondary")[0];
-  const btnMais = campoQuantidade?.parentElement.querySelectorAll(".btn-outline-secondary")[1];
+  const [btnMenos, btnMais] = campoQuantidade?.parentElement.querySelectorAll(".btn-outline-secondary") || [];
 
   btnMenos?.addEventListener("click", () => {
     let qtd = parseInt(campoQuantidade.value) || 1;
@@ -911,11 +902,8 @@ function inicializarRegistroVendas() {
   });
 
   // ==========================================================
-  // 🧩 Adicionar produto à venda
+  // 🧩 ADICIONAR PRODUTO À VENDA
   // ==========================================================
-  const btnAdicionarProduto = document.getElementById("btnAdicionarProduto");
-  let itensVenda = [];
-
   btnAdicionarProduto?.addEventListener("click", () => {
     const id = campoAddProduto.dataset.idProduto;
     const nome = campoAddProduto.value.split(" - ")[0];
@@ -937,6 +925,9 @@ function inicializarRegistroVendas() {
     campoAddProduto.dataset.preco = "";
   });
 
+  // ==========================================================
+  // 🧾 RENDERIZAR ITENS NA TABELA
+  // ==========================================================
   function renderItensVenda() {
     tabelaItensVenda.innerHTML = "";
     if (itensVenda.length === 0) {
@@ -961,32 +952,15 @@ function inicializarRegistroVendas() {
     });
   }
 
-  tabelaItensVenda?.addEventListener("click", (e) => {
-    const btn = e.target.closest(".btn-remover-item");
-    if (!btn) return;
-    const index = btn.dataset.index;
-    itensVenda.splice(index, 1);
-    renderItensVenda();
-    atualizarTotal();
-  });
-
-  function atualizarTotal() {
-    const total = itensVenda.reduce((acc, item) => acc + item.subtotal, 0);
-    totalVendaEl.textContent = `R$ ${total.toFixed(2).replace(".", ",")}`;
-  }
   // ==========================================================
-  // 💸 Modal de Desconto
+  // 💸 Modal de Desconto  (mantido conforme seu código)
   // ==========================================================
   const discountModal = document.getElementById("discountModal");
   const discountValueInput = document.getElementById("discountValue");
-  const btnAplicarDesconto = discountModal?.querySelector(".btn-primary");
+  const btnAplicarDesconto = discountModal?.querySelector(".btn-aplicar-desconto");
   const btnRemoverDesconto = document.getElementById("btnRemoverDesconto");
   const btnAbrirDesconto = document.getElementById("btnAbrirDesconto");
-  const valorDescontoEl = document.getElementById("valorDesconto");
-  const subtotalEl = document.getElementById("subtotalVenda");
-  const btnLimparVenda = document.getElementById("btnLimparVenda");
 
-  let descontoAtual = 0;
 
   // ✅ Máscara automática de valor (R$)
   discountValueInput?.addEventListener("input", (e) => {
@@ -1003,7 +977,6 @@ function inicializarRegistroVendas() {
       btnAbrirDesconto?.classList.add("d-none");
       btnRemoverDesconto?.classList.add("d-none");
       descontoAtual = 0;
-      atualizarTotal();
     }
   }
 
@@ -1060,24 +1033,19 @@ function inicializarRegistroVendas() {
   }
 
   // ==========================================================
-  // 🧹 Limpar venda 
+  // 🧹 LIMPAR VENDA E REMOVER ITENS
   // ==========================================================
+  btnLimpar?.addEventListener("click", () => {
+    itensVenda = [];
+    descontoAtual = 0;
+    renderItensVenda();
+    atualizarTotal();
+    btnRemoverDesconto?.classList.add("d-none");
+  });
 
- const btnLimpar = document.getElementById("btnLimparVenda");
-btnLimpar?.addEventListener("click", () => {
-  itensVenda = [];
-  descontoAtual = 0;
-  renderItensVenda();
-  atualizarTotal();
-});
-
-  // ==========================================================
-  // 🧩 Remover item (zera desconto se lista ficar vazia)
-  // ==========================================================
   tabelaItensVenda?.addEventListener("click", (e) => {
     const btn = e.target.closest(".btn-remover-item");
     if (!btn) return;
-
     const index = btn.dataset.index;
     itensVenda.splice(index, 1);
     renderItensVenda();
@@ -1091,37 +1059,281 @@ btnLimpar?.addEventListener("click", () => {
   });
 
   // ==========================================================
-  // 💾 Registrar venda
+  // 💾 REGISTRAR VENDA (corrigido e compatível)
   // ==========================================================
-  const btnRegistrar = document.getElementById("btnRegistrarVenda");
   btnRegistrar?.addEventListener("click", async () => {
     if (itensVenda.length === 0) {
-      flash("Adicione pelo menos um produto antes de registrar!", "warning");
+      flash("Adicione produtos antes de registrar!", "warning");
       return;
     }
 
-    const valorTotal = itensVenda.reduce((acc, i) => acc + i.subtotal, 0);
+    const totalBruto = itensVenda.reduce((acc, i) => acc + i.subtotal, 0);
+    const valorTotal = Math.max(totalBruto - descontoAtual, 0);
     const idCliente = campoClienteSelecionado.dataset.idCliente || null;
+
+    const itensFormatados = itensVenda.map((i) => ({
+      idProduto: i.id,
+      quantidade: i.qtd,
+      precoUnitario: i.preco,
+    }));
 
     try {
       const resp = await fetch(`${API_BASE}/api/vendas`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idCliente, valorTotal, itens: itensVenda }),
-      });
-      if (!resp.ok) throw new Error("Erro ao registrar venda");
+        body: JSON.stringify({
+          idCliente,
+          valorTotal,
+          desconto: descontoAtual,
+          itens: itensFormatados,
+        }),
 
+      });
+
+      // ⚙️ Garante que a resposta seja lida com segurança
+      const data = await resp.json().catch(() => ({}));
+
+      // ⚠️ Verifica status HTTP corretamente
+      if (!resp.ok) {
+        console.error("❌ Erro do servidor:", data);
+        flash(data.message || "Erro ao registrar venda!", "danger");
+        return;
+      }
+
+      console.log("✅ Resposta do servidor:", data);
+
+      // ✅ Feedback visual
       flash("💰 Venda registrada com sucesso!");
+
+      // 🔄 Limpa os campos e atualiza tabela
       itensVenda = [];
+      descontoAtual = 0;
       renderItensVenda();
       atualizarTotal();
+
+      // 🔁 Recarrega lista de vendas
+      await carregarVendas();
     } catch (err) {
-      flash("Erro ao registrar venda", "danger");
-      console.error(err);
+      console.error("❌ Erro no frontend:", err);
+      flash("Erro ao registrar venda (frontend)", "danger");
     }
   });
+
+// ==========================================================
+// 📋 CARREGAR VENDAS REALIZADAS (com layout padronizado e botões estilizados)
+// ==========================================================
+async function carregarVendas() {
+  const tabela = document.getElementById("tabelaVendas");
+  const paginacao = document.getElementById("paginacaoVendas");
+  const inputBusca = document.getElementById("pesquisarVenda");
+  if (!tabela) return;
+
+  let todasVendas = [];
+  let filtradas = [];
+  let paginaAtual = 1;
+  const pageSize = 8;
+
+  // 🔍 Filtrar vendas dinamicamente
+  function aplicarFiltro() {
+    const termo = (inputBusca?.value || "").toLowerCase().trim();
+    filtradas = !termo
+      ? [...todasVendas]
+      : todasVendas.filter(
+          (v) =>
+            String(v.idVenda).includes(termo) ||
+            (v.cliente || "").toLowerCase().includes(termo) ||
+            (v.dataVenda || "").toLowerCase().includes(termo)
+        );
+
+    filtradas.sort((a, b) => Number(b.idVenda) - Number(a.idVenda));
+    paginaAtual = 1;
+    renderTabela();
+    renderPaginacao();
+  }
+
+  // 🧾 Renderizar tabela
+  function renderTabela() {
+    tabela.innerHTML = "";
+
+    const inicio = (paginaAtual - 1) * pageSize;
+    const fim = inicio + pageSize;
+    const vendasPagina = filtradas.slice(inicio, fim);
+
+    if (vendasPagina.length === 0) {
+      tabela.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center text-muted py-3">
+            Nenhuma venda encontrada.
+          </td>
+        </tr>`;
+      return;
+    }
+
+    vendasPagina.forEach((v) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${v.idVenda}</td>
+        <td>${v.cliente || "—"}</td>
+        <td>R$ ${parseFloat(v.valorTotal).toFixed(2).replace(".", ",")}</td>
+        <td>${v.dataVenda}</td>
+        <td class="text-center">
+          <button class="btn btn-sm btn-outline-info me-2 btn-ver-detalhes" 
+                  data-id="${v.idVenda}" title="Ver detalhes">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-danger btn-excluir-venda" 
+                  data-id="${v.idVenda}" title="Excluir venda">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </td>`;
+      tabela.appendChild(tr);
+    });
+  }
+
+  // 🔢 Renderizar paginação (mesmo padrão clientes/produtos)
+  function renderPaginacao() {
+    if (!paginacao) return;
+    paginacao.innerHTML = "";
+
+    const totalPaginas = Math.ceil(filtradas.length / pageSize) || 1;
+
+    const addBtn = (label, disabled, callback) => {
+      const li = document.createElement("li");
+      li.className = `page-item ${disabled ? "disabled" : ""}`;
+      li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
+      li.onclick = (e) => {
+        e.preventDefault();
+        if (!disabled) callback();
+      };
+      paginacao.appendChild(li);
+    };
+
+    addBtn("«", paginaAtual === 1, () => {
+      paginaAtual--;
+      renderTabela();
+      renderPaginacao();
+    });
+
+    for (let p = 1; p <= totalPaginas; p++) {
+      const li = document.createElement("li");
+      li.className = `page-item ${p === paginaAtual ? "active" : ""}`;
+      li.innerHTML = `<a class="page-link" href="#">${p}</a>`;
+      li.onclick = (e) => {
+        e.preventDefault();
+        paginaAtual = p;
+        renderTabela();
+        renderPaginacao();
+      };
+      paginacao.appendChild(li);
+    }
+
+    addBtn("»", paginaAtual === totalPaginas, () => {
+      paginaAtual++;
+      renderTabela();
+      renderPaginacao();
+    });
+  }
+
+  // 📡 Buscar vendas na API
+  try {
+    tabela.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center text-muted py-3">
+          Carregando vendas...
+        </td>
+      </tr>`;
+    const resp = await fetch(`${API_BASE}/api/vendas`);
+    const vendas = await resp.json();
+
+    todasVendas = Array.isArray(vendas) ? vendas : [];
+    aplicarFiltro();
+  } catch (err) {
+    console.error("❌ Erro ao carregar vendas:", err);
+    tabela.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center text-danger py-3">
+          Erro ao carregar vendas.
+        </td>
+      </tr>`;
+  }
+
+  // 🔄 Eventos de pesquisa e botão
+  inputBusca?.addEventListener("input", aplicarFiltro);
+  document.getElementById("btnPesquisarVenda")?.addEventListener("click", aplicarFiltro);
 }
 
+
+  // ==========================================================
+  // 🔍 VER DETALHES DA VENDA
+  // ==========================================================
+  tabelaVendas?.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".btn-ver-detalhes");
+    if (!btn) return;
+
+    const idVenda = btn.dataset.id;
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/vendas/${idVenda}`);
+      if (!resp.ok) throw new Error("Erro ao buscar detalhes da venda");
+
+      const venda = await resp.json();
+      console.log("🧾 Detalhes da venda recebidos:", venda);
+
+      // 🧾 Preenche informações principais
+      document.getElementById("detalheIdVenda").textContent = venda.idVenda;
+      document.getElementById("detalheCliente").textContent = venda.cliente || "—";
+      document.getElementById("detalheDataVenda").textContent = venda.dataVenda || "—";
+      document.getElementById("detalheStatus").textContent = venda.status || "Ativa";
+
+      // 💰 Itens
+      const tabela = document.querySelector("#tabelaItensDetalhesVenda tbody");
+      tabela.innerHTML = "";
+
+      if (!venda.itens || venda.itens.length === 0) {
+        tabela.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">Nenhum item encontrado.</td></tr>`;
+      } else {
+        venda.itens.forEach((i) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+          <td>${i.produto}</td>
+          <td>${i.quantidade}</td>
+          <td>R$ ${parseFloat(i.precoUnitario).toFixed(2).replace(".", ",")}</td>
+          <td>R$ ${parseFloat(i.subtotal).toFixed(2).replace(".", ",")}</td>
+        `;
+          tabela.appendChild(tr);
+        });
+      }
+
+      // Totais (conversão segura para número)
+      let subtotal = 0;
+      if (Array.isArray(venda.itens)) {
+        subtotal = venda.itens.reduce((acc, i) => acc + parseFloat(i.subtotal || 0), 0);
+      }
+
+      document.getElementById("detalheSubtotal").textContent = `R$ ${subtotal.toFixed(2).replace(".", ",")}`;
+      document.getElementById("detalheDesconto").textContent = `R$ ${(parseFloat(venda.desconto) || 0).toFixed(2).replace(".", ",")}`;
+      document.getElementById("detalheTotal").textContent = `R$ ${parseFloat(venda.valorTotal || subtotal).toFixed(2).replace(".", ",")}`;
+
+
+      // ✅ Exibir modal de forma segura
+      const modalEl = document.getElementById("saleDetailsModal");
+      if (!modalEl) {
+        console.error("❌ Modal de detalhes não encontrado no DOM!");
+        return;
+      }
+
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+
+    } catch (err) {
+      console.error("❌ Erro ao carregar detalhes da venda:", err);
+      flash("Erro ao carregar detalhes da venda.", "danger");
+    }
+  });
+
+  // 🚀 Inicialização automática
+  carregarVendas();
+}
 
 // ==========================================================
 // 5️⃣ EXECUÇÃO AUTOMÁTICA POR PÁGINA

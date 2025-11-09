@@ -1,90 +1,138 @@
 // ==========================================================
-// =============== CONTROLLER: VENDAS =======================
+// =============== CONTROLLER: VENDAS ========================
 // ==========================================================
 const vendaModel = require("../models/vendaModel");
 
 // ==========================================================
-// LISTAR TODAS AS VENDAS
+// 💾 REGISTRAR VENDA (agora com suporte total a DESCONTO)
 // ==========================================================
-exports.listarVendas = async (req, res) => {
+async function registrarVenda(req, res) {
   try {
-    const vendas = await vendaModel.listarVendas();
-    res.status(200).json(vendas);
-  } catch (error) {
-    console.error("Erro ao listar vendas (controller):", error);
-    res.status(500).json({ message: "Erro ao listar vendas." });
+    const { idCliente, valorTotal, desconto = 0, itens } = req.body;
+
+    // 🔹 Validação dos dados básicos
+    if (!Array.isArray(itens) || itens.length === 0) {
+      return res.status(400).json({ message: "Nenhum item informado para a venda." });
+    }
+
+    // 🔹 Criação da venda via model
+    const { idVenda, valorTotal: totalFinal, desconto: descAplicado } = await vendaModel.criarVenda({
+      idCliente,
+      valorTotal,
+      desconto,
+      itens,
+    });
+
+    // 🔹 Resposta com todos os dados da venda
+    return res.status(201).json({
+      message: "✅ Venda registrada com sucesso!",
+      idVenda,
+      idCliente,
+      desconto: descAplicado,
+      valorTotal: totalFinal,
+      dataVenda: new Date().toISOString().slice(0, 19).replace("T", " "),
+    });
+  } catch (err) {
+    console.error("❌ Erro ao registrar venda:", err);
+    return res.status(500).json({
+      message: "Erro ao registrar venda.",
+      erro: err.message,
+    });
   }
-};
+}
 
 // ==========================================================
-// BUSCAR VENDA POR ID
+// 📋 LISTAR TODAS AS VENDAS
 // ==========================================================
-exports.buscarPorId = async (req, res) => {
+async function listarVendas(req, res) {
+  try {
+    const vendas = await vendaModel.listarVendas();
+    return res.status(200).json(vendas);
+  } catch (err) {
+    console.error("❌ Erro ao listar vendas:", err);
+    return res.status(500).json({
+      message: "Erro ao listar vendas.",
+      erro: err.message,
+    });
+  }
+}
+
+// ==========================================================
+// 🔍 BUSCAR VENDA POR ID (para modal de detalhes)
+// ==========================================================
+async function buscarVendaPorId(req, res) {
   try {
     const { id } = req.params;
     const venda = await vendaModel.buscarPorId(id);
 
-    if (!venda) return res.status(404).json({ message: "Venda não encontrada." });
-    res.status(200).json(venda);
-  } catch (error) {
-    console.error("Erro ao buscar venda (controller):", error);
-    res.status(500).json({ message: "Erro ao buscar venda." });
-  }
-};
+    if (!venda) {
+      return res.status(404).json({ message: "Venda não encontrada." });
+    }
 
-// ==========================================================
-// CRIAR NOVA VENDA
-// ==========================================================
-exports.criarVenda = async (req, res) => {
-  try {
-    const { idCliente, itens } = req.body;
-
-    if (!itens || itens.length === 0)
-      return res.status(400).json({ message: "A venda precisa ter ao menos um item." });
-
-    const novaVenda = await vendaModel.criarVenda({ idCliente, itens });
-    res.status(201).json({
-      message: "✅ Venda registrada com sucesso!",
-      ...novaVenda,
+    // ✅ Retorna a venda com desconto incluso
+    return res.status(200).json({
+      ...venda,
+      desconto: venda.desconto || 0,
+      valorTotal: venda.valorTotal || 0,
     });
-  } catch (error) {
-    console.error("Erro ao criar venda (controller):", error);
-    res.status(500).json({ message: "Erro ao registrar venda." });
+  } catch (err) {
+    console.error("❌ Erro ao buscar venda:", err);
+    return res.status(500).json({
+      message: "Erro ao buscar venda.",
+      erro: err.message,
+    });
   }
-};
+}
 
 // ==========================================================
-// ATUALIZAR VENDA
+// 🔄 ATUALIZAR VENDA (status ou cliente)
 // ==========================================================
-exports.atualizarVenda = async (req, res) => {
+async function atualizarVenda(req, res) {
   try {
     const { id } = req.params;
-    const atualizado = await vendaModel.atualizarVenda(id, req.body);
+    const { idCliente, status } = req.body;
 
-    if (!atualizado)
-      return res.status(404).json({ message: "Venda não encontrada para atualização." });
+    const atualizado = await vendaModel.atualizarVenda(id, { idCliente, status });
+    if (!atualizado) {
+      return res.status(404).json({ message: "Venda não encontrada." });
+    }
 
-    res.status(200).json({ message: "✅ Venda atualizada com sucesso!" });
-  } catch (error) {
-    console.error("Erro ao atualizar venda (controller):", error);
-    res.status(500).json({ message: "Erro ao atualizar venda." });
+    return res.status(200).json({ message: "Venda atualizada com sucesso!" });
+  } catch (err) {
+    console.error("❌ Erro ao atualizar venda:", err);
+    return res.status(500).json({
+      message: "Erro ao atualizar venda.",
+      erro: err.message,
+    });
   }
-};
+}
 
 // ==========================================================
-// EXCLUIR VENDA
+// 🗑️ EXCLUIR VENDA
 // ==========================================================
-exports.excluirVenda = async (req, res) => {
+async function excluirVenda(req, res) {
   try {
     const { id } = req.params;
     const excluida = await vendaModel.excluirVenda(id);
 
-    if (!excluida)
-      return res.status(404).json({ message: "Venda não encontrada para exclusão." });
+    if (!excluida) {
+      return res.status(404).json({ message: "Venda não encontrada." });
+    }
 
-    res.status(200).json({ message: "🗑️ Venda excluída com sucesso!" });
-  } catch (error) {
-    console.error("Erro ao excluir venda (controller):", error);
-    res.status(500).json({ message: "Erro ao excluir venda." });
+    return res.status(200).json({ message: "🗑️ Venda excluída com sucesso!" });
+  } catch (err) {
+    console.error("❌ Erro ao excluir venda:", err);
+    return res.status(500).json({
+      message: "Erro ao excluir venda.",
+      erro: err.message,
+    });
   }
+}
+
+module.exports = {
+  registrarVenda,
+  listarVendas,
+  buscarVendaPorId,
+  atualizarVenda,
+  excluirVenda,
 };

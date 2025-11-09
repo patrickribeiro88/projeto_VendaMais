@@ -1,38 +1,24 @@
 // ==========================================================
 // =============== ROTAS: CLIENTE ============================
 // ==========================================================
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const clienteController = require('../controllers/clienteController');
+const clienteController = require("../controllers/clienteController");
 
 // ----------------------------------------------------------
-// Cadastrar novo cliente
+// ROTAS DISPONÍVEIS
 // ----------------------------------------------------------
-router.post('/', clienteController.criarCliente);
 
-// ----------------------------------------------------------
-// Buscar clientes (precisa ou geral)
-// ----------------------------------------------------------
-router.get('/', async (req, res) => {
-  const { id, cpf, nome } = req.query;
+// Criar novo cliente
+router.post("/", clienteController.criarCliente);
 
-  // Se houver filtros → busca precisa
-  if (id || cpf || nome) {
-    return clienteController.buscarClientesFiltrado(req, res);
-  }
+// 🔍 Listar todos os clientes ou buscar por ID/CPF/Nome (mesma função)
+router.get("/", clienteController.listarClientes);
 
-  // Caso contrário → lista todos
-  return clienteController.listarClientes(req, res);
-});
+// Buscar cliente por ID específico (para edição futura)
+router.get("/:id", clienteController.buscarClientePorId);
 
-// ----------------------------------------------------------
-// Buscar cliente por ID (edição)
-// ----------------------------------------------------------
-router.get('/:id', clienteController.buscarClientePorId);
-
-// ----------------------------------------------------------
-// Atualizar cliente
-// ----------------------------------------------------------
-router.put('/:id', clienteController.atualizarCliente);
+// Atualizar cliente existente
+router.put("/:id", clienteController.atualizarCliente);
 
 module.exports = router;

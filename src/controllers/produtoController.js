@@ -1,37 +1,36 @@
 // ==========================================================
-// =============== CONTROLLER: PRODUTOS =====================
+// =============== CONTROLLER: PRODUTO ======================
 // ==========================================================
 const produtoModel = require("../models/produtoModel");
 
-// ==========================================================
-// LISTAR PRODUTOS (com filtros opcionais)
-// ==========================================================
+// ----------------------------------------------------------
+// 📋 LISTAR PRODUTOS (com filtros opcionais: id / nome)
+// ----------------------------------------------------------
 exports.listarProdutos = async (req, res) => {
   try {
+    const { id, nome } = req.query;
     const filtros = {};
-    if (req.query.id) filtros.id = req.query.id;
-    if (req.query.nome) filtros.nome = req.query.nome;
+
+    if (id) filtros.id = id;
+    if (nome) filtros.nome = nome;
 
     const produtos = await produtoModel.listarProdutos(filtros);
 
-    if (produtos.length === 0) {
-      return res.status(404).json({ message: "Nenhum produto encontrado." });
-    }
-
-    res.status(200).json(produtos);
+    // 🔹 Retorna sempre um array (mesmo vazio)
+    return res.status(200).json(Array.isArray(produtos) ? produtos : []);
   } catch (error) {
     console.error("❌ Erro ao listar produtos (controller):", error);
-    res.status(500).json({
+    return res.status(500).json({
       message: "Erro interno ao listar produtos.",
       error: error.message,
     });
   }
 };
 
-// ==========================================================
-// BUSCAR PRODUTO POR ID
-// ==========================================================
-exports.buscarPorId = async (req, res) => {
+// ----------------------------------------------------------
+// 🔍 BUSCAR PRODUTO POR ID (edição)
+// ----------------------------------------------------------
+exports.buscarProdutoPorId = async (req, res) => {
   try {
     const idProduto = req.params.id;
     const produto = await produtoModel.buscarPorId(idProduto);
@@ -40,19 +39,19 @@ exports.buscarPorId = async (req, res) => {
       return res.status(404).json({ message: "Produto não encontrado." });
     }
 
-    res.status(200).json(produto);
+    return res.status(200).json(produto);
   } catch (error) {
     console.error("❌ Erro ao buscar produto por ID (controller):", error);
-    res.status(500).json({
+    return res.status(500).json({
       message: "Erro interno ao buscar produto.",
       error: error.message,
     });
   }
 };
 
-// ==========================================================
-// CRIAR NOVO PRODUTO
-// ==========================================================
+// ----------------------------------------------------------
+// ➕ CRIAR NOVO PRODUTO
+// ----------------------------------------------------------
 exports.criarProduto = async (req, res) => {
   try {
     const { nome, categoria, precoVenda } = req.body;
@@ -64,19 +63,19 @@ exports.criarProduto = async (req, res) => {
     }
 
     await produtoModel.criarProduto({ nome, categoria, precoVenda });
-    res.status(201).json({ message: "✅ Produto cadastrado com sucesso!" });
+    return res.status(201).json({ message: "✅ Produto cadastrado com sucesso!" });
   } catch (error) {
     console.error("❌ Erro ao criar produto (controller):", error);
-    res.status(500).json({
+    return res.status(500).json({
       message: "Erro interno ao criar produto.",
       error: error.message,
     });
   }
 };
 
-// ==========================================================
-// ATUALIZAR PRODUTO
-// ==========================================================
+// ----------------------------------------------------------
+// ✏️ ATUALIZAR PRODUTO
+// ----------------------------------------------------------
 exports.atualizarProduto = async (req, res) => {
   try {
     const idProduto = req.params.id;
@@ -92,19 +91,19 @@ exports.atualizarProduto = async (req, res) => {
       return res.status(404).json({ message: "Produto não encontrado." });
     }
 
-    res.status(200).json({ message: "✅ Produto atualizado com sucesso!" });
+    return res.status(200).json({ message: "✅ Produto atualizado com sucesso!" });
   } catch (error) {
     console.error("❌ Erro ao atualizar produto (controller):", error);
-    res.status(500).json({
+    return res.status(500).json({
       message: "Erro interno ao atualizar produto.",
       error: error.message,
     });
   }
 };
 
-// ==========================================================
-// EXCLUIR PRODUTO
-// ==========================================================
+// ----------------------------------------------------------
+// 🗑️ EXCLUIR PRODUTO
+// ----------------------------------------------------------
 exports.excluirProduto = async (req, res) => {
   try {
     const idProduto = req.params.id;
@@ -114,10 +113,10 @@ exports.excluirProduto = async (req, res) => {
       return res.status(404).json({ message: "Produto não encontrado." });
     }
 
-    res.status(200).json({ message: "🗑️ Produto excluído com sucesso!" });
+    return res.status(200).json({ message: "🗑️ Produto excluído com sucesso!" });
   } catch (error) {
     console.error("❌ Erro ao excluir produto (controller):", error);
-    res.status(500).json({
+    return res.status(500).json({
       message: "Erro interno ao excluir produto.",
       error: error.message,
     });
