@@ -85,25 +85,20 @@ async function buscarVendaPorId(req, res) {
 }
 
 // ==========================================================
-// 🔄 ATUALIZAR VENDA (status ou cliente)
+// 🔄 ATUALIZAR VENDA 
 // ==========================================================
 async function atualizarVenda(req, res) {
   try {
     const { id } = req.params;
-    const { idCliente, status } = req.body;
+    const { idCliente, status, desconto = 0, itens = [], valorTotal } = req.body;
 
-    const atualizado = await vendaModel.atualizarVenda(id, { idCliente, status });
-    if (!atualizado) {
-      return res.status(404).json({ message: "Venda não encontrada." });
-    }
+    const atualizado = await vendaModel.atualizarVenda(id, { idCliente, status, desconto, itens, valorTotal });
+    if (!atualizado) return res.status(404).json({ message: "Venda não encontrada." });
 
-    return res.status(200).json({ message: "Venda atualizada com sucesso!" });
+    res.status(200).json({ message: "✅ Venda atualizada com sucesso!" });
   } catch (err) {
     console.error("❌ Erro ao atualizar venda:", err);
-    return res.status(500).json({
-      message: "Erro ao atualizar venda.",
-      erro: err.message,
-    });
+    res.status(500).json({ message: "Erro ao atualizar venda.", erro: err.message });
   }
 }
 

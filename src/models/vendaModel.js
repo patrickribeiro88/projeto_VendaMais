@@ -131,18 +131,38 @@ async function criarVenda({ idCliente, valorTotal, desconto = 0, itens }) {
 // ----------------------------------------------------------
 // ATUALIZAR VENDA (status ou cliente)
 // ----------------------------------------------------------
-async function atualizarVenda(idVenda, { idCliente, status }) {
+async function atualizarVenda(idVenda, { idCliente, status, desconto, itens, valorTotal }) {
+  const connection = await db.getConnection();
   try {
-    const [result] = await db.query(
-      `UPDATE vendas SET idCliente = ?, status = ? WHERE idVenda = ?`,
-      [idCliente || null, status || "ATIVA", idVenda]
+    await connection.beginTransaction();
+
+    // Atualiza dados principais
+    await connection.query(
+      `UPDATE vendas SET idCliente = ?, desconto = ?, valorTotal = ?, status = ? WHERE idVenda = ?`,
+      [idCliente || null, desconto || 0, valorTotal || 0, status || "ATIVA", idVenda]
     );
-    return result.affectedRows > 0;
-  } catch (error) {
-    console.error("❌ Erro ao atualizar venda (model):", error);
-    throw error;
+
+    // Remove itens antigos e insere novamente
+    await connection.query(`DELETE FROM itens_venda WHERE idVenda = ?`, [idVenda]);
+    for (const item of itens) {
+      await connection.query(
+        `INSERT INTO itens_venda (idVenda, idProduto, quantidade, precoUnitario)
+         VALUES (?, ?, ?, ?)`,
+        [idVenda, item.idProduto, item.quantidade, item.precoUnitario]
+      );
+    }
+
+    await connection.commit();
+    return true;
+  } catch (err) {
+    await connection.rollback();
+    console.error("❌ Erro ao atualizar venda (model):", err);
+    throw err;
+  } finally {
+    connection.release();
   }
 }
+
 
 // ----------------------------------------------------------
 // EXCLUIR VENDA E ITENS ASSOCIADOS

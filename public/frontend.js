@@ -725,6 +725,16 @@ function inicializarRegistroVendas() {
   const tabelaModalProdutos = document.querySelector("#tabelaModalProdutos tbody");
   const btnBuscarProdutoModal = document.getElementById("btnBuscarProdutoModal");
 
+  // 🧹 Limpar campos e tabela ao fechar o modal de produtos
+productModal?.addEventListener("hidden.bs.modal", () => {
+  buscarProdutoId.value = "";
+  buscarProdutoNome.value = "";
+  tabelaModalProdutos.innerHTML = `
+    <tr><td colspan="4" class="text-center text-muted py-3">
+      Nenhum resultado ainda.
+    </td></tr>`;
+});
+
   async function buscarProdutosModal(id = "", nome = "") {
     tabelaModalProdutos.innerHTML = `
     <tr><td colspan="4" class="text-center text-muted py-3">🔎 Buscando produtos...</td></tr>
@@ -814,7 +824,18 @@ function inicializarRegistroVendas() {
   const tabelaModalClientes = document.querySelector("#tabelaModalClientes tbody");
   const btnBuscarClienteModal = document.getElementById("btnBuscarClienteModal");
 
-  async function buscarClientesModal(id = "", cpf = "", nome = "") {
+  // 🧹 Limpar campos e tabela ao fechar o modal de clientes
+clientModal?.addEventListener("hidden.bs.modal", () => {
+  buscarClienteId.value = "";
+  buscarClienteCpf.value = "";
+  buscarClienteNome.value = "";
+  tabelaModalClientes.innerHTML = `
+    <tr><td colspan="4" class="text-center text-muted py-3">
+      Nenhum resultado ainda.
+    </td></tr>`;
+});
+
+async function buscarClientesModal(id = "", cpf = "", nome = "") {
     tabelaModalClientes.innerHTML =
       `<tr><td colspan="4" class="text-center text-muted py-3">Buscando...</td></tr>`;
 
@@ -951,9 +972,8 @@ function inicializarRegistroVendas() {
       tabelaItensVenda.appendChild(tr);
     });
   }
-
   // ==========================================================
-  // 💸 Modal de Desconto  (mantido conforme seu código)
+  // 💸 Modal de Desconto
   // ==========================================================
   const discountModal = document.getElementById("discountModal");
   const discountValueInput = document.getElementById("discountValue");
@@ -961,6 +981,10 @@ function inicializarRegistroVendas() {
   const btnRemoverDesconto = document.getElementById("btnRemoverDesconto");
   const btnAbrirDesconto = document.getElementById("btnAbrirDesconto");
 
+  // 🧹 Limpar campo de desconto ao fechar o modal
+discountModal?.addEventListener("hidden.bs.modal", () => {
+  discountValueInput.value = "";
+});
 
   // ✅ Máscara automática de valor (R$)
   discountValueInput?.addEventListener("input", (e) => {
@@ -1059,68 +1083,67 @@ function inicializarRegistroVendas() {
   });
 
   // ==========================================================
-  // 💾 REGISTRAR VENDA (corrigido e compatível)
+  // 💾 REGISTRAR VENDA
   // ==========================================================
   btnRegistrar?.addEventListener("click", async () => {
-    if (itensVenda.length === 0) {
-      flash("Adicione produtos antes de registrar!", "warning");
-      return;
-    }
+  if (itensVenda.length === 0) {
+    flash("Adicione produtos antes de registrar!", "warning");
+    return;
+  }
 
-    const totalBruto = itensVenda.reduce((acc, i) => acc + i.subtotal, 0);
-    const valorTotal = Math.max(totalBruto - descontoAtual, 0);
-    const idCliente = campoClienteSelecionado.dataset.idCliente || null;
+  const totalBruto = itensVenda.reduce((acc, i) => acc + i.subtotal, 0);
+  const valorTotal = Math.max(totalBruto - descontoAtual, 0);
+  const idCliente = campoClienteSelecionado.dataset.idCliente || null;
 
-    const itensFormatados = itensVenda.map((i) => ({
-      idProduto: i.id,
-      quantidade: i.qtd,
-      precoUnitario: i.preco,
-    }));
+  const itensFormatados = itensVenda.map((i) => ({
+    idProduto: i.id,
+    quantidade: i.qtd,
+    precoUnitario: i.preco,
+  }));
 
-    try {
-      const resp = await fetch(`${API_BASE}/api/vendas`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          idCliente,
-          valorTotal,
-          desconto: descontoAtual,
-          itens: itensFormatados,
-        }),
+  const editandoId = btnRegistrar.dataset.editando;
+  const metodo = editandoId ? "PUT" : "POST";
+  const url = editandoId
+    ? `${API_BASE}/api/vendas/${editandoId}`
+    : `${API_BASE}/api/vendas`;
 
-      });
+  try {
+    const resp = await fetch(url, {
+      method: metodo,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idCliente, valorTotal, desconto: descontoAtual, itens: itensFormatados }),
+    });
 
-      // ⚙️ Garante que a resposta seja lida com segurança
-      const data = await resp.json().catch(() => ({}));
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message || "Erro no servidor");
 
-      // ⚠️ Verifica status HTTP corretamente
-      if (!resp.ok) {
-        console.error("❌ Erro do servidor:", data);
-        flash(data.message || "Erro ao registrar venda!", "danger");
-        return;
-      }
+    flash(
+      editandoId
+        ? "✏️ Venda atualizada com sucesso!"
+        : "💰 Venda registrada com sucesso!",
+      "success"
+    );
 
-      console.log("✅ Resposta do servidor:", data);
+    // 🔄 Resetar tudo
+    itensVenda = [];
+    descontoAtual = 0;
+    renderItensVenda();
+    atualizarTotal();
+    campoClienteSelecionado.value = "";
+    campoClienteSelecionado.dataset.idCliente = "";
+    btnRegistrar.textContent = "Registrar Venda";
+    btnRegistrar.classList.replace("btn-warning", "btn-primary");
+    delete btnRegistrar.dataset.editando;
+    document.getElementById("btnCancelarEdicaoVenda")?.remove();
 
-      // ✅ Feedback visual
-      flash("💰 Venda registrada com sucesso!");
-
-      // 🔄 Limpa os campos e atualiza tabela
-      itensVenda = [];
-      descontoAtual = 0;
-      renderItensVenda();
-      atualizarTotal();
-
-      // 🔁 Recarrega lista de vendas
-      await carregarVendas();
-    } catch (err) {
-      console.error("❌ Erro no frontend:", err);
-      flash("Erro ao registrar venda (frontend)", "danger");
-    }
-  });
-
-// ==========================================================
-// 📋 CARREGAR VENDAS REALIZADAS (com layout padronizado e botões estilizados)
+    await carregarVendas();
+  } catch (err) {
+    console.error("❌ Erro ao salvar venda:", err);
+    flash("Erro ao salvar venda.", "danger");
+  }
+});
+ // ==========================================================
+// 📋 CARREGAR VENDAS REALIZADAS
 // ==========================================================
 async function carregarVendas() {
   const tabela = document.getElementById("tabelaVendas");
@@ -1151,7 +1174,7 @@ async function carregarVendas() {
     renderPaginacao();
   }
 
-  // 🧾 Renderizar tabela
+  // 🧾 Renderizar tabela (com botões padronizados)
   function renderTabela() {
     tabela.innerHTML = "";
 
@@ -1161,31 +1184,35 @@ async function carregarVendas() {
 
     if (vendasPagina.length === 0) {
       tabela.innerHTML = `
-        <tr>
-          <td colspan="5" class="text-center text-muted py-3">
-            Nenhuma venda encontrada.
-          </td>
-        </tr>`;
+      <tr>
+        <td colspan="5" class="text-center text-muted py-3">
+          Nenhuma venda encontrada.
+        </td>
+      </tr>`;
       return;
     }
 
     vendasPagina.forEach((v) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${v.idVenda}</td>
-        <td>${v.cliente || "—"}</td>
-        <td>R$ ${parseFloat(v.valorTotal).toFixed(2).replace(".", ",")}</td>
-        <td>${v.dataVenda}</td>
-        <td class="text-center">
-          <button class="btn btn-sm btn-outline-info me-2 btn-ver-detalhes" 
-                  data-id="${v.idVenda}" title="Ver detalhes">
-            <i class="fas fa-eye"></i>
-          </button>
-          <button class="btn btn-sm btn-outline-danger btn-excluir-venda" 
-                  data-id="${v.idVenda}" title="Excluir venda">
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        </td>`;
+      <td>${v.idVenda}</td>
+      <td>${v.cliente || "—"}</td>
+      <td>R$ ${parseFloat(v.valorTotal).toFixed(2).replace(".", ",")}</td>
+      <td>${v.dataVenda}</td>
+      <td class="text-center">
+        <button class="btn btn-sm btn-outline-primary me-2 btn-editar-venda" 
+                data-id="${v.idVenda}" title="Editar venda">
+          <i class="fas fa-pencil-alt"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-info me-2 btn-ver-detalhes" 
+                data-id="${v.idVenda}" title="Ver detalhes">
+          <i class="fas fa-eye"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger btn-excluir-venda" 
+                data-id="${v.idVenda}" title="Excluir venda">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </td>`;
       tabela.appendChild(tr);
     });
   }
@@ -1237,11 +1264,11 @@ async function carregarVendas() {
   // 📡 Buscar vendas na API
   try {
     tabela.innerHTML = `
-      <tr>
-        <td colspan="5" class="text-center text-muted py-3">
-          Carregando vendas...
-        </td>
-      </tr>`;
+    <tr>
+      <td colspan="5" class="text-center text-muted py-3">
+        <i class="fas fa-spinner fa-spin me-2"></i>Carregando vendas...
+      </td>
+    </tr>`;
     const resp = await fetch(`${API_BASE}/api/vendas`);
     const vendas = await resp.json();
 
@@ -1250,18 +1277,17 @@ async function carregarVendas() {
   } catch (err) {
     console.error("❌ Erro ao carregar vendas:", err);
     tabela.innerHTML = `
-      <tr>
-        <td colspan="5" class="text-center text-danger py-3">
-          Erro ao carregar vendas.
-        </td>
-      </tr>`;
+    <tr>
+      <td colspan="5" class="text-center text-danger py-3">
+        Erro ao carregar vendas.
+      </td>
+    </tr>`;
   }
 
   // 🔄 Eventos de pesquisa e botão
   inputBusca?.addEventListener("input", aplicarFiltro);
   document.getElementById("btnPesquisarVenda")?.addEventListener("click", aplicarFiltro);
 }
-
 
   // ==========================================================
   // 🔍 VER DETALHES DA VENDA
@@ -1330,6 +1356,104 @@ async function carregarVendas() {
       flash("Erro ao carregar detalhes da venda.", "danger");
     }
   });
+  // ==========================================================
+  // 🗑️ EXCLUIR VENDA (com confirmação e atualização automática)
+  // ==========================================================
+  tabelaVendas?.addEventListener("click", async (e) => {
+    const btnExcluir = e.target.closest(".btn-excluir-venda");
+    if (!btnExcluir) return;
+
+    const idVenda = btnExcluir.dataset.id;
+    if (!confirm(`Tem certeza que deseja excluir a venda #${idVenda}?`)) return;
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/vendas/${idVenda}`, {
+        method: "DELETE",
+      });
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        console.error("❌ Erro ao excluir venda:", data);
+        flash(data.message || "Erro ao excluir venda!", "danger");
+        return;
+      }
+
+      flash("🗑️ Venda excluída com sucesso!", "success");
+      await carregarVendas(); // Atualiza a lista após excluir
+    } catch (err) {
+      console.error("❌ Erro no frontend ao excluir venda:", err);
+      flash("Erro ao excluir venda.", "danger");
+    }
+  });
+  // ==========================================================
+  // ✏️ EDITAR VENDA
+  // ==========================================================
+  tabelaVendas?.addEventListener("click", async (e) => {
+    const btnEditar = e.target.closest(".btn-editar-venda");
+    if (!btnEditar) return;
+
+    const idVenda = btnEditar.dataset.id;
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/vendas/${idVenda}`);
+      if (!resp.ok) throw new Error("Erro ao buscar dados da venda");
+      const venda = await resp.json();
+
+      console.log("📝 Venda para edição:", venda);
+
+      // 🧾 Preenche cliente
+      campoClienteSelecionado.value = venda.cliente || "—";
+      campoClienteSelecionado.dataset.idCliente = venda.idCliente || "";
+
+      // 💰 Carrega os itens no carrinho novamente
+      itensVenda = (venda.itens || []).map((i) => ({
+        id: i.idProduto,
+        nome: i.produto,
+        preco: parseFloat(i.precoUnitario),
+        qtd: parseInt(i.quantidade),
+        subtotal: parseFloat(i.subtotal),
+      }));
+
+      // 💸 Recarrega valores de desconto e totais
+      descontoAtual = parseFloat(venda.desconto || 0);
+      renderItensVenda();
+      atualizarTotal();
+
+      // 🟡 Altera botões e estado visual
+      btnRegistrar.textContent = "Salvar Alterações";
+      btnRegistrar.classList.replace("btn-primary", "btn-warning");
+      btnRegistrar.dataset.editando = idVenda;
+
+      if (!document.getElementById("btnCancelarEdicaoVenda")) {
+        const btnCancelar = document.createElement("button");
+        btnCancelar.id = "btnCancelarEdicaoVenda";
+        btnCancelar.className = "btn btn-secondary ms-2";
+        btnCancelar.innerHTML = '<i class="fas fa-times me-1"></i>Cancelar Edição';
+        btnRegistrar.parentNode.appendChild(btnCancelar);
+
+        btnCancelar.addEventListener("click", () => {
+          itensVenda = [];
+          descontoAtual = 0;
+          renderItensVenda();
+          atualizarTotal();
+          campoClienteSelecionado.value = "";
+          campoClienteSelecionado.dataset.idCliente = "";
+          btnRegistrar.textContent = "Registrar Venda";
+          btnRegistrar.classList.replace("btn-warning", "btn-primary");
+          delete btnRegistrar.dataset.editando;
+          btnCancelar.remove();
+          flash("🧾 Edição cancelada.", "info");
+        });
+      }
+
+      flash("✏️ Modo de edição ativado para a venda #" + idVenda, "info");
+    } catch (err) {
+      console.error("❌ Erro ao editar venda:", err);
+      flash("Erro ao carregar dados da venda.", "danger");
+    }
+  });
+
+
 
   // 🚀 Inicialização automática
   carregarVendas();
