@@ -726,14 +726,14 @@ function inicializarRegistroVendas() {
   const btnBuscarProdutoModal = document.getElementById("btnBuscarProdutoModal");
 
   // 🧹 Limpar campos e tabela ao fechar o modal de produtos
-productModal?.addEventListener("hidden.bs.modal", () => {
-  buscarProdutoId.value = "";
-  buscarProdutoNome.value = "";
-  tabelaModalProdutos.innerHTML = `
+  productModal?.addEventListener("hidden.bs.modal", () => {
+    buscarProdutoId.value = "";
+    buscarProdutoNome.value = "";
+    tabelaModalProdutos.innerHTML = `
     <tr><td colspan="4" class="text-center text-muted py-3">
       Nenhum resultado ainda.
     </td></tr>`;
-});
+  });
 
   async function buscarProdutosModal(id = "", nome = "") {
     tabelaModalProdutos.innerHTML = `
@@ -825,17 +825,17 @@ productModal?.addEventListener("hidden.bs.modal", () => {
   const btnBuscarClienteModal = document.getElementById("btnBuscarClienteModal");
 
   // 🧹 Limpar campos e tabela ao fechar o modal de clientes
-clientModal?.addEventListener("hidden.bs.modal", () => {
-  buscarClienteId.value = "";
-  buscarClienteCpf.value = "";
-  buscarClienteNome.value = "";
-  tabelaModalClientes.innerHTML = `
+  clientModal?.addEventListener("hidden.bs.modal", () => {
+    buscarClienteId.value = "";
+    buscarClienteCpf.value = "";
+    buscarClienteNome.value = "";
+    tabelaModalClientes.innerHTML = `
     <tr><td colspan="4" class="text-center text-muted py-3">
       Nenhum resultado ainda.
     </td></tr>`;
-});
+  });
 
-async function buscarClientesModal(id = "", cpf = "", nome = "") {
+  async function buscarClientesModal(id = "", cpf = "", nome = "") {
     tabelaModalClientes.innerHTML =
       `<tr><td colspan="4" class="text-center text-muted py-3">Buscando...</td></tr>`;
 
@@ -982,9 +982,9 @@ async function buscarClientesModal(id = "", cpf = "", nome = "") {
   const btnAbrirDesconto = document.getElementById("btnAbrirDesconto");
 
   // 🧹 Limpar campo de desconto ao fechar o modal
-discountModal?.addEventListener("hidden.bs.modal", () => {
-  discountValueInput.value = "";
-});
+  discountModal?.addEventListener("hidden.bs.modal", () => {
+    discountValueInput.value = "";
+  });
 
   // ✅ Máscara automática de valor (R$)
   discountValueInput?.addEventListener("input", (e) => {
@@ -1086,115 +1086,115 @@ discountModal?.addEventListener("hidden.bs.modal", () => {
   // 💾 REGISTRAR VENDA
   // ==========================================================
   btnRegistrar?.addEventListener("click", async () => {
-  if (itensVenda.length === 0) {
-    flash("Adicione produtos antes de registrar!", "warning");
-    return;
-  }
+    if (itensVenda.length === 0) {
+      flash("Adicione produtos antes de registrar!", "warning");
+      return;
+    }
 
-  const totalBruto = itensVenda.reduce((acc, i) => acc + i.subtotal, 0);
-  const valorTotal = Math.max(totalBruto - descontoAtual, 0);
-  const idCliente = campoClienteSelecionado.dataset.idCliente || null;
+    const totalBruto = itensVenda.reduce((acc, i) => acc + i.subtotal, 0);
+    const valorTotal = Math.max(totalBruto - descontoAtual, 0);
+    const idCliente = campoClienteSelecionado.dataset.idCliente || null;
 
-  const itensFormatados = itensVenda.map((i) => ({
-    idProduto: i.id,
-    quantidade: i.qtd,
-    precoUnitario: i.preco,
-  }));
+    const itensFormatados = itensVenda.map((i) => ({
+      idProduto: i.id,
+      quantidade: i.qtd,
+      precoUnitario: i.preco,
+    }));
 
-  const editandoId = btnRegistrar.dataset.editando;
-  const metodo = editandoId ? "PUT" : "POST";
-  const url = editandoId
-    ? `${API_BASE}/api/vendas/${editandoId}`
-    : `${API_BASE}/api/vendas`;
+    const editandoId = btnRegistrar.dataset.editando;
+    const metodo = editandoId ? "PUT" : "POST";
+    const url = editandoId
+      ? `${API_BASE}/api/vendas/${editandoId}`
+      : `${API_BASE}/api/vendas`;
 
-  try {
-    const resp = await fetch(url, {
-      method: metodo,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idCliente, valorTotal, desconto: descontoAtual, itens: itensFormatados }),
-    });
+    try {
+      const resp = await fetch(url, {
+        method: metodo,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idCliente, valorTotal, desconto: descontoAtual, itens: itensFormatados }),
+      });
 
-    const data = await resp.json();
-    if (!resp.ok) throw new Error(data.message || "Erro no servidor");
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.message || "Erro no servidor");
 
-    flash(
-      editandoId
-        ? "✏️ Venda atualizada com sucesso!"
-        : "💰 Venda registrada com sucesso!",
-      "success"
-    );
+      flash(
+        editandoId
+          ? "✏️ Venda atualizada com sucesso!"
+          : "💰 Venda registrada com sucesso!",
+        "success"
+      );
 
-    // 🔄 Resetar tudo
-    itensVenda = [];
-    descontoAtual = 0;
-    renderItensVenda();
-    atualizarTotal();
-    campoClienteSelecionado.value = "";
-    campoClienteSelecionado.dataset.idCliente = "";
-    btnRegistrar.textContent = "Registrar Venda";
-    btnRegistrar.classList.replace("btn-warning", "btn-primary");
-    delete btnRegistrar.dataset.editando;
-    document.getElementById("btnCancelarEdicaoVenda")?.remove();
+      // 🔄 Resetar tudo
+      itensVenda = [];
+      descontoAtual = 0;
+      renderItensVenda();
+      atualizarTotal();
+      campoClienteSelecionado.value = "";
+      campoClienteSelecionado.dataset.idCliente = "";
+      btnRegistrar.textContent = "Registrar Venda";
+      btnRegistrar.classList.replace("btn-warning", "btn-primary");
+      delete btnRegistrar.dataset.editando;
+      document.getElementById("btnCancelarEdicaoVenda")?.remove();
 
-    await carregarVendas();
-  } catch (err) {
-    console.error("❌ Erro ao salvar venda:", err);
-    flash("Erro ao salvar venda.", "danger");
-  }
-});
- // ==========================================================
-// 📋 CARREGAR VENDAS REALIZADAS
-// ==========================================================
-async function carregarVendas() {
-  const tabela = document.getElementById("tabelaVendas");
-  const paginacao = document.getElementById("paginacaoVendas");
-  const inputBusca = document.getElementById("pesquisarVenda");
-  if (!tabela) return;
+      await carregarVendas();
+    } catch (err) {
+      console.error("❌ Erro ao salvar venda:", err);
+      flash("Erro ao salvar venda.", "danger");
+    }
+  });
+  // ==========================================================
+  // 📋 CARREGAR VENDAS REALIZADAS
+  // ==========================================================
+  async function carregarVendas() {
+    const tabela = document.getElementById("tabelaVendas");
+    const paginacao = document.getElementById("paginacaoVendas");
+    const inputBusca = document.getElementById("pesquisarVenda");
+    if (!tabela) return;
 
-  let todasVendas = [];
-  let filtradas = [];
-  let paginaAtual = 1;
-  const pageSize = 8;
+    let todasVendas = [];
+    let filtradas = [];
+    let paginaAtual = 1;
+    const pageSize = 8;
 
-  // 🔍 Filtrar vendas dinamicamente
-  function aplicarFiltro() {
-    const termo = (inputBusca?.value || "").toLowerCase().trim();
-    filtradas = !termo
-      ? [...todasVendas]
-      : todasVendas.filter(
+    // 🔍 Filtrar vendas dinamicamente
+    function aplicarFiltro() {
+      const termo = (inputBusca?.value || "").toLowerCase().trim();
+      filtradas = !termo
+        ? [...todasVendas]
+        : todasVendas.filter(
           (v) =>
             String(v.idVenda).includes(termo) ||
             (v.cliente || "").toLowerCase().includes(termo) ||
             (v.dataVenda || "").toLowerCase().includes(termo)
         );
 
-    filtradas.sort((a, b) => Number(b.idVenda) - Number(a.idVenda));
-    paginaAtual = 1;
-    renderTabela();
-    renderPaginacao();
-  }
+      filtradas.sort((a, b) => Number(b.idVenda) - Number(a.idVenda));
+      paginaAtual = 1;
+      renderTabela();
+      renderPaginacao();
+    }
 
-  // 🧾 Renderizar tabela (com botões padronizados)
-  function renderTabela() {
-    tabela.innerHTML = "";
+    // 🧾 Renderizar tabela (com botões padronizados)
+    function renderTabela() {
+      tabela.innerHTML = "";
 
-    const inicio = (paginaAtual - 1) * pageSize;
-    const fim = inicio + pageSize;
-    const vendasPagina = filtradas.slice(inicio, fim);
+      const inicio = (paginaAtual - 1) * pageSize;
+      const fim = inicio + pageSize;
+      const vendasPagina = filtradas.slice(inicio, fim);
 
-    if (vendasPagina.length === 0) {
-      tabela.innerHTML = `
+      if (vendasPagina.length === 0) {
+        tabela.innerHTML = `
       <tr>
         <td colspan="5" class="text-center text-muted py-3">
           Nenhuma venda encontrada.
         </td>
       </tr>`;
-      return;
-    }
+        return;
+      }
 
-    vendasPagina.forEach((v) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
+      vendasPagina.forEach((v) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
       <td>${v.idVenda}</td>
       <td>${v.cliente || "—"}</td>
       <td>R$ ${parseFloat(v.valorTotal).toFixed(2).replace(".", ",")}</td>
@@ -1213,81 +1213,81 @@ async function carregarVendas() {
           <i class="fas fa-trash-alt"></i>
         </button>
       </td>`;
-      tabela.appendChild(tr);
-    });
-  }
-
-  // 🔢 Renderizar paginação (mesmo padrão clientes/produtos)
-  function renderPaginacao() {
-    if (!paginacao) return;
-    paginacao.innerHTML = "";
-
-    const totalPaginas = Math.ceil(filtradas.length / pageSize) || 1;
-
-    const addBtn = (label, disabled, callback) => {
-      const li = document.createElement("li");
-      li.className = `page-item ${disabled ? "disabled" : ""}`;
-      li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
-      li.onclick = (e) => {
-        e.preventDefault();
-        if (!disabled) callback();
-      };
-      paginacao.appendChild(li);
-    };
-
-    addBtn("«", paginaAtual === 1, () => {
-      paginaAtual--;
-      renderTabela();
-      renderPaginacao();
-    });
-
-    for (let p = 1; p <= totalPaginas; p++) {
-      const li = document.createElement("li");
-      li.className = `page-item ${p === paginaAtual ? "active" : ""}`;
-      li.innerHTML = `<a class="page-link" href="#">${p}</a>`;
-      li.onclick = (e) => {
-        e.preventDefault();
-        paginaAtual = p;
-        renderTabela();
-        renderPaginacao();
-      };
-      paginacao.appendChild(li);
+        tabela.appendChild(tr);
+      });
     }
 
-    addBtn("»", paginaAtual === totalPaginas, () => {
-      paginaAtual++;
-      renderTabela();
-      renderPaginacao();
-    });
-  }
+    // 🔢 Renderizar paginação (mesmo padrão clientes/produtos)
+    function renderPaginacao() {
+      if (!paginacao) return;
+      paginacao.innerHTML = "";
 
-  // 📡 Buscar vendas na API
-  try {
-    tabela.innerHTML = `
+      const totalPaginas = Math.ceil(filtradas.length / pageSize) || 1;
+
+      const addBtn = (label, disabled, callback) => {
+        const li = document.createElement("li");
+        li.className = `page-item ${disabled ? "disabled" : ""}`;
+        li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
+        li.onclick = (e) => {
+          e.preventDefault();
+          if (!disabled) callback();
+        };
+        paginacao.appendChild(li);
+      };
+
+      addBtn("«", paginaAtual === 1, () => {
+        paginaAtual--;
+        renderTabela();
+        renderPaginacao();
+      });
+
+      for (let p = 1; p <= totalPaginas; p++) {
+        const li = document.createElement("li");
+        li.className = `page-item ${p === paginaAtual ? "active" : ""}`;
+        li.innerHTML = `<a class="page-link" href="#">${p}</a>`;
+        li.onclick = (e) => {
+          e.preventDefault();
+          paginaAtual = p;
+          renderTabela();
+          renderPaginacao();
+        };
+        paginacao.appendChild(li);
+      }
+
+      addBtn("»", paginaAtual === totalPaginas, () => {
+        paginaAtual++;
+        renderTabela();
+        renderPaginacao();
+      });
+    }
+
+    // 📡 Buscar vendas na API
+    try {
+      tabela.innerHTML = `
     <tr>
       <td colspan="5" class="text-center text-muted py-3">
         <i class="fas fa-spinner fa-spin me-2"></i>Carregando vendas...
       </td>
     </tr>`;
-    const resp = await fetch(`${API_BASE}/api/vendas`);
-    const vendas = await resp.json();
+      const resp = await fetch(`${API_BASE}/api/vendas`);
+      const vendas = await resp.json();
 
-    todasVendas = Array.isArray(vendas) ? vendas : [];
-    aplicarFiltro();
-  } catch (err) {
-    console.error("❌ Erro ao carregar vendas:", err);
-    tabela.innerHTML = `
+      todasVendas = Array.isArray(vendas) ? vendas : [];
+      aplicarFiltro();
+    } catch (err) {
+      console.error("❌ Erro ao carregar vendas:", err);
+      tabela.innerHTML = `
     <tr>
       <td colspan="5" class="text-center text-danger py-3">
         Erro ao carregar vendas.
       </td>
     </tr>`;
-  }
+    }
 
-  // 🔄 Eventos de pesquisa e botão
-  inputBusca?.addEventListener("input", aplicarFiltro);
-  document.getElementById("btnPesquisarVenda")?.addEventListener("click", aplicarFiltro);
-}
+    // 🔄 Eventos de pesquisa e botão
+    inputBusca?.addEventListener("input", aplicarFiltro);
+    document.getElementById("btnPesquisarVenda")?.addEventListener("click", aplicarFiltro);
+  }
 
   // ==========================================================
   // 🔍 VER DETALHES DA VENDA
@@ -1453,12 +1453,315 @@ async function carregarVendas() {
     }
   });
 
-
-
   // 🚀 Inicialização automática
   carregarVendas();
 }
+// ==========================================================
+// 🔍 CONSULTA DE CLIENTES 
+// ==========================================================
+if (window.location.pathname.includes("consulta.html")) {
+  initConsultaClientes();
+}
 
+async function initConsultaClientes() {
+  const API_BASE = "http://localhost:3000";
+
+  // Elementos principais
+  const tabelaResultados = document.getElementById("tabelaResultadosClientes");
+  const tabelaVendasCliente = document.getElementById("tabelaVendasCliente");
+  const paginacaoVendasCliente = document.getElementById("paginacaoVendasCliente");
+  const detailsView = document.getElementById("detailsView");
+
+  // Campos de busca
+  const searchId = document.getElementById("searchId");
+  const searchName = document.getElementById("searchName");
+  const searchCpf = document.getElementById("searchCpf");
+  const searchStatus = document.getElementById("searchStatus");
+  const btnLimparFiltros = document.getElementById("btnLimparFiltros");
+  const btnBuscarClientes = document.getElementById("btnBuscarClientes");
+
+  // Campos de detalhes do cliente
+  const spanNome = document.getElementById("detalheNomeCliente");
+  const spanStatusBadge = document.getElementById("detalheStatusBadge");
+  const spanCpf = document.getElementById("detalheCpfCliente");
+  const spanTelefone = document.getElementById("detalheTelefoneCliente");
+  const spanEmail = document.getElementById("detalheEmailCliente");
+  const spanEndereco = document.getElementById("detalheEnderecoCliente");
+  const spanCidade = document.getElementById("detalheCidadeCliente");
+  const spanObservacao = document.getElementById("detalheObservacaoCliente");
+
+  let clienteSelecionado = null;
+  let vendasCliente = [];
+  let paginaAtualVendas = 1;
+  const pageSizeVendas = 5;
+
+  // 🧹 Limpar filtros
+  btnLimparFiltros?.addEventListener("click", () => {
+    searchId.value = "";
+    searchName.value = "";
+    searchCpf.value = "";
+    searchStatus.value = "todos";
+    tabelaResultados.innerHTML = `
+      <tr><td colspan="5" class="text-center text-muted py-3">Nenhum resultado.</td></tr>`;
+  });
+
+  // 🔍 Buscar clientes
+  btnBuscarClientes?.addEventListener("click", async () => {
+    const id = searchId.value.trim();
+    const nome = searchName.value.trim();
+    const cpf = searchCpf.value.replace(/\D/g, "");
+    const status = searchStatus.value;
+
+    let url = `${API_BASE}/api/consultas/clientes`;
+    const params = [];
+    if (id) params.push(`id=${encodeURIComponent(id)}`);
+    if (nome) params.push(`nome=${encodeURIComponent(nome)}`);
+    if (cpf) params.push(`cpf=${encodeURIComponent(cpf)}`);
+    if (status && status !== "todos") params.push(`status=${encodeURIComponent(status)}`);
+    if (params.length) url += `?${params.join("&")}`;
+
+    tabelaResultados.innerHTML = `
+      <tr><td colspan="5" class="text-center text-muted py-3">Buscando...</td></tr>`;
+
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`Erro ${resp.status}`);
+      const clientes = await resp.json();
+
+      if (!Array.isArray(clientes) || clientes.length === 0) {
+        tabelaResultados.innerHTML = `
+          <tr><td colspan="5" class="text-center text-muted py-3">Nenhum cliente encontrado.</td></tr>`;
+        return;
+      }
+
+      tabelaResultados.innerHTML = "";
+      clientes.forEach((c) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${c.idCliente}</td>
+          <td>${c.nome}</td>
+          <td>${c.cpf || "—"}</td>
+          <td>
+            <span class="badge ${c.status === "Ativo" ? "bg-success" : "bg-secondary"}">${c.status}</span>
+          </td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-success btn-select-cliente" data-id="${c.idCliente}">
+              <i class="fas fa-check me-1"></i>Selecionar
+            </button>
+          </td>`;
+        tabelaResultados.appendChild(tr);
+      });
+    } catch (err) {
+      console.error("❌ Erro ao buscar clientes:", err);
+      tabelaResultados.innerHTML = `
+        <tr><td colspan="5" class="text-center text-danger py-3">Erro ao buscar clientes.</td></tr>`;
+    }
+  });
+
+  // ✅ Selecionar cliente e buscar vendas
+  tabelaResultados?.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".btn-select-cliente");
+    if (!btn) return;
+
+    const idCliente = Number(btn.dataset.id);
+    try {
+      // 🔹 Buscar detalhes do cliente
+      const resp = await fetch(`${API_BASE}/api/consultas/clientes/${idCliente}`);
+      if (!resp.ok) throw new Error(`Cliente não encontrado (${resp.status})`);
+      const cliente = await resp.json();
+      clienteSelecionado = cliente;
+
+      // 🔹 Preencher resumo
+      spanNome.textContent = cliente.nome;
+      spanCpf.textContent = cliente.cpf || "—";
+      spanTelefone.textContent = cliente.telefone1 || "—";
+      spanEmail.textContent = cliente.email || "—";
+      spanEndereco.textContent = cliente.endereco || "—";
+      spanCidade.textContent = cliente.cidade || "—";
+      spanObservacao.textContent = cliente.observacao || "—";
+      spanStatusBadge.textContent = cliente.status;
+      spanStatusBadge.classList.remove("bg-success", "bg-secondary");
+      spanStatusBadge.classList.add(cliente.status === "Ativo" ? "bg-success" : "bg-secondary");
+
+      // 🔹 Buscar apenas vendas do cliente
+      const vendasResp = await fetch(`${API_BASE}/api/consultas/vendas/${idCliente}`);
+      if (!vendasResp.ok) throw new Error(`Erro ao buscar vendas (${vendasResp.status})`);
+      const vendas = await vendasResp.json();
+
+      vendasCliente = Array.isArray(vendas) ? vendas : [];
+      paginaAtualVendas = 1;
+      renderVendasCliente();
+
+      // 🔹 Mostrar detalhes e fechar modal
+      detailsView.classList.remove("d-none");
+      const modalEl = document.getElementById("resultsModal");
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal?.hide();
+
+      // 🧹 Limpar campos de busca
+      searchId.value = "";
+      searchName.value = "";
+      searchCpf.value = "";
+      searchStatus.value = "todos";
+    } catch (err) {
+      console.error("❌ Erro ao carregar cliente:", err);
+      tabelaVendasCliente.innerHTML = `
+        <tr><td colspan="4" class="text-center text-danger py-3">Erro ao carregar vendas do cliente.</td></tr>`;
+    }
+  });
+
+  // 🧾 Renderizar vendas do cliente
+  function renderVendasCliente() {
+    tabelaVendasCliente.innerHTML = "";
+
+    if (!vendasCliente || vendasCliente.length === 0) {
+      tabelaVendasCliente.innerHTML = `
+        <tr><td colspan="4" class="text-center text-muted py-3">Nenhuma venda encontrada para este cliente.</td></tr>`;
+      paginacaoVendasCliente.innerHTML = "";
+      return;
+    }
+
+    const ordenadas = [...vendasCliente].sort((a, b) => b.idVenda - a.idVenda);
+    const totalPaginas = Math.ceil(ordenadas.length / pageSizeVendas);
+    const inicio = (paginaAtualVendas - 1) * pageSizeVendas;
+    const fim = inicio + pageSizeVendas;
+    const pagina = ordenadas.slice(inicio, fim);
+
+    pagina.forEach((v) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${v.idVenda}</td>
+        <td>${v.dataVenda || "—"}</td>
+        <td>R$ ${parseFloat(v.valorTotal).toFixed(2).replace(".", ",")}</td>
+        <td class="text-center">
+          <button class="btn btn-sm btn-outline-info btn-ver-detalhes-venda" data-id="${v.idVenda}">
+            <i class="fas fa-eye"></i>
+          </button>
+        </td>`;
+      tabelaVendasCliente.appendChild(tr);
+    });
+
+    // 🔢 Paginação padrão
+    paginacaoVendasCliente.innerHTML = "";
+    const addBtn = (label, disabled, cb) => {
+      const li = document.createElement("li");
+      li.className = `page-item ${disabled ? "disabled" : ""}`;
+      li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
+      li.onclick = (e) => { e.preventDefault(); if (!disabled) cb(); };
+      paginacaoVendasCliente.appendChild(li);
+    };
+    addBtn("«", paginaAtualVendas === 1, () => { paginaAtualVendas--; renderVendasCliente(); });
+    for (let p = 1; p <= totalPaginas; p++) {
+      const li = document.createElement("li");
+      li.className = `page-item ${p === paginaAtualVendas ? "active" : ""}`;
+      li.innerHTML = `<a class="page-link" href="#">${p}</a>`;
+      li.onclick = (e) => { e.preventDefault(); paginaAtualVendas = p; renderVendasCliente(); };
+      paginacaoVendasCliente.appendChild(li);
+    }
+    addBtn("»", paginaAtualVendas === totalPaginas, () => { paginaAtualVendas++; renderVendasCliente(); });
+  }
+// 👁 Ver detalhes da venda (VERSÃO CORRIGIDA)
+tabelaVendasCliente?.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".btn-ver-detalhes-venda");
+  if (!btn) return;
+
+  const idVenda = Number(btn.dataset.id);
+
+  try {
+    const resp = await fetch(`${API_BASE}/api/consultas/venda/${idVenda}`);
+    if (!resp.ok) throw new Error(`Erro ${resp.status}`);
+    const venda = await resp.json();
+
+    // ===============================
+    // 📝 Cabeçalho do modal
+    // ===============================
+    document.getElementById("purchaseDetailsModalLabel").textContent =
+      `Detalhes da Venda #${venda.idVenda}`;
+
+    document.getElementById("detalheIdVenda").textContent = venda.idVenda;
+    document.getElementById("detalheVendaClienteNome").textContent =
+      clienteSelecionado?.nome || "—";
+    document.getElementById("detalheVendaData").textContent =
+      venda.dataVenda || "—";
+
+    const statusBadge = document.getElementById("detalheVendaStatus");
+    statusBadge.textContent = venda.status || "Ativa";
+    statusBadge.className =
+      venda.status === "Cancelada"
+        ? "badge bg-danger"
+        : "badge bg-success";
+
+    // ===============================
+    // 🧾 Itens da venda
+    // ===============================
+    const tbodyItens = document.getElementById("tabelaItensVendaCliente");
+    tbodyItens.innerHTML = "";
+
+    if (!venda.itens || venda.itens.length === 0) {
+      tbodyItens.innerHTML = `
+        <tr><td colspan="4" class="text-center text-muted py-3">
+          Nenhum item encontrado.
+        </td></tr>`;
+    } else {
+      venda.itens.forEach((i) => {
+        const preco = parseFloat(i.precoUnitario || 0);
+        const qtd = parseInt(i.quantidade || 0);
+        const subtotal = preco * qtd;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i.produto}</td>
+          <td>${qtd}</td>
+          <td class="text-end">R$ ${preco.toFixed(2).replace('.', ',')}</td>
+          <td class="text-end">R$ ${subtotal.toFixed(2).replace('.', ',')}</td>`;
+        tbodyItens.appendChild(tr);
+      });
+    }
+
+    // ===============================
+    // 💲 Totais
+    // ===============================
+    const subtotal = venda.itens?.reduce((acc, i) =>
+      acc + ((parseFloat(i.precoUnitario) || 0) * (parseInt(i.quantidade) || 0))
+    , 0) || 0;
+
+    const desconto = parseFloat(venda.desconto) || 0;
+    const total = parseFloat(venda.valorTotal) || subtotal;
+
+    document.getElementById("detalheVendaSubtotal").textContent =
+      `R$ ${subtotal.toFixed(2).replace(".", ",")}`;
+    document.getElementById("detalheVendaDesconto").textContent =
+      `R$ ${desconto.toFixed(2).replace(".", ",")}`;
+    document.getElementById("detalheVendaTotal").textContent =
+      `R$ ${total.toFixed(2).replace(".", ",")}`;
+
+    // ===============================
+    // 🚀 ABRIR MODAL SEM TRAVAR
+    // ===============================
+
+    // Remover backdrop duplicado
+    document.querySelectorAll(".modal-backdrop")?.forEach(b => b.remove());
+
+    // Garantir que body volta ao normal
+    document.body.classList.remove("modal-open");
+    document.body.style.overflow = "";
+
+    // Abrir modal correto (ID AJUSTADO)
+    const modalEl = document.getElementById("purchaseDetailsModal");
+
+    // Fecha instância anterior, se existir
+    const prevModal = bootstrap.Modal.getInstance(modalEl);
+    if (prevModal) prevModal.hide();
+
+    // Abre novo modal
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+
+  } catch (err) {
+    console.error("❌ Erro ao carregar detalhes da venda:", err);
+  }
+});
+}
 // ==========================================================
 // 5️⃣ EXECUÇÃO AUTOMÁTICA POR PÁGINA
 // ==========================================================
