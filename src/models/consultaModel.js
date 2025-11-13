@@ -1,5 +1,5 @@
 // ==========================================================
-// 🧠 MODEL: CONSULTA DE CLIENTES (Atualizado)
+// 🧠 MODEL: CONSULTA DE CLIENTES (Atualizado com dataNascimento)
 // ==========================================================
 const db = require("../config/database");
 
@@ -8,7 +8,17 @@ const db = require("../config/database");
 // ----------------------------------------------------------
 async function buscarClientes({ id, nome, cpf, status }) {
   let sql = `
-    SELECT idCliente, nome, cpf, telefone1, email, endereco, cidade, status, observacao
+    SELECT 
+      idCliente, 
+      nome, 
+      cpf, 
+      telefone1, 
+      email, 
+      endereco, 
+      cidade, 
+      status, 
+      observacao,
+      DATE_FORMAT(dataNascimento, '%d/%m/%Y') AS dataNascimento
     FROM cliente
     WHERE 1=1
   `;
@@ -38,20 +48,31 @@ async function buscarClientes({ id, nome, cpf, status }) {
 }
 
 // ----------------------------------------------------------
-// Buscar cliente específico com observação
+// Buscar cliente específico com observação + dataNascimento
 // ----------------------------------------------------------
 async function buscarClientePorId(idCliente) {
   const [rows] = await db.query(
-    `SELECT idCliente, nome, cpf, telefone1, email, endereco, cidade, status, observacao
+    `SELECT 
+        idCliente, 
+        nome, 
+        cpf, 
+        telefone1, 
+        email, 
+        endereco, 
+        cidade, 
+        status, 
+        observacao,
+        DATE_FORMAT(dataNascimento, '%d/%m/%Y') AS dataNascimento
      FROM cliente
      WHERE idCliente = ?`,
     [idCliente]
   );
+
   return rows[0] || null;
 }
 
 // ----------------------------------------------------------
-// Buscar vendas relacionadas a um cliente (com desconto)
+// Buscar vendas relacionadas a um cliente (sem alterações)
 // ----------------------------------------------------------
 async function buscarVendasPorCliente(idCliente) {
   const [rows] = await db.query(
@@ -72,7 +93,7 @@ async function buscarVendasPorCliente(idCliente) {
 }
 
 // ----------------------------------------------------------
-// Buscar detalhes de uma venda (com itens e desconto)
+// Buscar detalhes de uma venda (sem alterações)
 // ----------------------------------------------------------
 async function buscarVendaPorId(idVenda) {
   const [vendaRows] = await db.query(

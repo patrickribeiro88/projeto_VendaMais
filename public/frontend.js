@@ -1536,21 +1536,36 @@ async function initConsultaClientes() {
 
       tabelaResultados.innerHTML = "";
       clientes.forEach((c) => {
+
+        // Formatar data de nascimento
+        let nasc = "—";
+        if (c.dataNascimento) {
+          try {
+            nasc = c.dataNascimento.split("T")[0].split("-").reverse().join("/");
+          } catch {
+            nasc = "—";
+          }
+        }
+
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${c.idCliente}</td>
-          <td>${c.nome}</td>
-          <td>${c.cpf || "—"}</td>
-          <td>
-            <span class="badge ${c.status === "Ativo" ? "bg-success" : "bg-secondary"}">${c.status}</span>
-          </td>
-          <td class="text-center">
-            <button class="btn btn-sm btn-success btn-select-cliente" data-id="${c.idCliente}">
-              <i class="fas fa-check me-1"></i>Selecionar
-            </button>
-          </td>`;
+    <td>${c.idCliente}</td>
+    <td>${c.nome}</td>
+    <td>${c.cpf || "—"}</td>
+    <td>${nasc}</td>
+    <td>
+      <span class="badge ${c.status === "Ativo" ? "bg-success" : "bg-secondary"}">
+        ${c.status}
+      </span>
+    </td>
+    <td class="text-center">
+      <button class="btn btn-sm btn-success btn-select-cliente" data-id="${c.idCliente}">
+        <i class="fas fa-check me-1"></i>Selecionar
+      </button>
+    </td>`;
         tabelaResultados.appendChild(tr);
       });
+
     } catch (err) {
       console.error("❌ Erro ao buscar clientes:", err);
       tabelaResultados.innerHTML = `
@@ -1660,107 +1675,107 @@ async function initConsultaClientes() {
     }
     addBtn("»", paginaAtualVendas === totalPaginas, () => { paginaAtualVendas++; renderVendasCliente(); });
   }
-// 👁 Ver detalhes da venda (VERSÃO CORRIGIDA)
-tabelaVendasCliente?.addEventListener("click", async (e) => {
-  const btn = e.target.closest(".btn-ver-detalhes-venda");
-  if (!btn) return;
+  // 👁 Ver detalhes da venda (VERSÃO CORRIGIDA)
+  tabelaVendasCliente?.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".btn-ver-detalhes-venda");
+    if (!btn) return;
 
-  const idVenda = Number(btn.dataset.id);
+    const idVenda = Number(btn.dataset.id);
 
-  try {
-    const resp = await fetch(`${API_BASE}/api/consultas/venda/${idVenda}`);
-    if (!resp.ok) throw new Error(`Erro ${resp.status}`);
-    const venda = await resp.json();
+    try {
+      const resp = await fetch(`${API_BASE}/api/consultas/venda/${idVenda}`);
+      if (!resp.ok) throw new Error(`Erro ${resp.status}`);
+      const venda = await resp.json();
 
-    // ===============================
-    // 📝 Cabeçalho do modal
-    // ===============================
-    document.getElementById("purchaseDetailsModalLabel").textContent =
-      `Detalhes da Venda #${venda.idVenda}`;
+      // ===============================
+      // 📝 Cabeçalho do modal
+      // ===============================
+      document.getElementById("purchaseDetailsModalLabel").textContent =
+        `Detalhes da Venda #${venda.idVenda}`;
 
-    document.getElementById("detalheIdVenda").textContent = venda.idVenda;
-    document.getElementById("detalheVendaClienteNome").textContent =
-      clienteSelecionado?.nome || "—";
-    document.getElementById("detalheVendaData").textContent =
-      venda.dataVenda || "—";
+      document.getElementById("detalheIdVenda").textContent = venda.idVenda;
+      document.getElementById("detalheVendaClienteNome").textContent =
+        clienteSelecionado?.nome || "—";
+      document.getElementById("detalheVendaData").textContent =
+        venda.dataVenda || "—";
 
-    const statusBadge = document.getElementById("detalheVendaStatus");
-    statusBadge.textContent = venda.status || "Ativa";
-    statusBadge.className =
-      venda.status === "Cancelada"
-        ? "badge bg-danger"
-        : "badge bg-success";
+      const statusBadge = document.getElementById("detalheVendaStatus");
+      statusBadge.textContent = venda.status || "Ativa";
+      statusBadge.className =
+        venda.status === "Cancelada"
+          ? "badge bg-danger"
+          : "badge bg-success";
 
-    // ===============================
-    // 🧾 Itens da venda
-    // ===============================
-    const tbodyItens = document.getElementById("tabelaItensVendaCliente");
-    tbodyItens.innerHTML = "";
+      // ===============================
+      // 🧾 Itens da venda
+      // ===============================
+      const tbodyItens = document.getElementById("tabelaItensVendaCliente");
+      tbodyItens.innerHTML = "";
 
-    if (!venda.itens || venda.itens.length === 0) {
-      tbodyItens.innerHTML = `
+      if (!venda.itens || venda.itens.length === 0) {
+        tbodyItens.innerHTML = `
         <tr><td colspan="4" class="text-center text-muted py-3">
           Nenhum item encontrado.
         </td></tr>`;
-    } else {
-      venda.itens.forEach((i) => {
-        const preco = parseFloat(i.precoUnitario || 0);
-        const qtd = parseInt(i.quantidade || 0);
-        const subtotal = preco * qtd;
+      } else {
+        venda.itens.forEach((i) => {
+          const preco = parseFloat(i.precoUnitario || 0);
+          const qtd = parseInt(i.quantidade || 0);
+          const subtotal = preco * qtd;
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
           <td>${i.produto}</td>
           <td>${qtd}</td>
           <td class="text-end">R$ ${preco.toFixed(2).replace('.', ',')}</td>
           <td class="text-end">R$ ${subtotal.toFixed(2).replace('.', ',')}</td>`;
-        tbodyItens.appendChild(tr);
-      });
+          tbodyItens.appendChild(tr);
+        });
+      }
+
+      // ===============================
+      // 💲 Totais
+      // ===============================
+      const subtotal = venda.itens?.reduce((acc, i) =>
+        acc + ((parseFloat(i.precoUnitario) || 0) * (parseInt(i.quantidade) || 0))
+        , 0) || 0;
+
+      const desconto = parseFloat(venda.desconto) || 0;
+      const total = parseFloat(venda.valorTotal) || subtotal;
+
+      document.getElementById("detalheVendaSubtotal").textContent =
+        `R$ ${subtotal.toFixed(2).replace(".", ",")}`;
+      document.getElementById("detalheVendaDesconto").textContent =
+        `R$ ${desconto.toFixed(2).replace(".", ",")}`;
+      document.getElementById("detalheVendaTotal").textContent =
+        `R$ ${total.toFixed(2).replace(".", ",")}`;
+
+      // ===============================
+      // 🚀 ABRIR MODAL SEM TRAVAR
+      // ===============================
+
+      // Remover backdrop duplicado
+      document.querySelectorAll(".modal-backdrop")?.forEach(b => b.remove());
+
+      // Garantir que body volta ao normal
+      document.body.classList.remove("modal-open");
+      document.body.style.overflow = "";
+
+      // Abrir modal correto (ID AJUSTADO)
+      const modalEl = document.getElementById("purchaseDetailsModal");
+
+      // Fecha instância anterior, se existir
+      const prevModal = bootstrap.Modal.getInstance(modalEl);
+      if (prevModal) prevModal.hide();
+
+      // Abre novo modal
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+
+    } catch (err) {
+      console.error("❌ Erro ao carregar detalhes da venda:", err);
     }
-
-    // ===============================
-    // 💲 Totais
-    // ===============================
-    const subtotal = venda.itens?.reduce((acc, i) =>
-      acc + ((parseFloat(i.precoUnitario) || 0) * (parseInt(i.quantidade) || 0))
-    , 0) || 0;
-
-    const desconto = parseFloat(venda.desconto) || 0;
-    const total = parseFloat(venda.valorTotal) || subtotal;
-
-    document.getElementById("detalheVendaSubtotal").textContent =
-      `R$ ${subtotal.toFixed(2).replace(".", ",")}`;
-    document.getElementById("detalheVendaDesconto").textContent =
-      `R$ ${desconto.toFixed(2).replace(".", ",")}`;
-    document.getElementById("detalheVendaTotal").textContent =
-      `R$ ${total.toFixed(2).replace(".", ",")}`;
-
-    // ===============================
-    // 🚀 ABRIR MODAL SEM TRAVAR
-    // ===============================
-
-    // Remover backdrop duplicado
-    document.querySelectorAll(".modal-backdrop")?.forEach(b => b.remove());
-
-    // Garantir que body volta ao normal
-    document.body.classList.remove("modal-open");
-    document.body.style.overflow = "";
-
-    // Abrir modal correto (ID AJUSTADO)
-    const modalEl = document.getElementById("purchaseDetailsModal");
-
-    // Fecha instância anterior, se existir
-    const prevModal = bootstrap.Modal.getInstance(modalEl);
-    if (prevModal) prevModal.hide();
-
-    // Abre novo modal
-    const modal = new bootstrap.Modal(modalEl);
-    modal.show();
-
-  } catch (err) {
-    console.error("❌ Erro ao carregar detalhes da venda:", err);
-  }
-});
+  });
 }
 // ==========================================================
 // 5️⃣ EXECUÇÃO AUTOMÁTICA POR PÁGINA
