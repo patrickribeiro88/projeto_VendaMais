@@ -49,7 +49,7 @@ async function buscarVendasPorCliente(req, res) {
 }
 
 // ----------------------------------------------------------
-// Buscar detalhes de uma venda (com produtos e desconto)
+// Buscar detalhes de uma venda
 // ----------------------------------------------------------
 async function buscarVendaPorId(req, res) {
   try {
@@ -65,9 +65,68 @@ async function buscarVendaPorId(req, res) {
   }
 }
 
+// ==========================================================
+// 🔴 INATIVOS / NÃO RECORRENTES
+// ==========================================================
+
+// ----------------------------------------------------------
+// Lista geral de inativos (>= 5 dias) + filtro texto
+// GET /api/consultas/inativos?filtro=...
+// ----------------------------------------------------------
+async function buscarInativos(req, res) {
+  try {
+    const { filtro = "" } = req.query;
+    const lista = await consultaModel.buscarInativos(filtro);
+    return res.status(200).json(lista);
+  } catch (err) {
+    console.error("❌ Erro ao buscar inativos:", err);
+    res.status(500).json({ message: "Erro ao buscar inativos." });
+  }
+}
+
+// ----------------------------------------------------------
+// Inativos por período (X dias ou mais)
+// GET /api/consultas/inativos/:dias
+// ----------------------------------------------------------
+async function buscarInativosPorPeriodo(req, res) {
+  try {
+    const { dias } = req.params;
+    const lista = await consultaModel.buscarInativosPorPeriodo(dias);
+    return res.status(200).json(lista);
+  } catch (err) {
+    console.error("❌ Erro ao buscar inativos por período:", err);
+    res.status(500).json({ message: "Erro ao buscar inativos por período." });
+  }
+}
+
+// ----------------------------------------------------------
+// Última venda do cliente inativo (para modal)
+// GET /api/consultas/inativos/ultima-venda/:idCliente
+// ----------------------------------------------------------
+async function buscarUltimaVendaInativo(req, res) {
+  try {
+    const { idCliente } = req.params;
+    const venda = await consultaModel.buscarUltimaVendaInativo(idCliente);
+
+    if (!venda) {
+      return res.status(404).json({ message: "Nenhuma venda encontrada para este cliente." });
+    }
+
+    return res.status(200).json(venda);
+  } catch (err) {
+    console.error("❌ Erro ao buscar última venda do inativo:", err);
+    res.status(500).json({ message: "Erro ao buscar última venda do inativo." });
+  }
+}
 module.exports = {
+  // consulta clientes / vendas
   buscarClientes,
   buscarClientePorId,
   buscarVendasPorCliente,
   buscarVendaPorId,
+
+  // inativos
+  buscarInativos,
+  buscarInativosPorPeriodo,
+  buscarUltimaVendaInativo,
 };

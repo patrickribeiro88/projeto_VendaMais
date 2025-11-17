@@ -16,9 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
 // ==========================================================
-// 1️⃣ HELPERS COMUNS
+// 1 - HELPERS COMUNS
 // ==========================================================
 
 // Exibe mensagens temporárias de sucesso/erro
@@ -35,7 +34,6 @@ function limparValidacoes() {
     .querySelectorAll(".is-valid, .is-invalid")
     .forEach((el) => el.classList.remove("is-valid", "is-invalid"));
 }
-
 // Apenas números em certos campos
 function aplicarMascaraNumerica(ids = []) {
   ids.forEach((id) => {
@@ -46,12 +44,11 @@ function aplicarMascaraNumerica(ids = []) {
       });
   });
 }
-
 // Detecta qual página está ativa
 const paginaAtual = window.location.pathname.split("/").pop();
 
 // ==========================================================
-// 2️⃣ LOGIN
+// 2️ - LOGIN
 // ==========================================================
 function inicializarLogin() {
   const formLogin = document.getElementById("formLogin");
@@ -86,9 +83,8 @@ function inicializarLogin() {
     }
   });
 }
-
 // ==========================================================
-// 3️⃣ CLIENTES (CRUD + Validações + Paginação)
+// 3️ - CLIENTES (CRUD + Validações + Paginação)
 // ==========================================================
 function inicializarCadastroClientes() {
   console.log("✅ Página: cadastro-cliente.html detectada");
@@ -164,7 +160,6 @@ function inicializarCadastroClientes() {
         '<tr><td colspan="6" class="text-danger text-center">Erro ao carregar clientes.</td></tr>';
     }
   }
-
   function aplicarFiltroEPaginar() {
     const termo =
       (document.getElementById("pesquisarInput")?.value || "").toLowerCase().trim();
@@ -185,12 +180,10 @@ function inicializarCadastroClientes() {
     renderTabelaPaginada();
     renderPaginacao();
   }
-
   function getPaginaAtual() {
     const start = (currentPage - 1) * pageSize;
     return filtrados.slice(start, start + pageSize);
   }
-
   function renderTabelaPaginada() {
     if (!tabela) return;
     const page = getPaginaAtual();
@@ -381,9 +374,8 @@ function inicializarCadastroClientes() {
 
   fetchClientes();
 }
-
 // ==========================================================
-// 4️⃣ PRODUTOS (CRUD + Validação + Paginação + Máscara de preço)
+// 4️ - PRODUTOS (CRUD + Validação + Paginação + Máscara de preço)
 // ==========================================================
 function inicializarCadastroProdutos() {
   const form = document.getElementById("formProduto");
@@ -679,13 +671,13 @@ function inicializarCadastroProdutos() {
   fetchProdutos();
 }
 // ==========================================================
-// 🧾 REGISTRO DE VENDAS - COMPLETO E ATUALIZADO
+//  5 - REGISTRO DE VENDAS 
 // ==========================================================
 function inicializarRegistroVendas() {
   console.log("✅ Página: registro-vendas.html detectada");
 
   // ==========================================================
-  // 🔧 VARIÁVEIS GERAIS E ELEMENTOS
+  //  VARIÁVEIS GERAIS E ELEMENTOS
   // ==========================================================
   const API_BASE = "http://localhost:3000";
 
@@ -708,7 +700,7 @@ function inicializarRegistroVendas() {
   let descontoAtual = 0;
 
   // ==========================================================
-  // 💬 Função: Exibir mensagens de feedback
+  //  Função: Exibir mensagens de feedback
   // ==========================================================
   function flash(msg, type = "success", ms = 4000) {
     if (!feedback) return;
@@ -717,7 +709,7 @@ function inicializarRegistroVendas() {
   }
 
   // ==========================================================
-  // 🔍 MODAL: BUSCA DE PRODUTOS
+  //  MODAL: BUSCA DE PRODUTOS
   // ==========================================================
   const productModal = document.getElementById("productSearchModal");
   const buscarProdutoId = document.getElementById("buscarProdutoId");
@@ -725,7 +717,7 @@ function inicializarRegistroVendas() {
   const tabelaModalProdutos = document.querySelector("#tabelaModalProdutos tbody");
   const btnBuscarProdutoModal = document.getElementById("btnBuscarProdutoModal");
 
-  // 🧹 Limpar campos e tabela ao fechar o modal de produtos
+  //  Limpar campos e tabela ao fechar o modal de produtos
   productModal?.addEventListener("hidden.bs.modal", () => {
     buscarProdutoId.value = "";
     buscarProdutoNome.value = "";
@@ -756,7 +748,7 @@ function inicializarRegistroVendas() {
       if (!resp.ok) throw new Error(`Erro ${resp.status}`);
       const produtos = await resp.json();
 
-      // ✅ Verificação robusta
+      //  Verificação robusta
       if (!Array.isArray(produtos)) {
         console.warn("⚠️ Resposta inesperada da API de produtos:", produtos);
         tabelaModalProdutos.innerHTML = `
@@ -815,7 +807,7 @@ function inicializarRegistroVendas() {
   });
 
   // ==========================================================
-  // 🔍 MODAL: BUSCA DE CLIENTES
+  //  MODAL: BUSCA DE CLIENTES
   // ==========================================================
   const clientModal = document.getElementById("clientSearchModal");
   const buscarClienteId = document.getElementById("buscarClienteId");
@@ -824,7 +816,7 @@ function inicializarRegistroVendas() {
   const tabelaModalClientes = document.querySelector("#tabelaModalClientes tbody");
   const btnBuscarClienteModal = document.getElementById("btnBuscarClienteModal");
 
-  // 🧹 Limpar campos e tabela ao fechar o modal de clientes
+  //  Limpar campos e tabela ao fechar o modal de clientes
   clientModal?.addEventListener("hidden.bs.modal", () => {
     buscarClienteId.value = "";
     buscarClienteCpf.value = "";
@@ -908,7 +900,7 @@ function inicializarRegistroVendas() {
   });
 
   // ==========================================================
-  // 🧮 CONTROLE DE QUANTIDADE
+  //  CONTROLE DE QUANTIDADE
   // ==========================================================
   const [btnMenos, btnMais] = campoQuantidade?.parentElement.querySelectorAll(".btn-outline-secondary") || [];
 
@@ -923,7 +915,7 @@ function inicializarRegistroVendas() {
   });
 
   // ==========================================================
-  // 🧩 ADICIONAR PRODUTO À VENDA
+  //  ADICIONAR PRODUTO À VENDA
   // ==========================================================
   btnAdicionarProduto?.addEventListener("click", () => {
     const id = campoAddProduto.dataset.idProduto;
@@ -947,7 +939,7 @@ function inicializarRegistroVendas() {
   });
 
   // ==========================================================
-  // 🧾 RENDERIZAR ITENS NA TABELA
+  //  RENDERIZAR ITENS NA TABELA
   // ==========================================================
   function renderItensVenda() {
     tabelaItensVenda.innerHTML = "";
@@ -973,7 +965,7 @@ function inicializarRegistroVendas() {
     });
   }
   // ==========================================================
-  // 💸 Modal de Desconto
+  //  Modal de Desconto
   // ==========================================================
   const discountModal = document.getElementById("discountModal");
   const discountValueInput = document.getElementById("discountValue");
@@ -981,19 +973,19 @@ function inicializarRegistroVendas() {
   const btnRemoverDesconto = document.getElementById("btnRemoverDesconto");
   const btnAbrirDesconto = document.getElementById("btnAbrirDesconto");
 
-  // 🧹 Limpar campo de desconto ao fechar o modal
+  //  Limpar campo de desconto ao fechar o modal
   discountModal?.addEventListener("hidden.bs.modal", () => {
     discountValueInput.value = "";
   });
 
-  // ✅ Máscara automática de valor (R$)
+  // Máscara automática de valor (R$)
   discountValueInput?.addEventListener("input", (e) => {
     let valor = e.target.value.replace(/\D/g, "");
     valor = (parseInt(valor || "0", 10) / 100).toFixed(2);
     e.target.value = valor.replace(".", ",");
   });
 
-  // 🟡 Mostrar/ocultar botão de desconto dinamicamente
+  //  Mostrar/ocultar botão de desconto dinamicamente
   function verificarVisibilidadeDesconto() {
     if (itensVenda.length > 0) {
       btnAbrirDesconto?.classList.remove("d-none");
@@ -1003,15 +995,13 @@ function inicializarRegistroVendas() {
       descontoAtual = 0;
     }
   }
-
-  // 🟢 Abrir modal de desconto
+  //  Abrir modal de desconto
   btnAbrirDesconto?.addEventListener("click", () => {
     discountValueInput.value = descontoAtual.toFixed(2).replace(".", ",");
     const modal = new bootstrap.Modal(discountModal);
     modal.show();
   });
-
-  // 🟣 Aplicar desconto com validação
+  //  Aplicar desconto com validação
   btnAplicarDesconto?.addEventListener("click", () => {
     const valorDigitado = discountValueInput.value.replace(",", ".").trim();
     const valor = parseFloat(valorDigitado);
@@ -1036,7 +1026,7 @@ function inicializarRegistroVendas() {
     flash(`💸 Desconto de R$ ${valor.toFixed(2).replace(".", ",")} aplicado com sucesso!`);
   });
 
-  // 🔴 Remover desconto
+  //  Remover desconto
   btnRemoverDesconto?.addEventListener("click", () => {
     descontoAtual = 0;
     atualizarTotal();
@@ -1044,7 +1034,7 @@ function inicializarRegistroVendas() {
     flash("❌ Desconto removido com sucesso!", "info");
   });
 
-  // 🔵 Atualizar subtotal e total (inclui desconto)
+  //  Atualizar subtotal e total (inclui desconto)
   function atualizarTotal() {
     const totalBruto = itensVenda.reduce((acc, item) => acc + item.subtotal, 0);
     const totalComDesconto = Math.max(totalBruto - descontoAtual, 0);
@@ -1057,7 +1047,7 @@ function inicializarRegistroVendas() {
   }
 
   // ==========================================================
-  // 🧹 LIMPAR VENDA E REMOVER ITENS
+  // LIMPAR VENDA E REMOVER ITENS
   // ==========================================================
   btnLimpar?.addEventListener("click", () => {
     itensVenda = [];
@@ -1083,7 +1073,7 @@ function inicializarRegistroVendas() {
   });
 
   // ==========================================================
-  // 💾 REGISTRAR VENDA
+  // REGISTRAR VENDA
   // ==========================================================
   btnRegistrar?.addEventListener("click", async () => {
     if (itensVenda.length === 0) {
@@ -1124,7 +1114,7 @@ function inicializarRegistroVendas() {
         "success"
       );
 
-      // 🔄 Resetar tudo
+      //  Resetar tudo
       itensVenda = [];
       descontoAtual = 0;
       renderItensVenda();
@@ -1143,7 +1133,7 @@ function inicializarRegistroVendas() {
     }
   });
   // ==========================================================
-  // 📋 CARREGAR VENDAS REALIZADAS
+  //  CARREGAR VENDAS REALIZADAS
   // ==========================================================
   async function carregarVendas() {
     const tabela = document.getElementById("tabelaVendas");
@@ -1174,7 +1164,7 @@ function inicializarRegistroVendas() {
       renderPaginacao();
     }
 
-    // 🧾 Renderizar tabela (com botões padronizados)
+    //  Renderizar tabela (com botões padronizados)
     function renderTabela() {
       tabela.innerHTML = "";
 
@@ -1217,7 +1207,7 @@ function inicializarRegistroVendas() {
       });
     }
 
-    // 🔢 Renderizar paginação (mesmo padrão clientes/produtos)
+    // Renderizar paginação (mesmo padrão clientes/produtos)
     function renderPaginacao() {
       if (!paginacao) return;
       paginacao.innerHTML = "";
@@ -1261,7 +1251,7 @@ function inicializarRegistroVendas() {
       });
     }
 
-    // 📡 Buscar vendas na API
+    //  Buscar vendas na API
     try {
       tabela.innerHTML = `
     <tr>
@@ -1284,13 +1274,13 @@ function inicializarRegistroVendas() {
     </tr>`;
     }
 
-    // 🔄 Eventos de pesquisa e botão
+    //  Eventos de pesquisa e botão
     inputBusca?.addEventListener("input", aplicarFiltro);
     document.getElementById("btnPesquisarVenda")?.addEventListener("click", aplicarFiltro);
   }
 
   // ==========================================================
-  // 🔍 VER DETALHES DA VENDA
+  //  VER DETALHES DA VENDA
   // ==========================================================
   tabelaVendas?.addEventListener("click", async (e) => {
     const btn = e.target.closest(".btn-ver-detalhes");
@@ -1305,13 +1295,13 @@ function inicializarRegistroVendas() {
       const venda = await resp.json();
       console.log("🧾 Detalhes da venda recebidos:", venda);
 
-      // 🧾 Preenche informações principais
+      //  Preenche informações principais
       document.getElementById("detalheIdVenda").textContent = venda.idVenda;
       document.getElementById("detalheCliente").textContent = venda.cliente || "—";
       document.getElementById("detalheDataVenda").textContent = venda.dataVenda || "—";
       document.getElementById("detalheStatus").textContent = venda.status || "Ativa";
 
-      // 💰 Itens
+      //  Itens
       const tabela = document.querySelector("#tabelaItensDetalhesVenda tbody");
       tabela.innerHTML = "";
 
@@ -1341,7 +1331,7 @@ function inicializarRegistroVendas() {
       document.getElementById("detalheTotal").textContent = `R$ ${parseFloat(venda.valorTotal || subtotal).toFixed(2).replace(".", ",")}`;
 
 
-      // ✅ Exibir modal de forma segura
+      //  Exibir modal de forma segura
       const modalEl = document.getElementById("saleDetailsModal");
       if (!modalEl) {
         console.error("❌ Modal de detalhes não encontrado no DOM!");
@@ -1357,7 +1347,7 @@ function inicializarRegistroVendas() {
     }
   });
   // ==========================================================
-  // 🗑️ EXCLUIR VENDA (com confirmação e atualização automática)
+  //  EXCLUIR VENDA 
   // ==========================================================
   tabelaVendas?.addEventListener("click", async (e) => {
     const btnExcluir = e.target.closest(".btn-excluir-venda");
@@ -1386,7 +1376,7 @@ function inicializarRegistroVendas() {
     }
   });
   // ==========================================================
-  // ✏️ EDITAR VENDA
+  //  EDITAR VENDA
   // ==========================================================
   tabelaVendas?.addEventListener("click", async (e) => {
     const btnEditar = e.target.closest(".btn-editar-venda");
@@ -1401,11 +1391,11 @@ function inicializarRegistroVendas() {
 
       console.log("📝 Venda para edição:", venda);
 
-      // 🧾 Preenche cliente
+      //  Preenche cliente
       campoClienteSelecionado.value = venda.cliente || "—";
       campoClienteSelecionado.dataset.idCliente = venda.idCliente || "";
 
-      // 💰 Carrega os itens no carrinho novamente
+      //  Carrega os itens no carrinho novamente
       itensVenda = (venda.itens || []).map((i) => ({
         id: i.idProduto,
         nome: i.produto,
@@ -1414,12 +1404,12 @@ function inicializarRegistroVendas() {
         subtotal: parseFloat(i.subtotal),
       }));
 
-      // 💸 Recarrega valores de desconto e totais
+      //  Recarrega valores de desconto e totais
       descontoAtual = parseFloat(venda.desconto || 0);
       renderItensVenda();
       atualizarTotal();
 
-      // 🟡 Altera botões e estado visual
+      //  Altera botões e estado visual
       btnRegistrar.textContent = "Salvar Alterações";
       btnRegistrar.classList.replace("btn-primary", "btn-warning");
       btnRegistrar.dataset.editando = idVenda;
@@ -1457,7 +1447,7 @@ function inicializarRegistroVendas() {
   carregarVendas();
 }
 // ==========================================================
-// 🔍 CONSULTA DE CLIENTES 
+//  6 - CONSULTA DE CLIENTES 
 // ==========================================================
 if (window.location.pathname.includes("consulta.html")) {
   initConsultaClientes();
@@ -1580,13 +1570,13 @@ async function initConsultaClientes() {
 
     const idCliente = Number(btn.dataset.id);
     try {
-      // 🔹 Buscar detalhes do cliente
+      //  Buscar detalhes do cliente
       const resp = await fetch(`${API_BASE}/api/consultas/clientes/${idCliente}`);
       if (!resp.ok) throw new Error(`Cliente não encontrado (${resp.status})`);
       const cliente = await resp.json();
       clienteSelecionado = cliente;
 
-      // 🔹 Preencher resumo
+      //  Preencher resumo
       spanNome.textContent = cliente.nome;
       spanCpf.textContent = cliente.cpf || "—";
       spanTelefone.textContent = cliente.telefone1 || "—";
@@ -1598,7 +1588,7 @@ async function initConsultaClientes() {
       spanStatusBadge.classList.remove("bg-success", "bg-secondary");
       spanStatusBadge.classList.add(cliente.status === "Ativo" ? "bg-success" : "bg-secondary");
 
-      // 🔹 Buscar apenas vendas do cliente
+      //  Buscar apenas vendas do cliente
       const vendasResp = await fetch(`${API_BASE}/api/consultas/vendas/${idCliente}`);
       if (!vendasResp.ok) throw new Error(`Erro ao buscar vendas (${vendasResp.status})`);
       const vendas = await vendasResp.json();
@@ -1607,13 +1597,13 @@ async function initConsultaClientes() {
       paginaAtualVendas = 1;
       renderVendasCliente();
 
-      // 🔹 Mostrar detalhes e fechar modal
+      //  Mostrar detalhes e fechar modal
       detailsView.classList.remove("d-none");
       const modalEl = document.getElementById("resultsModal");
       const modal = bootstrap.Modal.getInstance(modalEl);
       modal?.hide();
 
-      // 🧹 Limpar campos de busca
+      //  Limpar campos de busca
       searchId.value = "";
       searchName.value = "";
       searchCpf.value = "";
@@ -1625,7 +1615,7 @@ async function initConsultaClientes() {
     }
   });
 
-  // 🧾 Renderizar vendas do cliente
+  //  Renderizar vendas do cliente
   function renderVendasCliente() {
     tabelaVendasCliente.innerHTML = "";
 
@@ -1656,7 +1646,7 @@ async function initConsultaClientes() {
       tabelaVendasCliente.appendChild(tr);
     });
 
-    // 🔢 Paginação padrão
+    //  Paginação padrão
     paginacaoVendasCliente.innerHTML = "";
     const addBtn = (label, disabled, cb) => {
       const li = document.createElement("li");
@@ -1675,7 +1665,7 @@ async function initConsultaClientes() {
     }
     addBtn("»", paginaAtualVendas === totalPaginas, () => { paginaAtualVendas++; renderVendasCliente(); });
   }
-  // 👁 Ver detalhes da venda (VERSÃO CORRIGIDA)
+  //  Ver detalhes da venda (VERSÃO CORRIGIDA)
   tabelaVendasCliente?.addEventListener("click", async (e) => {
     const btn = e.target.closest(".btn-ver-detalhes-venda");
     if (!btn) return;
@@ -1688,7 +1678,7 @@ async function initConsultaClientes() {
       const venda = await resp.json();
 
       // ===============================
-      // 📝 Cabeçalho do modal
+      // Cabeçalho do modal
       // ===============================
       document.getElementById("purchaseDetailsModalLabel").textContent =
         `Detalhes da Venda #${venda.idVenda}`;
@@ -1707,7 +1697,7 @@ async function initConsultaClientes() {
           : "badge bg-success";
 
       // ===============================
-      // 🧾 Itens da venda
+      //  Itens da venda
       // ===============================
       const tbodyItens = document.getElementById("tabelaItensVendaCliente");
       tbodyItens.innerHTML = "";
@@ -1734,7 +1724,7 @@ async function initConsultaClientes() {
       }
 
       // ===============================
-      // 💲 Totais
+      //  Totais
       // ===============================
       const subtotal = venda.itens?.reduce((acc, i) =>
         acc + ((parseFloat(i.precoUnitario) || 0) * (parseInt(i.quantidade) || 0))
@@ -1751,7 +1741,7 @@ async function initConsultaClientes() {
         `R$ ${total.toFixed(2).replace(".", ",")}`;
 
       // ===============================
-      // 🚀 ABRIR MODAL SEM TRAVAR
+      //  ABRIR MODAL SEM TRAVAR
       // ===============================
 
       // Remover backdrop duplicado
@@ -1777,8 +1767,259 @@ async function initConsultaClientes() {
     }
   });
 }
+
 // ==========================================================
-// 5️⃣ EXECUÇÃO AUTOMÁTICA POR PÁGINA
+// 7 - PÁGINA: INATIVOS (Clientes Não Recorrentes)
+// ==========================================================
+if (window.location.pathname.includes("inativos.html")) {
+    initInativos();
+}
+
+function initInativos() {
+    const API_BASE = "http://localhost:3000";
+
+    const tabela = document.getElementById("tabelaInativos");
+    const searchInput = document.getElementById("searchInativos");
+    const periodoBtns = document.querySelectorAll("[data-periodo]");
+    const paginacao = document.getElementById("paginacaoInativos");
+
+    let listaCompleta = [];
+    let listaFiltrada = [];
+    let paginaAtual = 1;
+    const pageSize = 5;
+
+    // ======================================================
+    // 🚀 Carrega inicial (>= 5 dias)
+    // ======================================================
+    carregarInativos();
+
+    // ======================================================
+    // 🔎 Busca dinâmica
+    // ======================================================
+    searchInput?.addEventListener("input", () => {
+        filtrarLista(searchInput.value.trim());
+        renderTabela();
+        renderPaginacao();
+    });
+
+    // ======================================================
+    // 📆 Filtro por período
+    // ======================================================
+    periodoBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const dias = btn.dataset.periodo;
+            carregarPorPeriodo(dias);
+        });
+    });
+
+    // ======================================================
+    // 🔄 Carregar lista geral
+    // ======================================================
+    async function carregarInativos() {
+        try {
+            const resp = await fetch(`${API_BASE}/api/consultas/inativos`);
+            const lista = await resp.json();
+
+            listaCompleta = lista;
+            listaFiltrada = lista;
+
+            paginaAtual = 1;
+            renderTabela();
+            renderPaginacao();
+        } catch (err) {
+            console.error("❌ Erro ao carregar inativos:", err);
+        }
+    }
+
+    // ======================================================
+    // 🔄 Carregar lista por período
+    // ======================================================
+    async function carregarPorPeriodo(dias) {
+        try {
+            const resp = await fetch(`${API_BASE}/api/consultas/inativos/${dias}`);
+            const lista = await resp.json();
+
+            listaCompleta = lista;
+            listaFiltrada = lista;
+
+            paginaAtual = 1;
+            renderTabela();
+            renderPaginacao();
+
+        } catch (err) {
+            console.error("❌ Erro ao filtrar por período:", err);
+        }
+    }
+
+    // ======================================================
+    // 🔎 Filtro local da busca dinâmica
+    // ======================================================
+    function filtrarLista(texto) {
+        if (!texto) {
+            listaFiltrada = listaCompleta;
+            return;
+        }
+
+        texto = texto.toLowerCase();
+        listaFiltrada = listaCompleta.filter(c =>
+            c.nome.toLowerCase().includes(texto) ||
+            (c.telefone1?.toLowerCase() || "").includes(texto) ||
+            (c.cpf?.toLowerCase() || "").includes(texto)
+        );
+    }
+
+    // ======================================================
+    // 🔖 Badge automática
+    // ======================================================
+    function gerarBadgeDias(dias) {
+        if (dias >= 90) return `<span class="badge bg-danger">${dias} dias</span>`;
+        if (dias >= 60) return `<span class="badge bg-warning text-dark">${dias} dias</span>`;
+        if (dias >= 30) return `<span class="badge bg-primary">${dias} dias</span>`;
+        return `<span class="badge bg-info text-dark">${dias} dias</span>`;
+    }
+
+    // ======================================================
+    // 🖥️ Renderizar tabela com paginação
+    // ======================================================
+    function renderTabela() {
+        tabela.innerHTML = "";
+
+        if (listaFiltrada.length === 0) {
+            tabela.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center py-3 text-muted">
+                        Nenhum cliente encontrado.
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        const inicio = (paginaAtual - 1) * pageSize;
+        const fim = inicio + pageSize;
+        const pagina = listaFiltrada.slice(inicio, fim);
+
+        pagina.forEach(cli => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${cli.nome}</td>
+                <td>${cli.ultimaCompra || "—"}</td>
+                <td>${gerarBadgeDias(cli.diasInativo)}</td>
+                <td>${cli.telefone1 || "—"}</td>
+
+                <td class="text-center">
+                    <a href="https://wa.me/55${cli.telefone1?.replace(/\D/g, "")}"
+                       target="_blank"
+                       class="btn btn-sm btn-success"
+                       title="Enviar WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+
+                    <button class="btn btn-sm btn-outline-info btn-ver-ultima-venda"
+                            data-id="${cli.idCliente}"
+                            title="Ver última venda">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </td>
+            `;
+            tabela.appendChild(tr);
+        });
+    }
+
+    // ======================================================
+    // 📄 Paginação padrão do sistema (idêntico às outras páginas)
+    // ======================================================
+    function renderPaginacao() {
+        paginacao.innerHTML = "";
+
+        const totalPaginas = Math.ceil(listaFiltrada.length / pageSize);
+        if (totalPaginas <= 1) return;
+
+        const addBtn = (label, disabled, onClick) => {
+            const li = document.createElement("li");
+            li.className = `page-item ${disabled ? "disabled" : ""}`;
+            li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
+            li.onclick = e => {
+                e.preventDefault();
+                if (!disabled) onClick();
+            };
+            paginacao.appendChild(li);
+        };
+
+        addBtn("«", paginaAtual === 1, () => {
+            paginaAtual--;
+            renderTabela();
+            renderPaginacao();
+        });
+
+        for (let p = 1; p <= totalPaginas; p++) {
+            const li = document.createElement("li");
+            li.className = `page-item ${p === paginaAtual ? "active" : ""}`;
+            li.innerHTML = `<a class="page-link" href="#">${p}</a>`;
+            li.onclick = e => {
+                e.preventDefault();
+                paginaAtual = p;
+                renderTabela();
+                renderPaginacao();
+            };
+            paginacao.appendChild(li);
+        }
+
+        addBtn("»", paginaAtual === totalPaginas, () => {
+            paginaAtual++;
+            renderTabela();
+            renderPaginacao();
+        });
+    }
+
+    // ======================================================
+    // 🔍 Ação: Abrir modal da última venda
+    // ======================================================
+    tabela?.addEventListener("click", (e) => {
+        const btn = e.target.closest(".btn-ver-ultima-venda");
+        if (!btn) return;
+
+        const idCliente = Number(btn.dataset.id);
+        abrirModalUltimaVenda(idCliente);
+    });
+
+    async function abrirModalUltimaVenda(idCliente) {
+        try {
+            const resp = await fetch(`${API_BASE}/api/consultas/inativos/ultima-venda/${idCliente}`);
+            const venda = await resp.json();
+
+            document.getElementById("lastSaleCliente").textContent = venda.cliente;
+            document.getElementById("lastSaleData").textContent = venda.dataVenda;
+            document.getElementById("lastSaleId").textContent = venda.idVenda;
+
+            document.getElementById("lastSaleTotal").textContent =
+                `R$ ${parseFloat(venda.valorTotal).toFixed(2).replace(".", ",")}`;
+
+            const tbody = document.getElementById("lastSaleItens");
+            tbody.innerHTML = "";
+
+            venda.itens.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.produto}</td>
+                        <td>${item.quantidade}</td>
+                        <td class="text-end">R$ ${parseFloat(item.precoUnitario).toFixed(2).replace(".", ",")}</td>
+                        <td class="text-end">R$ ${parseFloat(item.subtotal).toFixed(2).replace(".", ",")}</td>
+                    </tr>`;
+            });
+
+            const modalEl = document.getElementById("lastSaleDetailsModal");
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+
+        } catch (err) {
+            console.error("❌ Erro ao abrir modal:", err);
+            alert("Erro ao carregar detalhes da última venda.");
+        }
+    }
+}
+
+// ==========================================================
+//  EXECUÇÃO AUTOMÁTICA POR PÁGINA
 // ==========================================================
 document.addEventListener("DOMContentLoaded", () => {
   const hasLogin = !!document.getElementById("formLogin");
