@@ -24,55 +24,138 @@ async function criarCliente(dados) {
 }
 
 // ----------------------------------------------------------
-// Listar todos os clientes
+// Listar todos os clientes (com status ATIVO / INATIVO)
 // ----------------------------------------------------------
 async function listarClientes() {
   const [rows] = await db.query(`
-    SELECT idCliente, nome, cpf, telefone1, email, cidade, estado
-    FROM cliente
-    ORDER BY nome ASC
+    SELECT 
+      c.idCliente,
+      c.nome,
+      c.cpf,
+      c.telefone1,
+      c.email,
+      c.cidade,
+      c.estado,
+
+      CASE 
+        WHEN DATEDIFF(
+              CURDATE(),
+              COALESCE(
+                (SELECT MAX(v.dataVenda) FROM vendas v WHERE v.idCliente = c.idCliente),
+                CURDATE()
+              )
+            ) >= 5 
+        THEN 'INATIVO'
+        ELSE 'ATIVO'
+      END AS statusCliente
+
+    FROM cliente c
+    ORDER BY c.nome ASC
   `);
+
   return rows;
 }
 
 // ----------------------------------------------------------
-// Buscar clientes dinamicamente (ID, CPF ou Nome)
+// Buscar clientes dinamicamente (ID, CPF, Nome, Status)
 // ----------------------------------------------------------
-async function buscarClientes({ id, cpf, nome }) {
+async function buscarClientes({ id, cpf, nome, statusCliente }) {
   let query = `
-    SELECT idCliente, nome, cpf, telefone1, email, cidade, estado
-    FROM cliente
-    WHERE 1=1
+    SELECT 
+      c.idCliente,
+      c.nome,
+      c.cpf,
+      c.telefone1,
+      c.email,
+      c.cidade,
+      c.estado,
+
+      CASE 
+        WHEN DATEDIFF(
+              CURDATE(),
+              COALESCE(
+                (SELECT MAX(v.dataVenda) FROM vendas v WHERE v.idCliente = c.idCliente),
+                CURDATE()
+              )
+            ) >= 5 
+        THEN 'INATIVO'
+        ELSE 'ATIVO'
+      END AS statusCliente
+
+    FROM cliente c
+    WHERE 1 = 1
   `;
+
   const params = [];
 
   if (id) {
-    query += " AND idCliente = ?";
+    query += " AND c.idCliente = ?";
     params.push(id);
   }
 
   if (cpf) {
-    query += " AND cpf LIKE ?";
+    query += " AND c.cpf LIKE ?";
     params.push(`%${cpf}%`);
   }
 
   if (nome) {
-    query += " AND nome LIKE ?";
+    query += " AND c.nome LIKE ?";
     params.push(`%${nome}%`);
   }
+
+  // 🔥 Aqui estava o problema → corrigido:
+  if (statusCliente && statusCliente !== "todos") {
+    query += `
+      AND (
+        CASE 
+          WHEN DATEDIFF(
+                CURDATE(),
+                COALESCE(
+                  (SELECT MAX(v.dataVenda) FROM vendas v WHERE v.idCliente = c.idCliente),
+                  CURDATE()
+                )
+              ) >= 5
+          THEN 'INATIVO'
+          ELSE 'ATIVO'
+        END
+      ) = ?
+    `;
+    params.push(statusCliente);
+  }
+
+  query += " ORDER BY c.nome ASC";
 
   const [rows] = await db.query(query, params);
   return rows;
 }
 
 // ----------------------------------------------------------
-// Buscar cliente por ID (edição/detalhe)
+// Buscar cliente por ID (detalhes)
 // ----------------------------------------------------------
 async function buscarClientePorId(idCliente) {
   const [rows] = await db.query(
-    `SELECT * FROM cliente WHERE idCliente = ?`,
+    `
+    SELECT 
+      c.*,
+
+      CASE 
+        WHEN DATEDIFF(
+              CURDATE(),
+              COALESCE(
+                (SELECT MAX(v.dataVenda) FROM vendas v WHERE v.idCliente = c.idCliente),
+                CURDATE()
+              )
+            ) >= 5 
+        THEN 'INATIVO'
+        ELSE 'ATIVO'
+      END AS statusCliente
+
+    FROM cliente c
+    WHERE c.idCliente = ?
+  `,
     [idCliente]
   );
+
   return rows[0] || null;
 }
 

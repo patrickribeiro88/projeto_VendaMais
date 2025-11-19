@@ -25,12 +25,18 @@
       </div>
 
       <ul class="nav flex-column">
-        <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-chart-line"></i><span class="sidebar-text">Relatório de Vendas</span></a></li>
-        <li class="nav-item"><a class="nav-link" href="registro-vendas.html"><i class="fas fa-cash-register"></i><span class="sidebar-text">Registro de Vendas</span></a></li>
-        <li class="nav-item"><a class="nav-link" href="cadastro-cliente.html"><i class="fas fa-user-plus"></i><span class="sidebar-text">Cadastro Clientes</span></a></li>
-        <li class="nav-item"><a class="nav-link" href="cadastro-produto.html"><i class="fas fa-box-open"></i><span class="sidebar-text">Cadastro Produto</span></a></li>
-        <li class="nav-item"><a class="nav-link" href="consulta.html"><i class="fas fa-search"></i><span class="sidebar-text">Consulta</span></a></li>
-        <li class="nav-item"><a class="nav-link active" href="inativos.html"><i class="fas fa-user-slash"></i><span class="sidebar-text">Inativos</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-chart-line"></i><span
+              class="sidebar-text">Relatório de Vendas</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="registro-vendas.html"><i class="fas fa-cash-register"></i><span
+              class="sidebar-text">Registro de Vendas</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="cadastro-cliente.html"><i class="fas fa-user-plus"></i><span
+              class="sidebar-text">Cadastro Clientes</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="cadastro-produto.html"><i class="fas fa-box-open"></i><span
+              class="sidebar-text">Cadastro Produto</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="consulta.html"><i class="fas fa-search"></i><span
+              class="sidebar-text">Consulta</span></a></li>
+        <li class="nav-item"><a class="nav-link active" href="inativos.html"><i class="fas fa-user-slash"></i><span
+              class="sidebar-text">Inativos</span></a></li>
       </ul>
     </div>
 
@@ -44,7 +50,8 @@
             <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
 
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                  data-bs-toggle="dropdown">
                   <i class="fas fa-user-circle me-2"></i>Usuário Admin
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -83,25 +90,44 @@
             <!-- 🔍 Pesquisa dinâmica -->
             <div class="col-md-4">
               <input type="text" class="form-control" id="searchInativos"
-                     placeholder="Pesquisar cliente por nome, CPF ou telefone...">
+                placeholder="Pesquisar cliente por nome, CPF ou ID...">
             </div>
           </div>
 
           <div class="card-body">
 
             <!-- 🔥 FILTROS POR PERÍODO -->
-            <div class="mb-3 d-flex gap-2 flex-wrap">
-              <button class="btn btn-outline-primary btn-sm" data-periodo="30">
-                <i class="fas fa-calendar-alt me-1"></i> Inativos há 30 dias
+            <div class="dropdown mb-3">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-calendar-alt"></i> Filtrar por Período
               </button>
+              <ul class="dropdown-menu">
 
-              <button class="btn btn-outline-warning btn-sm" data-periodo="60">
-                <i class="fas fa-calendar-alt me-1"></i> Inativos há 60 dias
-              </button>
+                <li>
+                  <a class="dropdown-item filtro-periodo" data-periodo="5" href="#">
+                    Inativos há 5+ dias
+                  </a>
+                </li>
 
-              <button class="btn btn-outline-danger btn-sm" data-periodo="90">
-                <i class="fas fa-calendar-alt me-1"></i> Inativos há 90+ dias
-              </button>
+                <li>
+                  <a class="dropdown-item filtro-periodo" data-periodo="30" href="#">
+                    Inativos há 30 dias
+                  </a>
+                </li>
+
+                <li>
+                  <a class="dropdown-item filtro-periodo" data-periodo="60" href="#">
+                    Inativos há 60 dias
+                  </a>
+                </li>
+
+                <li>
+                  <a class="dropdown-item filtro-periodo" data-periodo="90" href="#">
+                    Inativos há 90+ dias
+                  </a>
+                </li>
+
+              </ul>
             </div>
 
             <!-- ======================= -->
@@ -111,7 +137,9 @@
               <table class="table table-striped table-hover table-sm client-list-table">
                 <thead>
                   <tr>
-                    <th>Cliente</th>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Status</th>
                     <th>Última Compra</th>
                     <th>Tempo Inativo</th>
                     <th>Telefone</th>

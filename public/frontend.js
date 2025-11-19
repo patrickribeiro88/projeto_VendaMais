@@ -1507,7 +1507,9 @@ async function initConsultaClientes() {
     if (id) params.push(`id=${encodeURIComponent(id)}`);
     if (nome) params.push(`nome=${encodeURIComponent(nome)}`);
     if (cpf) params.push(`cpf=${encodeURIComponent(cpf)}`);
-    if (status && status !== "todos") params.push(`status=${encodeURIComponent(status)}`);
+    if (status && status !== "todos")
+      params.push(`status=${encodeURIComponent(status)}`); // ⬅️ AQUI O AJUSTE
+
     if (params.length) url += `?${params.join("&")}`;
 
     tabelaResultados.innerHTML = `
@@ -1526,8 +1528,7 @@ async function initConsultaClientes() {
 
       tabelaResultados.innerHTML = "";
       clientes.forEach((c) => {
-
-        // Formatar data de nascimento
+        // Formatar data de nascimento (se vier)
         let nasc = "—";
         if (c.dataNascimento) {
           try {
@@ -1539,20 +1540,20 @@ async function initConsultaClientes() {
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-    <td>${c.idCliente}</td>
-    <td>${c.nome}</td>
-    <td>${c.cpf || "—"}</td>
-    <td>${nasc}</td>
-    <td>
-      <span class="badge ${c.status === "Ativo" ? "bg-success" : "bg-secondary"}">
-        ${c.status}
-      </span>
-    </td>
-    <td class="text-center">
-      <button class="btn btn-sm btn-success btn-select-cliente" data-id="${c.idCliente}">
-        <i class="fas fa-check me-1"></i>Selecionar
-      </button>
-    </td>`;
+          <td>${c.idCliente}</td>
+          <td>${c.nome}</td>
+          <td>${c.cpf || "—"}</td>
+          <td>${nasc}</td>
+          <td>
+            <span class="badge ${c.statusCliente === "ATIVO" ? "bg-success" : "bg-danger"}">
+              ${c.statusCliente}
+            </span>
+          </td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-success btn-select-cliente" data-id="${c.idCliente}">
+              <i class="fas fa-check me-1"></i>Selecionar
+            </button>
+          </td>`;
         tabelaResultados.appendChild(tr);
       });
 
@@ -1570,13 +1571,13 @@ async function initConsultaClientes() {
 
     const idCliente = Number(btn.dataset.id);
     try {
-      //  Buscar detalhes do cliente
+      // Buscar detalhes do cliente
       const resp = await fetch(`${API_BASE}/api/consultas/clientes/${idCliente}`);
       if (!resp.ok) throw new Error(`Cliente não encontrado (${resp.status})`);
       const cliente = await resp.json();
       clienteSelecionado = cliente;
 
-      //  Preencher resumo
+      // Preencher resumo
       spanNome.textContent = cliente.nome;
       spanCpf.textContent = cliente.cpf || "—";
       spanTelefone.textContent = cliente.telefone1 || "—";
@@ -1584,11 +1585,14 @@ async function initConsultaClientes() {
       spanEndereco.textContent = cliente.endereco || "—";
       spanCidade.textContent = cliente.cidade || "—";
       spanObservacao.textContent = cliente.observacao || "—";
-      spanStatusBadge.textContent = cliente.status;
-      spanStatusBadge.classList.remove("bg-success", "bg-secondary");
-      spanStatusBadge.classList.add(cliente.status === "Ativo" ? "bg-success" : "bg-secondary");
 
-      //  Buscar apenas vendas do cliente
+      spanStatusBadge.textContent = cliente.statusCliente;
+      spanStatusBadge.classList.remove("bg-success", "bg-danger");
+      spanStatusBadge.classList.add(
+        cliente.statusCliente === "ATIVO" ? "bg-success" : "bg-danger"
+      );
+
+      // Buscar apenas vendas do cliente
       const vendasResp = await fetch(`${API_BASE}/api/consultas/vendas/${idCliente}`);
       if (!vendasResp.ok) throw new Error(`Erro ao buscar vendas (${vendasResp.status})`);
       const vendas = await vendasResp.json();
@@ -1597,13 +1601,13 @@ async function initConsultaClientes() {
       paginaAtualVendas = 1;
       renderVendasCliente();
 
-      //  Mostrar detalhes e fechar modal
+      // Mostrar detalhes e fechar modal
       detailsView.classList.remove("d-none");
       const modalEl = document.getElementById("resultsModal");
       const modal = bootstrap.Modal.getInstance(modalEl);
       modal?.hide();
 
-      //  Limpar campos de busca
+      // Limpar campos de busca
       searchId.value = "";
       searchName.value = "";
       searchCpf.value = "";
@@ -1655,17 +1659,31 @@ async function initConsultaClientes() {
       li.onclick = (e) => { e.preventDefault(); if (!disabled) cb(); };
       paginacaoVendasCliente.appendChild(li);
     };
-    addBtn("«", paginaAtualVendas === 1, () => { paginaAtualVendas--; renderVendasCliente(); });
+
+    addBtn("«", paginaAtualVendas === 1, () => {
+      paginaAtualVendas--;
+      renderVendasCliente();
+    });
+
     for (let p = 1; p <= totalPaginas; p++) {
       const li = document.createElement("li");
       li.className = `page-item ${p === paginaAtualVendas ? "active" : ""}`;
       li.innerHTML = `<a class="page-link" href="#">${p}</a>`;
-      li.onclick = (e) => { e.preventDefault(); paginaAtualVendas = p; renderVendasCliente(); };
+      li.onclick = (e) => {
+        e.preventDefault();
+        paginaAtualVendas = p;
+        renderVendasCliente();
+      };
       paginacaoVendasCliente.appendChild(li);
     }
-    addBtn("»", paginaAtualVendas === totalPaginas, () => { paginaAtualVendas++; renderVendasCliente(); });
+
+    addBtn("»", paginaAtualVendas === totalPaginas, () => {
+      paginaAtualVendas++;
+      renderVendasCliente();
+    });
   }
-  //  Ver detalhes da venda (VERSÃO CORRIGIDA)
+
+  //  Ver detalhes da venda (MODAL COMPLETO)
   tabelaVendasCliente?.addEventListener("click", async (e) => {
     const btn = e.target.closest(".btn-ver-detalhes-venda");
     if (!btn) return;
@@ -1690,11 +1708,13 @@ async function initConsultaClientes() {
         venda.dataVenda || "—";
 
       const statusBadge = document.getElementById("detalheVendaStatus");
-      statusBadge.textContent = venda.status || "Ativa";
+      const statusAtual = clienteSelecionado?.statusCliente || "ATIVO";
+
+      statusBadge.textContent = statusAtual;
       statusBadge.className =
-        venda.status === "Cancelada"
-          ? "badge bg-danger"
-          : "badge bg-success";
+        statusAtual === "ATIVO"
+          ? "badge bg-success"
+          : "badge bg-danger";
 
       // ===============================
       //  Itens da venda
@@ -1704,9 +1724,9 @@ async function initConsultaClientes() {
 
       if (!venda.itens || venda.itens.length === 0) {
         tbodyItens.innerHTML = `
-        <tr><td colspan="4" class="text-center text-muted py-3">
-          Nenhum item encontrado.
-        </td></tr>`;
+          <tr><td colspan="4" class="text-center text-muted py-3">
+            Nenhum item encontrado.
+          </td></tr>`;
       } else {
         venda.itens.forEach((i) => {
           const preco = parseFloat(i.precoUnitario || 0);
@@ -1715,10 +1735,10 @@ async function initConsultaClientes() {
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
-          <td>${i.produto}</td>
-          <td>${qtd}</td>
-          <td class="text-end">R$ ${preco.toFixed(2).replace('.', ',')}</td>
-          <td class="text-end">R$ ${subtotal.toFixed(2).replace('.', ',')}</td>`;
+            <td>${i.produto}</td>
+            <td>${qtd}</td>
+            <td class="text-end">R$ ${preco.toFixed(2).replace('.', ',')}</td>
+            <td class="text-end">R$ ${subtotal.toFixed(2).replace('.', ',')}</td>`;
           tbodyItens.appendChild(tr);
         });
       }
@@ -1743,22 +1763,14 @@ async function initConsultaClientes() {
       // ===============================
       //  ABRIR MODAL SEM TRAVAR
       // ===============================
-
-      // Remover backdrop duplicado
       document.querySelectorAll(".modal-backdrop")?.forEach(b => b.remove());
-
-      // Garantir que body volta ao normal
       document.body.classList.remove("modal-open");
       document.body.style.overflow = "";
 
-      // Abrir modal correto (ID AJUSTADO)
       const modalEl = document.getElementById("purchaseDetailsModal");
-
-      // Fecha instância anterior, se existir
       const prevModal = bootstrap.Modal.getInstance(modalEl);
       if (prevModal) prevModal.hide();
 
-      // Abre novo modal
       const modal = new bootstrap.Modal(modalEl);
       modal.show();
 
@@ -1772,250 +1784,271 @@ async function initConsultaClientes() {
 // 7 - PÁGINA: INATIVOS (Clientes Não Recorrentes)
 // ==========================================================
 if (window.location.pathname.includes("inativos.html")) {
-    initInativos();
+  initInativos();
 }
 
 function initInativos() {
-    const API_BASE = "http://localhost:3000";
+  const API_BASE = "http://localhost:3000";
 
-    const tabela = document.getElementById("tabelaInativos");
-    const searchInput = document.getElementById("searchInativos");
-    const periodoBtns = document.querySelectorAll("[data-periodo]");
-    const paginacao = document.getElementById("paginacaoInativos");
+  const tabela = document.getElementById("tabelaInativos");
+  const searchInput = document.getElementById("searchInativos");
+  const filtroPeriodo = document.querySelectorAll(".filtro-periodo");
+  const paginacao = document.getElementById("paginacaoInativos");
 
-    let listaCompleta = [];
-    let listaFiltrada = [];
-    let paginaAtual = 1;
-    const pageSize = 5;
+  let listaCompleta = [];
+  let listaFiltrada = [];
+  let paginaAtual = 1;
+  const pageSize = 10;
 
-    // ======================================================
-    // 🚀 Carrega inicial (>= 5 dias)
-    // ======================================================
-    carregarInativos();
+  // ======================================================
+  // 🚀 Carrega inicial (>= 5 dias)
+  // ======================================================
+  carregarInativos();
 
-    // ======================================================
-    // 🔎 Busca dinâmica
-    // ======================================================
-    searchInput?.addEventListener("input", () => {
-        filtrarLista(searchInput.value.trim());
+  // ======================================================
+  // 🔎 Busca dinâmica
+  // ======================================================
+  searchInput?.addEventListener("input", () => {
+    filtrarLista(searchInput.value.trim());
+    renderTabela();
+    renderPaginacao();
+  });
+
+  // ======================================================
+  // 📆 Filtro por período
+  // ======================================================
+  filtroPeriodo.forEach(item => {
+    item.addEventListener("click", (e) => {
+      e.preventDefault();
+      const dias = item.dataset.periodo;
+      carregarPorPeriodo(dias);
+    });
+  });
+  // ======================================================
+  // 🔄 Carregar lista geral
+  // ======================================================
+  async function carregarInativos() {
+    try {
+      const resp = await fetch(`${API_BASE}/api/consultas/inativos`);
+      const lista = await resp.json();
+
+      listaCompleta = lista;
+      listaFiltrada = lista;
+
+      paginaAtual = 1;
+      renderTabela();
+      renderPaginacao();
+    } catch (err) {
+      console.error("❌ Erro ao carregar inativos:", err);
+    }
+  }
+
+  // ======================================================
+  // 🔄 Carregar lista por período
+  // ======================================================
+  async function carregarPorPeriodo(dias) {
+    try {
+      const resp = await fetch(`${API_BASE}/api/consultas/inativos/${dias}`);
+      const lista = await resp.json();
+
+      listaCompleta = lista;
+      listaFiltrada = lista;
+
+      paginaAtual = 1;
+      renderTabela();
+      renderPaginacao();
+
+    } catch (err) {
+      console.error("❌ Erro ao filtrar por período:", err);
+    }
+  }
+  // ======================================================
+  // 🔎 Filtro local da busca dinâmica
+  // ======================================================
+  function filtrarLista(texto) {
+    if (!texto) {
+      listaFiltrada = listaCompleta;
+      return;
+    }
+
+    const valor = texto.toLowerCase().trim();
+    const valorNum = texto.replace(/\D/g, ""); // só dígitos para CPF/ID
+
+    listaFiltrada = listaCompleta.filter(c => {
+      const nome = (c.nome || "").toLowerCase();
+      const cpfLimpo = (c.cpf || "").replace(/\D/g, "");
+      const idStr = c.idCliente != null ? String(c.idCliente) : "";
+
+      const nomeMatch = nome.includes(valor);
+
+      // Só tenta bater CPF/ID se tiver número digitado
+      const cpfMatch = valorNum ? cpfLimpo.includes(valorNum) : false;
+      const idMatch = valorNum ? idStr.includes(valorNum) : false;
+
+      return nomeMatch || cpfMatch || idMatch;
+    });
+  }
+
+  // ======================================================
+  // 🔖 Badge automática
+  // ======================================================
+  function gerarBadgeDias(dias) {
+    if (dias >= 90) return `<span class="badge bg-danger">${dias} dias</span>`;
+    if (dias >= 60) return `<span class="badge bg-warning text-dark">${dias} dias</span>`;
+    if (dias >= 30) return `<span class="badge bg-primary">${dias} dias</span>`;
+    return `<span class="badge bg-info text-dark">${dias} dias</span>`;
+  }
+
+  // ======================================================
+// 🖥️ Renderizar tabela com paginação
+// ======================================================
+function renderTabela() {
+  tabela.innerHTML = "";
+
+  if (listaFiltrada.length === 0) {
+    tabela.innerHTML = `
+          <tr>
+              <td colspan="7" class="text-center py-3 text-muted">
+                  Nenhum cliente encontrado.
+              </td>
+          </tr>`;
+    return;
+  }
+
+  const inicio = (paginaAtual - 1) * pageSize;
+  const fim = inicio + pageSize;
+  const pagina = listaFiltrada.slice(inicio, fim);
+
+  pagina.forEach(cli => {
+    const tr = document.createElement("tr");
+
+    // badge de status
+    const badgeStatus = cli.statusCliente === "INATIVO"
+      ? `<span class="badge bg-danger">INATIVO</span>`
+      : `<span class="badge bg-success">ATIVO</span>`;
+
+    tr.innerHTML = `
+      <td>${cli.idCliente}</td>
+      <td>${cli.nome}</td>
+      <td>${badgeStatus}</td>
+      <td>${cli.ultimaCompra || "—"}</td>
+      <td>${gerarBadgeDias(cli.diasInativo)}</td>
+      <td>${cli.telefone1 || "—"}</td>
+
+      <td class="text-center">
+
+          <a href="https://wa.me/55${cli.telefone1?.replace(/\D/g, "")}"
+             target="_blank"
+             class="btn btn-sm btn-success"
+             title="Enviar WhatsApp">
+              <i class="fab fa-whatsapp"></i>
+          </a>
+
+          <button class="btn btn-sm btn-outline-info btn-ver-ultima-venda"
+                  data-id="${cli.idCliente}"
+                  title="Ver última venda">
+              <i class="fas fa-eye"></i>
+          </button>
+
+      </td>
+  `;
+
+    tabela.appendChild(tr);
+  });
+
+}
+
+  // ======================================================
+  // 📄 Paginação padrão do sistema (idêntico às outras páginas)
+  // ======================================================
+  function renderPaginacao() {
+    paginacao.innerHTML = "";
+
+    const totalPaginas = Math.ceil(listaFiltrada.length / pageSize);
+    if (totalPaginas <= 1) return;
+
+    const addBtn = (label, disabled, onClick) => {
+      const li = document.createElement("li");
+      li.className = `page-item ${disabled ? "disabled" : ""}`;
+      li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
+      li.onclick = e => {
+        e.preventDefault();
+        if (!disabled) onClick();
+      };
+      paginacao.appendChild(li);
+    };
+
+    addBtn("«", paginaAtual === 1, () => {
+      paginaAtual--;
+      renderTabela();
+      renderPaginacao();
+    });
+
+    for (let p = 1; p <= totalPaginas; p++) {
+      const li = document.createElement("li");
+      li.className = `page-item ${p === paginaAtual ? "active" : ""}`;
+      li.innerHTML = `<a class="page-link" href="#">${p}</a>`;
+      li.onclick = e => {
+        e.preventDefault();
+        paginaAtual = p;
         renderTabela();
         renderPaginacao();
+      };
+      paginacao.appendChild(li);
+    }
+
+    addBtn("»", paginaAtual === totalPaginas, () => {
+      paginaAtual++;
+      renderTabela();
+      renderPaginacao();
     });
+  }
 
-    // ======================================================
-    // 📆 Filtro por período
-    // ======================================================
-    periodoBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const dias = btn.dataset.periodo;
-            carregarPorPeriodo(dias);
-        });
-    });
+  // ======================================================
+  // 🔍 Ação: Abrir modal da última venda
+  // ======================================================
+  tabela?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".btn-ver-ultima-venda");
+    if (!btn) return;
 
-    // ======================================================
-    // 🔄 Carregar lista geral
-    // ======================================================
-    async function carregarInativos() {
-        try {
-            const resp = await fetch(`${API_BASE}/api/consultas/inativos`);
-            const lista = await resp.json();
+    const idCliente = Number(btn.dataset.id);
+    abrirModalUltimaVenda(idCliente);
+  });
 
-            listaCompleta = lista;
-            listaFiltrada = lista;
+  async function abrirModalUltimaVenda(idCliente) {
+    try {
+      const resp = await fetch(`${API_BASE}/api/consultas/inativos/ultima-venda/${idCliente}`);
+      const venda = await resp.json();
 
-            paginaAtual = 1;
-            renderTabela();
-            renderPaginacao();
-        } catch (err) {
-            console.error("❌ Erro ao carregar inativos:", err);
-        }
-    }
+      document.getElementById("lastSaleCliente").textContent = venda.cliente;
+      document.getElementById("lastSaleData").textContent = venda.dataVenda;
+      document.getElementById("lastSaleId").textContent = venda.idVenda;
 
-    // ======================================================
-    // 🔄 Carregar lista por período
-    // ======================================================
-    async function carregarPorPeriodo(dias) {
-        try {
-            const resp = await fetch(`${API_BASE}/api/consultas/inativos/${dias}`);
-            const lista = await resp.json();
+      document.getElementById("lastSaleTotal").textContent =
+        `R$ ${parseFloat(venda.valorTotal).toFixed(2).replace(".", ",")}`;
 
-            listaCompleta = lista;
-            listaFiltrada = lista;
+      const tbody = document.getElementById("lastSaleItens");
+      tbody.innerHTML = "";
 
-            paginaAtual = 1;
-            renderTabela();
-            renderPaginacao();
-
-        } catch (err) {
-            console.error("❌ Erro ao filtrar por período:", err);
-        }
-    }
-
-    // ======================================================
-    // 🔎 Filtro local da busca dinâmica
-    // ======================================================
-    function filtrarLista(texto) {
-        if (!texto) {
-            listaFiltrada = listaCompleta;
-            return;
-        }
-
-        texto = texto.toLowerCase();
-        listaFiltrada = listaCompleta.filter(c =>
-            c.nome.toLowerCase().includes(texto) ||
-            (c.telefone1?.toLowerCase() || "").includes(texto) ||
-            (c.cpf?.toLowerCase() || "").includes(texto)
-        );
-    }
-
-    // ======================================================
-    // 🔖 Badge automática
-    // ======================================================
-    function gerarBadgeDias(dias) {
-        if (dias >= 90) return `<span class="badge bg-danger">${dias} dias</span>`;
-        if (dias >= 60) return `<span class="badge bg-warning text-dark">${dias} dias</span>`;
-        if (dias >= 30) return `<span class="badge bg-primary">${dias} dias</span>`;
-        return `<span class="badge bg-info text-dark">${dias} dias</span>`;
-    }
-
-    // ======================================================
-    // 🖥️ Renderizar tabela com paginação
-    // ======================================================
-    function renderTabela() {
-        tabela.innerHTML = "";
-
-        if (listaFiltrada.length === 0) {
-            tabela.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center py-3 text-muted">
-                        Nenhum cliente encontrado.
-                    </td>
-                </tr>`;
-            return;
-        }
-
-        const inicio = (paginaAtual - 1) * pageSize;
-        const fim = inicio + pageSize;
-        const pagina = listaFiltrada.slice(inicio, fim);
-
-        pagina.forEach(cli => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${cli.nome}</td>
-                <td>${cli.ultimaCompra || "—"}</td>
-                <td>${gerarBadgeDias(cli.diasInativo)}</td>
-                <td>${cli.telefone1 || "—"}</td>
-
-                <td class="text-center">
-                    <a href="https://wa.me/55${cli.telefone1?.replace(/\D/g, "")}"
-                       target="_blank"
-                       class="btn btn-sm btn-success"
-                       title="Enviar WhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-
-                    <button class="btn btn-sm btn-outline-info btn-ver-ultima-venda"
-                            data-id="${cli.idCliente}"
-                            title="Ver última venda">
-                        <i class="fas fa-info-circle"></i>
-                    </button>
-                </td>
-            `;
-            tabela.appendChild(tr);
-        });
-    }
-
-    // ======================================================
-    // 📄 Paginação padrão do sistema (idêntico às outras páginas)
-    // ======================================================
-    function renderPaginacao() {
-        paginacao.innerHTML = "";
-
-        const totalPaginas = Math.ceil(listaFiltrada.length / pageSize);
-        if (totalPaginas <= 1) return;
-
-        const addBtn = (label, disabled, onClick) => {
-            const li = document.createElement("li");
-            li.className = `page-item ${disabled ? "disabled" : ""}`;
-            li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
-            li.onclick = e => {
-                e.preventDefault();
-                if (!disabled) onClick();
-            };
-            paginacao.appendChild(li);
-        };
-
-        addBtn("«", paginaAtual === 1, () => {
-            paginaAtual--;
-            renderTabela();
-            renderPaginacao();
-        });
-
-        for (let p = 1; p <= totalPaginas; p++) {
-            const li = document.createElement("li");
-            li.className = `page-item ${p === paginaAtual ? "active" : ""}`;
-            li.innerHTML = `<a class="page-link" href="#">${p}</a>`;
-            li.onclick = e => {
-                e.preventDefault();
-                paginaAtual = p;
-                renderTabela();
-                renderPaginacao();
-            };
-            paginacao.appendChild(li);
-        }
-
-        addBtn("»", paginaAtual === totalPaginas, () => {
-            paginaAtual++;
-            renderTabela();
-            renderPaginacao();
-        });
-    }
-
-    // ======================================================
-    // 🔍 Ação: Abrir modal da última venda
-    // ======================================================
-    tabela?.addEventListener("click", (e) => {
-        const btn = e.target.closest(".btn-ver-ultima-venda");
-        if (!btn) return;
-
-        const idCliente = Number(btn.dataset.id);
-        abrirModalUltimaVenda(idCliente);
-    });
-
-    async function abrirModalUltimaVenda(idCliente) {
-        try {
-            const resp = await fetch(`${API_BASE}/api/consultas/inativos/ultima-venda/${idCliente}`);
-            const venda = await resp.json();
-
-            document.getElementById("lastSaleCliente").textContent = venda.cliente;
-            document.getElementById("lastSaleData").textContent = venda.dataVenda;
-            document.getElementById("lastSaleId").textContent = venda.idVenda;
-
-            document.getElementById("lastSaleTotal").textContent =
-                `R$ ${parseFloat(venda.valorTotal).toFixed(2).replace(".", ",")}`;
-
-            const tbody = document.getElementById("lastSaleItens");
-            tbody.innerHTML = "";
-
-            venda.itens.forEach(item => {
-                tbody.innerHTML += `
+      venda.itens.forEach(item => {
+        tbody.innerHTML += `
                     <tr>
                         <td>${item.produto}</td>
                         <td>${item.quantidade}</td>
                         <td class="text-end">R$ ${parseFloat(item.precoUnitario).toFixed(2).replace(".", ",")}</td>
                         <td class="text-end">R$ ${parseFloat(item.subtotal).toFixed(2).replace(".", ",")}</td>
                     </tr>`;
-            });
+      });
 
-            const modalEl = document.getElementById("lastSaleDetailsModal");
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
+      const modalEl = document.getElementById("lastSaleDetailsModal");
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
 
-        } catch (err) {
-            console.error("❌ Erro ao abrir modal:", err);
-            alert("Erro ao carregar detalhes da última venda.");
-        }
+    } catch (err) {
+      console.error("❌ Erro ao abrir modal:", err);
+      alert("Erro ao carregar detalhes da última venda.");
     }
+  }
 }
 
 // ==========================================================
