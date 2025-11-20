@@ -5,15 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Venda+</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div id="dashboard-wrapper">
+
+        <!-- ================ SIDEBAR ================ -->
         <div class="sidebar bg-dark" id="sidebar-wrapper">
             <div class="sidebar-heading text-center py-4">
                 <a href="dashboard.html" class="text-decoration-none">
@@ -21,148 +25,196 @@
                     <h1 class="logo-sidebar logo-compact">V<i>+</i></h1>
                 </a>
             </div>
+
             <ul class="nav flex-column">
+
                 <li class="nav-item">
                     <a class="nav-link active" href="dashboard.html">
                         <i class="fas fa-chart-line"></i>
                         <span class="sidebar-text">Relatório de Vendas</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="registro-vendas.html">
                         <i class="fas fa-cash-register"></i>
                         <span class="sidebar-text">Registro de Vendas</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="cadastro-cliente.html">
                         <i class="fas fa-user-plus"></i>
                         <span class="sidebar-text">Cadastro Clientes</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="cadastro-produto.html">
                         <i class="fas fa-box-open"></i>
                         <span class="sidebar-text">Cadastro Produto</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="consulta.html">
                         <i class="fas fa-search"></i>
                         <span class="sidebar-text">Consulta</span>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="inativos.html">
                         <i class="fas fa-user-slash"></i>
                         <span class="sidebar-text">Inativos</span>
                     </a>
                 </li>
+
             </ul>
         </div>
 
+        <!-- ================ PAGE CONTENT ================ -->
         <div id="page-content-wrapper">
+
+            <!-- ============ TOP NAVBAR ============ -->
             <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
                 <div class="container-fluid">
-                    <button class="btn btn-primary" id="menu-toggle"><i class="fas fa-bars"></i></button>
+
+                    <button class="btn btn-primary" id="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
                     <div class="collapse navbar-collapse">
-                        <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                        <ul class="navbar-nav ms-auto">
+
                             <li class="nav-item">
                                 <a class="nav-link position-relative" href="inativos.html" title="Ver inativos">
                                     <i class="fas fa-bell"></i>
-                                    <span
+                                    <span id="countInativosDashboard"
                                         class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                        2
-                                        <span class="visually-hidden">notificações não lidas</span>
+                                        0
                                     </span>
                                 </a>
                             </li>
+
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    data-bs-toggle="dropdown">
                                     <i class="fas fa-user-circle me-2"></i>Usuário Admin
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item" href="index.html">Sair</a></li>
                                 </ul>
                             </li>
+
                         </ul>
                     </div>
+
                 </div>
             </nav>
 
+            <!-- ============ MAIN CONTENT ============ -->
             <main class="container-fluid p-4">
+
+                <!-- 🔵 TÍTULO ATUALIZADO -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1 class="h3 mb-0 text-gray-800">Relatório de Vendas</h1>
-                    <div>
-                        <div class="btn-group me-2">
-                            <button type="button" class="btn btn-outline-secondary dropdown-toggle"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-calendar-alt me-2"></i>Este Mês
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Hoje</a></li>
-                                <li><a class="dropdown-item" href="#">Esta Semana</a></li>
-                                <li><a class="dropdown-item" href="#">Este Ano</a></li>
-                            </ul>
-                        </div>
-                        <button class="btn btn-outline-secondary">
-                            <i class="fas fa-filter me-2"></i>Filtro customizado
+                    <h4 class="fw-bold text-dark">
+                        <i class="fas fa-chart-line me-2 text-primary"></i>
+                        Relatório de Vendas
+                    </h4>
+
+                    <div class="btn-group">
+                        <button id="filtroDashboard" type="button" class="btn btn-outline-secondary dropdown-toggle"
+                            data-bs-toggle="dropdown">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            <span id="textoFiltro">Este Mês</span>
                         </button>
+
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item dashboard-filter" data-filtro="mes" href="#">Este Mês</a></li>
+                            <li><a class="dropdown-item dashboard-filter" data-filtro="semestre" href="#">Últimos 6 Meses</a></li>
+                            <li><a class="dropdown-item dashboard-filter" data-filtro="ano" href="#">Este Ano</a></li>
+                        </ul>
                     </div>
                 </div>
 
+                <!-- ========== DASHBOARD CARDS ========== -->
                 <div class="row">
+
+                    <!-- TOTAL DE VENDAS -->
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="card report-card border-left-primary">
                             <div class="card-body">
-                                <div class="report-card-icon text-primary"><i class="fas fa-dollar-sign"></i></div>
+                                <div class="report-card-icon text-primary">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
                                 <div class="report-card-content">
                                     <div class="report-card-label">TOTAL DE VENDAS</div>
-                                    <div class="report-card-value">R$ 5.000,00</div>
+                                    <div id="cardTotalVendas" class="report-card-value">R$ 0,00</div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- PRODUTOS VENDIDOS -->
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="card report-card border-left-info">
                             <div class="card-body">
-                                <div class="report-card-icon text-info"><i class="fas fa-box"></i></div>
+                                <div class="report-card-icon text-primary">
+                                    <i class="fas fa-box"></i>
+                                </div>
                                 <div class="report-card-content">
                                     <div class="report-card-label">PRODUTOS VENDIDOS</div>
-                                    <div class="report-card-value">150</div>
+                                    <div id="cardProdutosVendidos" class="report-card-value">0</div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- TICKET MÉDIO -->
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="card report-card border-left-success">
                             <div class="card-body">
-                                <div class="report-card-icon text-success"><i class="fas fa-chart-line"></i></div>
+                                <div class="report-card-icon text-primary">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
                                 <div class="report-card-content">
                                     <div class="report-card-label">TICKET MÉDIO</div>
-                                    <div class="report-card-value">R$ 33,33</div>
+                                    <div id="cardTicketMedio" class="report-card-value">R$ 0,00</div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- CLIENTES ATENDIDOS -->
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="card report-card border-left-warning">
                             <div class="card-body">
-                                <div class="report-card-icon text-warning"><i class="fas fa-users"></i></div>
+                                <div class="report-card-icon text-primary">
+                                    <i class="fas fa-users"></i>
+                                </div>
                                 <div class="report-card-content">
                                     <div class="report-card-label">CLIENTES ATENDIDOS</div>
-                                    <div class="report-card-value">40</div>
+                                    <div id="cardClientesAtendidos" class="report-card-value">0</div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
 
+                <!-- ========== RANKING TOP CLIENTES ========== -->
                 <div class="card shadow-sm border-0 mt-2">
                     <div class="card-header bg-white py-3">
-                        <h6 class="m-0 font-weight-bold text-dark">Ranking: Melhores Clientes do Período</h6>
+
+                        <!-- 🔵 TÍTULO DO RANKING ATUALIZADO -->
+                        <h6 class="m-0 font-weight-bold text-dark">
+                            <i class="fas fa-trophy me-2 text-primary"></i>
+                            Ranking: Melhores Clientes
+                        </h6>
+
                     </div>
+
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table client-list-table">
@@ -174,48 +226,29 @@
                                         <th class="text-end">Total Gasto</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+
+                                <tbody id="rankingClientes">
                                     <tr>
-                                        <td><strong>1º</strong></td>
-                                        <td>Eloisa Minatti</td>
-                                        <td>123.456.789-01</td>
-                                        <td class="text-end">R$ 1.000,00</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>2º</strong></td>
-                                        <td>Júlia Ribeiro</td>
-                                        <td>987.654.321-02</td>
-                                        <td class="text-end">R$ 800,00</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>3º</strong></td>
-                                        <td>Maria Almeida</td>
-                                        <td>111.222.333-03</td>
-                                        <td class="text-end">R$ 750,00</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>4º</strong></td>
-                                        <td>Carlos Alberto</td>
-                                        <td>444.555.666-04</td>
-                                        <td class="text-end">R$ 620,50</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>5º</strong></td>
-                                        <td>Sonia Abrão</td>
-                                        <td>777.888.999-05</td>
-                                        <td class="text-end">R$ 515,00</td>
+                                        <td colspan="4" class="text-center text-muted py-3">
+                                            Carregando...
+                                        </td>
                                     </tr>
                                 </tbody>
+
                             </table>
                         </div>
                     </div>
+
                 </div>
 
             </main>
+
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="frontend.js"></script>
+
 </body>
 
 </html>

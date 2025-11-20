@@ -14,12 +14,14 @@ const clienteRoutes = require('./src/routes/clienteRoutes');
 const produtoRoutes = require('./src/routes/produtoRoutes');
 const vendaRoutes = require("./src/routes/vendaRoutes");
 const consultaRoutes = require("./src/routes/consultaRoutes");
+const dashboardRoutes = require("./src/routes/dashboardRoutes");
 
 app.use('/api/vendedor', vendedorRoutes);
 app.use('/api/clientes', clienteRoutes);
 app.use('/api/produtos', produtoRoutes);
 app.use("/api/vendas", vendaRoutes);
 app.use("/api/consultas", consultaRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // Página inicial (teste rápido)
 app.get('/', (req, res) => {

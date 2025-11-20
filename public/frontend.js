@@ -1900,34 +1900,34 @@ function initInativos() {
   }
 
   // ======================================================
-// 🖥️ Renderizar tabela com paginação
-// ======================================================
-function renderTabela() {
-  tabela.innerHTML = "";
+  // 🖥️ Renderizar tabela com paginação
+  // ======================================================
+  function renderTabela() {
+    tabela.innerHTML = "";
 
-  if (listaFiltrada.length === 0) {
-    tabela.innerHTML = `
+    if (listaFiltrada.length === 0) {
+      tabela.innerHTML = `
           <tr>
               <td colspan="7" class="text-center py-3 text-muted">
                   Nenhum cliente encontrado.
               </td>
           </tr>`;
-    return;
-  }
+      return;
+    }
 
-  const inicio = (paginaAtual - 1) * pageSize;
-  const fim = inicio + pageSize;
-  const pagina = listaFiltrada.slice(inicio, fim);
+    const inicio = (paginaAtual - 1) * pageSize;
+    const fim = inicio + pageSize;
+    const pagina = listaFiltrada.slice(inicio, fim);
 
-  pagina.forEach(cli => {
-    const tr = document.createElement("tr");
+    pagina.forEach(cli => {
+      const tr = document.createElement("tr");
 
-    // badge de status
-    const badgeStatus = cli.statusCliente === "INATIVO"
-      ? `<span class="badge bg-danger">INATIVO</span>`
-      : `<span class="badge bg-success">ATIVO</span>`;
+      // badge de status
+      const badgeStatus = cli.statusCliente === "INATIVO"
+        ? `<span class="badge bg-danger">INATIVO</span>`
+        : `<span class="badge bg-success">ATIVO</span>`;
 
-    tr.innerHTML = `
+      tr.innerHTML = `
       <td>${cli.idCliente}</td>
       <td>${cli.nome}</td>
       <td>${badgeStatus}</td>
@@ -1953,10 +1953,10 @@ function renderTabela() {
       </td>
   `;
 
-    tabela.appendChild(tr);
-  });
+      tabela.appendChild(tr);
+    });
 
-}
+  }
 
   // ======================================================
   // 📄 Paginação padrão do sistema (idêntico às outras páginas)
@@ -2049,6 +2049,90 @@ function renderTabela() {
       alert("Erro ao carregar detalhes da última venda.");
     }
   }
+}
+// ==========================================================
+// 8 - DASHBOARD
+// ==========================================================
+if (window.location.pathname.includes("dashboard.html")) {
+  initDashboard();
+}
+async function initDashboard() {
+  const API_BASE = "http://localhost:3000";
+
+  // ELEMENTOS DO DASHBOARD — IDs CORRETOS
+  const totalVendasEl = document.getElementById("cardTotalVendas");
+  const produtosVendidosEl = document.getElementById("cardProdutosVendidos");
+  const ticketMedioEl = document.getElementById("cardTicketMedio");
+  const clientesAtendidosEl = document.getElementById("cardClientesAtendidos");
+  const rankingBody = document.getElementById("rankingClientes");
+
+  const filtroBtns = document.querySelectorAll(".dashboard-filter");
+
+  // ============================
+  // 🔄 Função principal de carga
+  // ============================
+  async function carregarDashboard(filtro = "mes") {
+    try {
+      const resp = await fetch(`${API_BASE}/api/dashboard?filtro=${filtro}`);
+      const dados = await resp.json();
+
+      // RENDERIZAÇÃO DOS CARTÕES
+      totalVendasEl.textContent = `R$ ${dados.totalVendas.toFixed(2).replace(".", ",")}`;
+      produtosVendidosEl.textContent = dados.produtosVendidos;
+      ticketMedioEl.textContent = `R$ ${dados.ticketMedio.toFixed(2).replace(".", ",")}`;
+      clientesAtendidosEl.textContent = dados.clientesAtendidos;
+
+      // RANKING TOP CLIENTES
+      rankingBody.innerHTML = "";
+
+      if (!dados.rankingClientes || dados.rankingClientes.length === 0) {
+        rankingBody.innerHTML = `
+        <tr>
+            <td colspan="4" class="text-center text-muted py-3">
+                Nenhum dado encontrado para este período.
+            </td>
+        </tr>`;
+      } else {
+        dados.rankingClientes.forEach((cli, index) => {
+
+          // 🔥 Correção DEFINITIVA:
+          // totalGasto pode vir como string → convertemos para Number SEM ERRO
+          const total = Number(cli.totalGasto || 0);
+
+          rankingBody.innerHTML += `
+            <tr>
+                <td><strong>${index + 1}º</strong></td>
+                <td>${cli.nome}</td>
+                <td>${cli.cpf || "—"}</td>
+                <td class="text-end">R$ ${total.toFixed(2).replace(".", ",")}</td>
+            </tr>
+        `;
+        });
+      }
+
+    } catch (err) {
+      console.error("❌ Erro ao carregar dashboard:", err);
+    }
+  }
+
+  // ============================
+  // 🎚️ Filtros: Mês, Semestre, Ano
+  // ============================
+  filtroBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const filtro = btn.dataset.filtro;
+
+      filtroBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      document.getElementById("textoFiltro").textContent = btn.textContent;
+
+      carregarDashboard(filtro);
+    });
+  });
+
+  // Carregar inicialmente
+  carregarDashboard("mes");
 }
 
 // ==========================================================
