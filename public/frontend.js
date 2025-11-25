@@ -185,36 +185,54 @@ function inicializarCadastroClientes() {
     return filtrados.slice(start, start + pageSize);
   }
   function renderTabelaPaginada() {
-    if (!tabela) return;
-    const page = getPaginaAtual();
+  if (!tabela) return;
+  const page = getPaginaAtual();
 
-    if (!page.length) {
-      tabela.innerHTML =
-        '<tr><td colspan="6" class="text-center">Nenhum cliente encontrado.</td></tr>';
-      return;
-    }
-
-    tabela.innerHTML = "";
-    page.forEach((c) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${c.idCliente}</td>
-        <td>${c.nome}</td>
-        <td>${c.dataNascimento || ""}</td>
-        <td>${c.telefone1 || ""}</td>
-        <td>${c.email || ""}</td>
-        <td class="text-center">
-          <button class="btn btn-sm btn-outline-primary me-2" title="Editar" onclick="editarCliente(${c.idCliente})">
-            <i class="fas fa-pencil-alt"></i>
-          </button>
-          <button class="btn btn-sm btn-outline-danger" title="Inativar" onclick="inativarCliente(${c.idCliente})">
-            <i class="fas fa-user-slash"></i>
-          </button>
-        </td>`;
-      tabela.appendChild(tr);
-    });
+  if (!page.length) {
+    tabela.innerHTML =
+      '<tr><td colspan="6" class="text-center">Nenhum cliente encontrado.</td></tr>';
+    return;
   }
 
+  tabela.innerHTML = "";
+ page.forEach((c) => {
+  const tr = document.createElement("tr");
+
+  const botaoStatus = c.statusCliente === "ATIVO"
+    ? `
+      <button class="btn btn-sm btn-outline-danger btn-toggle-status"
+              data-id="${c.idCliente}"
+              data-status="ATIVO"
+              title="Inativar cliente">
+        <i class="fas fa-user-slash"></i>
+      </button>`
+    : `
+      <button class="btn btn-sm btn-outline-success btn-toggle-status"
+              data-id="${c.idCliente}"
+              data-status="INATIVO"
+              title="Ativar cliente">
+        <i class="fas fa-user-check"></i>
+      </button>`;
+
+  tr.innerHTML = `
+    <td>${c.idCliente}</td>
+    <td>${c.nome}</td>
+    <td>${c.dataNascimento || ""}</td>
+    <td>${c.telefone1 || ""}</td>
+    <td>${c.email || ""}</td>
+    <td class="text-center">
+      <button class="btn btn-sm btn-outline-primary me-2" title="Editar" onclick="editarCliente(${c.idCliente})">
+        <i class="fas fa-pencil-alt"></i>
+      </button>
+
+      ${botaoStatus}
+    </td>
+  `;
+
+  tabela.appendChild(tr);
+});
+
+}
   function renderPaginacao() {
     const ul = document.getElementById("paginacao");
     if (!ul) return;
@@ -340,25 +358,84 @@ function inicializarCadastroClientes() {
     }
   });
 
-  window.inativarCliente = async function (id) {
-    if (!confirm("Deseja realmente inativar este cliente?")) return;
-    try {
-      const resp = await fetch(
-        `http://localhost:3000/api/clientes/${id}/inativar`,
-        { method: "PATCH" }
-      );
-      const result = await resp.json();
-      if (resp.ok) {
-        flash(result.message || "Cliente inativado!");
-        await fetchClientes();
-      } else {
-        flash(result.message || "Erro ao inativar.", "danger");
-      }
-    } catch {
-      flash("Erro ao inativar cliente.", "danger");
-    }
-  };
+// 🔄 Alternar status ATIVO/INATIVO
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".btn-toggle-status");
+  if (!btn) return;
 
+  const id = btn.dataset.id;
+  const atual = btn.dataset.status;
+  const novoStatus = atual === "ATIVO" ? "INATIVO" : "ATIVO";
+
+  if (!confirm(`Deseja realmente marcar este cliente como ${novoStatus}?`))
+    return;
+
+  try {
+    const resp = await fetch(`http://localhost:3000/api/clientes/${id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: novoStatus })
+    });
+
+    const result = await resp.json();
+
+    if (resp.ok) {
+      flash(result.message || "Status atualizado!");
+      fetchClientes(); // recarrega tabela
+    } else {
+      flash(result.message || "Erro ao atualizar status.", "danger");
+    }
+
+  } catch {
+    flash("Erro ao atualizar status do cliente.", "danger");
+  }
+});
+
+  window.alternarStatusCliente = async function (id, btn) {
+  try {
+    let statusAtual = btn.dataset.status; // "ATIVO" ou "INATIVO"
+
+    const novaRota =
+      statusAtual === "ATIVO"
+        ? `http://localhost:3000/api/clientes/${id}/inativar`
+        : `http://localhost:3000/api/clientes/${id}/ativar`;
+
+    const novoStatus =
+      statusAtual === "ATIVO" ? "INATIVO" : "ATIVO";
+
+    const resp = await fetch(novaRota, { method: "PATCH" });
+    const result = await resp.json();
+
+    if (!resp.ok) {
+      flash(result.message || "Erro ao alterar status.", "danger");
+      return;
+    }
+
+    flash(result.message || "Status atualizado!");
+
+    // 🔥 atualiza visual do botão imediatamente
+    btn.dataset.status = novoStatus;
+
+    if (novoStatus === "INATIVO") {
+      btn.classList.remove("btn-outline-success");
+      btn.classList.add("btn-outline-danger");
+      btn.setAttribute("title", "Inativar cliente");
+      btn.innerHTML = `<i class="fas fa-user-slash"></i>`;
+    } else {
+      btn.classList.remove("btn-outline-danger");
+      btn.classList.add("btn-outline-success");
+      btn.setAttribute("title", "Ativar cliente");
+      btn.innerHTML = `<i class="fas fa-user-check"></i>`;
+    }
+
+    // recarrega tabela para manter consistência
+    await fetchClientes();
+
+  } catch (err) {
+    console.error(err);
+    flash("Erro ao atualizar status.", "danger");
+  }
+};
   document
     .getElementById("pesquisarInput")
     ?.addEventListener("input", () => {

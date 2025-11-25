@@ -36,13 +36,12 @@ async function criarCliente(req, res) {
 }
 
 // ----------------------------------------------------------
-// Listar clientes (todos, ou filtrados por ID/CPF/Nome/Status)
+// Listar clientes (todos ou filtrados)
 // ----------------------------------------------------------
 async function listarClientes(req, res) {
   try {
     const { id, cpf, nome, statusCliente } = req.query;
 
-    // Se houver qualquer filtro → busca dinâmica
     if (id || cpf || nome || statusCliente) {
       const clientes = await clienteModel.buscarClientes({
         id,
@@ -58,9 +57,8 @@ async function listarClientes(req, res) {
       );
     }
 
-    // Sem filtros → lista todos
     const todos = await clienteModel.listarClientes();
-    return res.status(200).json(Array.isArray(todos) ? todos : []);
+    return res.status(200).json(todos);
 
   } catch (error) {
     console.error("❌ Erro ao listar clientes:", error);
@@ -69,7 +67,7 @@ async function listarClientes(req, res) {
 }
 
 // ----------------------------------------------------------
-// Buscar cliente por ID (edição/detalhe)
+// Buscar cliente por ID
 // ----------------------------------------------------------
 async function buscarClientePorId(req, res) {
   try {
@@ -89,7 +87,7 @@ async function buscarClientePorId(req, res) {
 }
 
 // ----------------------------------------------------------
-// Atualizar cliente existente
+// Atualizar cliente
 // ----------------------------------------------------------
 async function atualizarCliente(req, res) {
   try {
@@ -110,9 +108,42 @@ async function atualizarCliente(req, res) {
   }
 }
 
+// ----------------------------------------------------------
+// 🔥 Atualizar status manual ATIVO ↔ INATIVO
+// ----------------------------------------------------------
+async function atualizarStatus(req, res) {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status || !["ATIVO", "INATIVO"].includes(status)) {
+      return res.status(400).json({
+        message: "Status inválido. Use: ATIVO ou INATIVO."
+      });
+    }
+
+    const alterado = await clienteModel.atualizarStatusManual(id, status);
+
+    if (!alterado) {
+      return res.status(404).json({ message: "Cliente não encontrado." });
+    }
+
+    return res.status(200).json({
+      message: `Status atualizado para ${status}!`,
+      novoStatus: status
+    });
+
+  } catch (error) {
+    console.error("❌ Erro ao atualizar status manual:", error);
+    return res.status(500).json({
+      message: "Erro no servidor ao atualizar status do cliente."
+    });
+  }
+}
 module.exports = {
   criarCliente,
   listarClientes,
   buscarClientePorId,
   atualizarCliente,
+  atualizarStatus
 };

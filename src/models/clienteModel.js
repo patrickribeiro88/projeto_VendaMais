@@ -4,7 +4,30 @@
 const db = require("../config/database");
 
 // ----------------------------------------------------------
-// Cadastrar novo cliente
+// Função auxiliar: resolve status (manual > automático)
+// ----------------------------------------------------------
+function statusSQL() {
+  return `
+    CASE 
+      WHEN c.statusManual IS NOT NULL 
+        THEN c.statusManual
+      WHEN DATEDIFF(
+            CURDATE(),
+            COALESCE(
+              (SELECT MAX(v.dataVenda) 
+               FROM vendas v 
+               WHERE v.idCliente = c.idCliente),
+              CURDATE()
+            )
+          ) >= 5
+        THEN 'INATIVO'
+      ELSE 'ATIVO'
+    END AS statusCliente
+  `;
+}
+
+// ----------------------------------------------------------
+// Criar novo cliente
 // ----------------------------------------------------------
 async function criarCliente(dados) {
   const {
@@ -24,7 +47,7 @@ async function criarCliente(dados) {
 }
 
 // ----------------------------------------------------------
-// Listar todos os clientes (com status ATIVO / INATIVO)
+// Listar todos os clientes
 // ----------------------------------------------------------
 async function listarClientes() {
   const [rows] = await db.query(`
@@ -36,19 +59,7 @@ async function listarClientes() {
       c.email,
       c.cidade,
       c.estado,
-
-      CASE 
-        WHEN DATEDIFF(
-              CURDATE(),
-              COALESCE(
-                (SELECT MAX(v.dataVenda) FROM vendas v WHERE v.idCliente = c.idCliente),
-                CURDATE()
-              )
-            ) >= 5 
-        THEN 'INATIVO'
-        ELSE 'ATIVO'
-      END AS statusCliente
-
+      ${statusSQL()}
     FROM cliente c
     ORDER BY c.nome ASC
   `);
@@ -57,7 +68,7 @@ async function listarClientes() {
 }
 
 // ----------------------------------------------------------
-// Buscar clientes dinamicamente (ID, CPF, Nome, Status)
+// Buscar com filtros (ID, CPF, Nome, Status)
 // ----------------------------------------------------------
 async function buscarClientes({ id, cpf, nome, statusCliente }) {
   let query = `
@@ -69,23 +80,10 @@ async function buscarClientes({ id, cpf, nome, statusCliente }) {
       c.email,
       c.cidade,
       c.estado,
-
-      CASE 
-        WHEN DATEDIFF(
-              CURDATE(),
-              COALESCE(
-                (SELECT MAX(v.dataVenda) FROM vendas v WHERE v.idCliente = c.idCliente),
-                CURDATE()
-              )
-            ) >= 5 
-        THEN 'INATIVO'
-        ELSE 'ATIVO'
-      END AS statusCliente
-
+      ${statusSQL()}
     FROM cliente c
-    WHERE 1 = 1
+    WHERE 1=1
   `;
-
   const params = [];
 
   if (id) {
@@ -103,21 +101,10 @@ async function buscarClientes({ id, cpf, nome, statusCliente }) {
     params.push(`%${nome}%`);
   }
 
-  // 🔥 Aqui estava o problema → corrigido:
   if (statusCliente && statusCliente !== "todos") {
     query += `
       AND (
-        CASE 
-          WHEN DATEDIFF(
-                CURDATE(),
-                COALESCE(
-                  (SELECT MAX(v.dataVenda) FROM vendas v WHERE v.idCliente = c.idCliente),
-                  CURDATE()
-                )
-              ) >= 5
-          THEN 'INATIVO'
-          ELSE 'ATIVO'
-        END
+        ${statusSQL()}
       ) = ?
     `;
     params.push(statusCliente);
@@ -130,26 +117,14 @@ async function buscarClientes({ id, cpf, nome, statusCliente }) {
 }
 
 // ----------------------------------------------------------
-// Buscar cliente por ID (detalhes)
+// Buscar cliente por ID
 // ----------------------------------------------------------
 async function buscarClientePorId(idCliente) {
   const [rows] = await db.query(
     `
     SELECT 
       c.*,
-
-      CASE 
-        WHEN DATEDIFF(
-              CURDATE(),
-              COALESCE(
-                (SELECT MAX(v.dataVenda) FROM vendas v WHERE v.idCliente = c.idCliente),
-                CURDATE()
-              )
-            ) >= 5 
-        THEN 'INATIVO'
-        ELSE 'ATIVO'
-      END AS statusCliente
-
+      ${statusSQL()}
     FROM cliente c
     WHERE c.idCliente = ?
   `,
@@ -160,7 +135,7 @@ async function buscarClientePorId(idCliente) {
 }
 
 // ----------------------------------------------------------
-// Atualizar cliente existente
+// Atualizar
 // ----------------------------------------------------------
 async function atualizarCliente(idCliente, dados) {
   const {
@@ -179,10 +154,23 @@ async function atualizarCliente(idCliente, dados) {
   return result.affectedRows > 0;
 }
 
+// ----------------------------------------------------------
+// Atualizar status manual (ATIVO ⇆ INATIVO)
+// ----------------------------------------------------------
+async function atualizarStatus(idCliente, novoStatus) {
+  const [result] = await db.query(
+    `UPDATE cliente SET statusManual = ? WHERE idCliente = ?`,
+    [novoStatus, idCliente]
+  );
+
+  return result.affectedRows > 0;
+}
+
 module.exports = {
   criarCliente,
   listarClientes,
   buscarClientes,
   buscarClientePorId,
   atualizarCliente,
+  atualizarStatus,
 };
