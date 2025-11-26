@@ -122,7 +122,8 @@ async function atualizarStatus(req, res) {
       });
     }
 
-    const alterado = await clienteModel.atualizarStatusManual(id, status);
+    // 🔥 CORRETO: usa o nome real da função no model
+    const alterado = await clienteModel.atualizarStatus(id, status);
 
     if (!alterado) {
       return res.status(404).json({ message: "Cliente não encontrado." });
@@ -140,6 +141,7 @@ async function atualizarStatus(req, res) {
     });
   }
 }
+
 module.exports = {
   criarCliente,
   listarClientes,

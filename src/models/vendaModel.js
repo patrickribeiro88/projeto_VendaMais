@@ -75,7 +75,7 @@ async function buscarPorId(idVenda) {
 }
 
 // ----------------------------------------------------------
-// CRIAR NOVA VENDA (agora com suporte a DESCONTO)
+// CRIAR NOVA VENDA (com reset automático do statusManual)
 // ----------------------------------------------------------
 async function criarVenda({ idCliente, valorTotal, desconto = 0, itens }) {
   const connection = await db.getConnection();
@@ -107,13 +107,21 @@ async function criarVenda({ idCliente, valorTotal, desconto = 0, itens }) {
       );
     }
 
-    // 🔹 Aplica o desconto e atualiza o valor total final
+    // 🔹 Calcula o total final com desconto
     const totalComDesconto = Math.max(totalCalculado - parseFloat(desconto || 0), 0);
 
     await connection.query(
       `UPDATE vendas SET valorTotal = ?, desconto = ? WHERE idVenda = ?`,
       [totalComDesconto, desconto, idVenda]
     );
+
+    // 🔥 NOVA REGRA: cliente comprou → resetar status manual
+    if (idCliente) {
+      await connection.query(
+        `UPDATE cliente SET statusManual = NULL WHERE idCliente = ?`,
+        [idCliente]
+      );
+    }
 
     await connection.commit();
 
@@ -136,14 +144,13 @@ async function atualizarVenda(idVenda, { idCliente, status, desconto, itens, val
   try {
     await connection.beginTransaction();
 
-    // Atualiza dados principais
     await connection.query(
       `UPDATE vendas SET idCliente = ?, desconto = ?, valorTotal = ?, status = ? WHERE idVenda = ?`,
       [idCliente || null, desconto || 0, valorTotal || 0, status || "ATIVA", idVenda]
     );
 
-    // Remove itens antigos e insere novamente
     await connection.query(`DELETE FROM itens_venda WHERE idVenda = ?`, [idVenda]);
+
     for (const item of itens) {
       await connection.query(
         `INSERT INTO itens_venda (idVenda, idProduto, quantidade, precoUnitario)
@@ -163,9 +170,8 @@ async function atualizarVenda(idVenda, { idCliente, status, desconto, itens, val
   }
 }
 
-
 // ----------------------------------------------------------
-// EXCLUIR VENDA E ITENS ASSOCIADOS
+// EXCLUIR VENDA
 // ----------------------------------------------------------
 async function excluirVenda(idVenda) {
   const connection = await db.getConnection();

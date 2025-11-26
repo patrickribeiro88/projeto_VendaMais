@@ -1,12 +1,21 @@
 // ==========================================================
-// 🧠 MODEL: CONSULTA COMPLETO (COM STATUS AUTOMÁTICO)
+// 🧠 MODEL: CONSULTA COMPLETO (COM STATUS MANUAL + AUTOMÁTICO)
 // ==========================================================
 const db = require("../config/database");
 
-// ==========================================================
-// 📌 Status Automático
-// Cliente é INATIVO se está há >= 5 dias sem comprar
-// ==========================================================
+// ----------------------------------------------------------
+// 🔥 Função SQL de status seguindo a NOVA regra do sistema
+// ----------------------------------------------------------
+function statusSQL() {
+  return `
+    CASE
+      WHEN c.statusManual = 'ATIVO' THEN 'ATIVO'
+      WHEN c.statusManual = 'INATIVO' THEN 'INATIVO'
+      WHEN DATEDIFF(CURDATE(), MAX(v.dataVenda)) >= 5 THEN 'INATIVO'
+      ELSE 'ATIVO'
+    END AS statusCliente
+  `;
+}
 
 // ----------------------------------------------------------
 // Clientes — Com filtros (ID, Nome, CPF e Status)
@@ -25,10 +34,7 @@ async function buscarClientes({ id, nome, cpf, status }) {
       c.dataNascimento,
       DATE_FORMAT(MAX(v.dataVenda), '%d/%m/%Y') AS ultimaCompra,
       DATEDIFF(CURDATE(), MAX(v.dataVenda)) AS diasInativo,
-      CASE 
-          WHEN DATEDIFF(CURDATE(), MAX(v.dataVenda)) >= 5 THEN 'INATIVO'
-          ELSE 'ATIVO'
-      END AS statusCliente
+      ${statusSQL()}
     FROM cliente c
     LEFT JOIN vendas v ON v.idCliente = c.idCliente
     WHERE 1 = 1
@@ -36,7 +42,6 @@ async function buscarClientes({ id, nome, cpf, status }) {
 
   const params = [];
 
-  // ----- FILTROS -----
   if (id) {
     sql += " AND c.idCliente = ?";
     params.push(id);
@@ -52,20 +57,14 @@ async function buscarClientes({ id, nome, cpf, status }) {
     params.push(`%${cpf}%`);
   }
 
-  // GROUP BY antes do HAVING (correto!)
-  sql += `
-    GROUP BY c.idCliente
-  `;
+  sql += ` GROUP BY c.idCliente `;
 
-  // ----- FILTRO POR STATUS -----
   if (status && status !== "todos") {
-    sql += ` HAVING statusCliente = ?`;
+    sql += ` HAVING statusCliente = ? `;
     params.push(status);
   }
 
-  sql += `
-    ORDER BY c.nome ASC
-  `;
+  sql += ` ORDER BY c.nome ASC `;
 
   const [rows] = await db.query(sql, params);
   return rows;
@@ -89,10 +88,7 @@ async function buscarClientePorId(idCliente) {
       c.dataNascimento,
       DATE_FORMAT(MAX(v.dataVenda), '%d/%m/%Y') AS ultimaCompra,
       DATEDIFF(CURDATE(), MAX(v.dataVenda)) AS diasInativo,
-      CASE 
-          WHEN DATEDIFF(CURDATE(), MAX(v.dataVenda)) >= 5 THEN 'INATIVO'
-          ELSE 'ATIVO'
-      END AS statusCliente
+      ${statusSQL()}
     FROM cliente c
     LEFT JOIN vendas v ON v.idCliente = c.idCliente
     WHERE c.idCliente = ?
@@ -163,12 +159,8 @@ async function buscarVendaPorId(idVenda) {
   return { ...vendaRows[0], itens: itensRows };
 }
 
-// ==========================================================
-// 🔴 INATIVOS / NÃO RECORRENTES
-// ==========================================================
-
 // ----------------------------------------------------------
-// Lista geral de inativos (>= 5 dias)
+// 🔴 INATIVOS / NÃO RECORRENTES
 // ----------------------------------------------------------
 async function buscarInativos(filtro = "") {
   const like = `%${filtro}%`;
@@ -181,10 +173,7 @@ async function buscarInativos(filtro = "") {
       c.telefone1,
       DATE_FORMAT(MAX(v.dataVenda), '%d/%m/%Y') AS ultimaCompra,
       DATEDIFF(CURDATE(), MAX(v.dataVenda)) AS diasInativo,
-      CASE 
-        WHEN DATEDIFF(CURDATE(), MAX(v.dataVenda)) >= 5 THEN 'INATIVO'
-        ELSE 'ATIVO'
-      END AS statusCliente
+      ${statusSQL()}
     FROM cliente c
     LEFT JOIN vendas v ON v.idCliente = c.idCliente
     WHERE 
@@ -201,7 +190,7 @@ async function buscarInativos(filtro = "") {
 }
 
 // ----------------------------------------------------------
-// Inativos por período
+// Inativos por período customizado
 // ----------------------------------------------------------
 async function buscarInativosPorPeriodo(dias) {
   const sql = `
@@ -212,10 +201,7 @@ async function buscarInativosPorPeriodo(dias) {
       c.telefone1,
       DATE_FORMAT(MAX(v.dataVenda), '%d/%m/%Y') AS ultimaCompra,
       DATEDIFF(CURDATE(), MAX(v.dataVenda)) AS diasInativo,
-      CASE 
-        WHEN DATEDIFF(CURDATE(), MAX(v.dataVenda)) >= 5 THEN 'INATIVO'
-        ELSE 'ATIVO'
-      END AS statusCliente
+      ${statusSQL()}
     FROM cliente c
     LEFT JOIN vendas v ON v.idCliente = c.idCliente
     GROUP BY c.idCliente

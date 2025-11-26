@@ -4,13 +4,17 @@
 const db = require("../config/database");
 
 // ----------------------------------------------------------
-// Função auxiliar: resolve status (manual > automático)
+// NOVA REGRA: Status automático sempre prevalece
+// statusManual só é usado TEMPORARIAMENTE
 // ----------------------------------------------------------
 function statusSQL() {
   return `
     CASE 
-      WHEN c.statusManual IS NOT NULL 
-        THEN c.statusManual
+      -- SE O USUÁRIO DEFINIU ALGUM STATUS MANUAL
+      WHEN c.statusManual = 'ATIVO' THEN 'ATIVO'
+      WHEN c.statusManual = 'INATIVO' THEN 'INATIVO'
+
+      -- SE NÃO HÁ STATUS MANUAL → APLICA AUTOMÁTICO
       WHEN DATEDIFF(
             CURDATE(),
             COALESCE(
@@ -45,7 +49,6 @@ async function criarCliente(dados) {
 
   return result.insertId;
 }
-
 // ----------------------------------------------------------
 // Listar todos os clientes
 // ----------------------------------------------------------
@@ -55,6 +58,7 @@ async function listarClientes() {
       c.idCliente,
       c.nome,
       c.cpf,
+      c.dataNascimento,   -- ADICIONADO AQUI
       c.telefone1,
       c.email,
       c.cidade,
@@ -66,6 +70,7 @@ async function listarClientes() {
 
   return rows;
 }
+
 
 // ----------------------------------------------------------
 // Buscar com filtros (ID, CPF, Nome, Status)
@@ -102,11 +107,7 @@ async function buscarClientes({ id, cpf, nome, statusCliente }) {
   }
 
   if (statusCliente && statusCliente !== "todos") {
-    query += `
-      AND (
-        ${statusSQL()}
-      ) = ?
-    `;
+    query += ` AND (${statusSQL()}) = ?`;
     params.push(statusCliente);
   }
 
@@ -135,7 +136,7 @@ async function buscarClientePorId(idCliente) {
 }
 
 // ----------------------------------------------------------
-// Atualizar
+// Atualizar dados do cliente
 // ----------------------------------------------------------
 async function atualizarCliente(idCliente, dados) {
   const {
@@ -158,9 +159,11 @@ async function atualizarCliente(idCliente, dados) {
 // Atualizar status manual (ATIVO ⇆ INATIVO)
 // ----------------------------------------------------------
 async function atualizarStatus(idCliente, novoStatus) {
+  const statusManual = novoStatus || null;
+
   const [result] = await db.query(
     `UPDATE cliente SET statusManual = ? WHERE idCliente = ?`,
-    [novoStatus, idCliente]
+    [statusManual, idCliente]
   );
 
   return result.affectedRows > 0;

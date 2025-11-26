@@ -102,6 +102,9 @@ function inicializarCadastroClientes() {
   let currentPage = 1;
   const pageSize = 10;
 
+  // ==========================================================
+  // VALIDAÇÕES
+  // ==========================================================
   const camposRegras = {
     clienteNome: (v) => v.trim() !== "",
     clienteCpf: (v) => /^\d{11}$/.test(v),
@@ -114,26 +117,52 @@ function inicializarCadastroClientes() {
     clienteCidade: (v) => v.trim() !== "",
     clienteEstado: (v) => v.trim() !== "",
     clienteTelefone1: (v) => /^\d{10,11}$/.test(v),
-    clienteTelefone2: (v) => v.trim() === "" || /^\d{10,11}$/.test(v),
-    clienteEmail: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+    clienteTelefone2: (v) => v.trim() === "" || /^\d{10,11}$/.test(v), // OPCIONAL
+    clienteEmail: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
   };
+  // ==========================================================
+  // 🏠 VIA CEP - Busca automática de endereço
+  // ==========================================================
+  const campoCep = document.getElementById("clienteCep");
+  const campoEndereco = document.getElementById("clienteEndereco");
+  const campoBairro = document.getElementById("clienteBairro");
+  const campoCidade = document.getElementById("clienteCidade");
+  const campoEstado = document.getElementById("clienteEstado");
 
-  function validarCampos() {
-    let ok = true;
-    Object.entries(camposRegras).forEach(([id, fn]) => {
-      const el = document.getElementById(id);
-      const val = el.value || "";
-      const pass = fn(val);
-      el.classList.toggle("is-invalid", !pass);
-      el.classList.toggle("is-valid", pass);
-      if (!pass && el.hasAttribute("required")) ok = false;
-    });
-    const tel2 = document.getElementById("clienteTelefone2");
-    if (tel2.value.trim() === "")
-      tel2.classList.remove("is-valid", "is-invalid");
-    return ok;
-  }
+  campoCep?.addEventListener("blur", async () => {
+    let cep = campoCep.value.replace(/\D/g, "");
 
+    if (cep.length !== 8) return;
+
+    try {
+      const resp = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await resp.json();
+
+      if (data.erro) return;
+
+      campoEndereco.value = data.logradouro || "";
+      campoBairro.value = data.bairro || "";
+      campoCidade.value = data.localidade || "";
+      campoEstado.value = data.uf || "";
+
+      // Aciona validação automática dos campos preenchidos
+      ["clienteEndereco", "clienteBairro", "clienteCidade", "clienteEstado"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el && el.value.trim() !== "") {
+          el.classList.add("is-valid");
+          el.classList.remove("is-invalid");
+        }
+      });
+
+    } catch (err) {
+      console.error("Erro ViaCEP:", err);
+    }
+  });
+
+
+  // ==========================================================
+  // APLICAÇÃO DE MÁSCARAS NUMÉRICAS
+  // ==========================================================
   aplicarMascaraNumerica([
     "clienteCpf",
     "clienteCep",
@@ -142,27 +171,136 @@ function inicializarCadastroClientes() {
     "clienteNumero",
   ]);
 
+  // ==========================================================
+  // VALIDAÇÃO EM TEMPO REAL
+  // ==========================================================
   Object.keys(camposRegras).forEach((id) => {
     const el = document.getElementById(id);
-    el?.addEventListener("blur", validarCampos);
+    if (!el) return;
+
+    // 🔥 TELEFONE 2 → totalmente opcional e SEM validação visual
+    if (id === "clienteTelefone2") {
+      el.addEventListener("input", () => {
+        el.classList.remove("is-valid", "is-invalid");
+        atualizarLabel(id, false);
+      });
+      el.addEventListener("blur", () => {
+        if (el.value.trim() === "") {
+          el.classList.remove("is-valid", "is-invalid");
+          atualizarLabel(id, false);
+        }
+      });
+      return; // pula para o próximo campo
+    }
+
+    const validar = () => {
+      const valor = el.value.trim();
+      const valido = camposRegras[id](valor);
+
+      // campo vazio → sempre neutro
+      if (valor === "") {
+        el.classList.remove("is-valid", "is-invalid");
+        atualizarLabel(id, false);
+        return;
+      }
+
+      // INPUT → só mostra verde quando está válido
+      if (valido) {
+        el.classList.add("is-valid");
+        el.classList.remove("is-invalid");
+        atualizarLabel(id, true);
+      } else {
+        // não mostra vermelho durante a digitação
+        el.classList.remove("is-valid");
+        atualizarLabel(id, false);
+      }
+    };
+
+    const validarBlur = () => {
+      const valor = el.value.trim();
+      const valido = camposRegras[id](valor);
+
+      if (valor === "") {
+        el.classList.remove("is-valid", "is-invalid");
+        atualizarLabel(id, false);
+        return;
+      }
+
+      // BLUR → se inválido, aí sim fica vermelho
+      if (!valido) {
+        el.classList.add("is-invalid");
+        atualizarLabel(id, false);
+      } else {
+        el.classList.add("is-valid");
+        el.classList.remove("is-invalid");
+        atualizarLabel(id, true);
+      }
+    };
+
+    // 🔥 Eventos
+    el.addEventListener("input", validar);
+    el.addEventListener("blur", validarBlur);
   });
 
+  // ==========================================================
+  // VALIDAÇÃO FINAL (AO SALVAR)
+  // ==========================================================
+  function validarCampos() {
+    let ok = true;
+
+    Object.entries(camposRegras).forEach(([id, regra]) => {
+      const el = document.getElementById(id);
+      const valor = el.value.trim();
+      const valido = regra(valor);
+
+      if (id === "clienteTelefone2" && valor === "") {
+        el.classList.remove("is-valid", "is-invalid");
+        return;
+      }
+
+      el.classList.toggle("is-invalid", !valido);
+      el.classList.toggle("is-valid", valido);
+
+      if (!valido && el.hasAttribute("required")) ok = false;
+    });
+
+    return ok;
+  }
+
+  // ==========================================================
+  // RESETAR VALIDAÇÕES
+  // ==========================================================
+  function limparValidacoes() {
+    document.querySelectorAll(".is-valid, .is-invalid")
+      .forEach((el) => el.classList.remove("is-valid", "is-invalid"));
+  }
+
+  // ==========================================================
+  // BUSCAR CLIENTES
+  // ==========================================================
   async function fetchClientes() {
-    if (!tabela) return;
-    tabela.innerHTML = '<tr><td colspan="6">Carregando...</td></tr>';
+    tabela.innerHTML = "<tr><td colspan='6'>Carregando...</td></tr>";
+
     try {
       const resp = await fetch("http://localhost:3000/api/clientes");
       const data = await resp.json();
+
       todosClientes = Array.isArray(data) ? data : [];
       aplicarFiltroEPaginar();
     } catch {
       tabela.innerHTML =
-        '<tr><td colspan="6" class="text-danger text-center">Erro ao carregar clientes.</td></tr>';
+        "<tr><td colspan='6' class='text-danger text-center'>Erro ao carregar clientes.</td></tr>";
     }
   }
+
+  // ==========================================================
+  // FILTRO + PAGINAÇÃO
+  // ==========================================================
   function aplicarFiltroEPaginar() {
     const termo =
-      (document.getElementById("pesquisarInput")?.value || "").toLowerCase().trim();
+      (document.getElementById("pesquisarInput")?.value || "")
+        .toLowerCase()
+        .trim();
 
     filtrados = !termo
       ? [...todosClientes]
@@ -175,67 +313,75 @@ function inicializarCadastroClientes() {
       );
 
     filtrados.sort((a, b) => Number(b.idCliente) - Number(a.idCliente));
+
     const maxPage = Math.max(1, Math.ceil(filtrados.length / pageSize));
     if (currentPage > maxPage) currentPage = maxPage;
+
     renderTabelaPaginada();
     renderPaginacao();
   }
+
   function getPaginaAtual() {
     const start = (currentPage - 1) * pageSize;
     return filtrados.slice(start, start + pageSize);
   }
+
+  // ==========================================================
+  // LISTAGEM
+  // ==========================================================
   function renderTabelaPaginada() {
-  if (!tabela) return;
-  const page = getPaginaAtual();
+    const page = getPaginaAtual();
 
-  if (!page.length) {
-    tabela.innerHTML =
-      '<tr><td colspan="6" class="text-center">Nenhum cliente encontrado.</td></tr>';
-    return;
-  }
+    if (!page.length) {
+      tabela.innerHTML =
+        '<tr><td colspan="6" class="text-center">Nenhum cliente encontrado.</td></tr>';
+      return;
+    }
 
-  tabela.innerHTML = "";
- page.forEach((c) => {
-  const tr = document.createElement("tr");
+    tabela.innerHTML = "";
 
-  const botaoStatus = c.statusCliente === "ATIVO"
-    ? `
+    page.forEach((c) => {
+      const tr = document.createElement("tr");
+
+      const botaoStatus =
+        c.statusCliente === "ATIVO"
+          ? `
       <button class="btn btn-sm btn-outline-danger btn-toggle-status"
-              data-id="${c.idCliente}"
-              data-status="ATIVO"
-              title="Inativar cliente">
+              data-id="${c.idCliente}" data-status="ATIVO">
         <i class="fas fa-user-slash"></i>
       </button>`
-    : `
+          : `
       <button class="btn btn-sm btn-outline-success btn-toggle-status"
-              data-id="${c.idCliente}"
-              data-status="INATIVO"
-              title="Ativar cliente">
+              data-id="${c.idCliente}" data-status="INATIVO">
         <i class="fas fa-user-check"></i>
       </button>`;
 
-  tr.innerHTML = `
-    <td>${c.idCliente}</td>
-    <td>${c.nome}</td>
-    <td>${c.dataNascimento || ""}</td>
-    <td>${c.telefone1 || ""}</td>
-    <td>${c.email || ""}</td>
-    <td class="text-center">
-      <button class="btn btn-sm btn-outline-primary me-2" title="Editar" onclick="editarCliente(${c.idCliente})">
-        <i class="fas fa-pencil-alt"></i>
-      </button>
+      tr.innerHTML = `
+        <td>${c.idCliente}</td>
+        <td>${c.nome}</td>
+        <td>${c.dataNascimento ? new Date(c.dataNascimento).toLocaleDateString("pt-BR") : ""}</td>
+        <td>${c.telefone1 || ""}</td>
+        <td>${c.email || ""}</td>
+        <td class="text-center">
+          <button class="btn btn-sm btn-outline-primary me-2" 
+                  onclick="editarCliente(${c.idCliente})">
+            <i class="fas fa-pencil-alt"></i>
+          </button>
+          ${botaoStatus}
+        </td>
+      `;
 
-      ${botaoStatus}
-    </td>
-  `;
+      tabela.appendChild(tr);
+    });
+  }
 
-  tabela.appendChild(tr);
-});
-
-}
+  // ==========================================================
+  // PAGINAÇÃO
+  // ==========================================================
   function renderPaginacao() {
     const ul = document.getElementById("paginacao");
     if (!ul) return;
+
     ul.innerHTML = "";
     const totalPages = Math.max(1, Math.ceil(filtrados.length / pageSize));
 
@@ -276,13 +422,16 @@ function inicializarCadastroClientes() {
     });
   }
 
+  // ==========================================================
+  // EDITAR CLIENTE
+  // ==========================================================
   window.editarCliente = async function (id) {
     try {
       const resp = await fetch(`http://localhost:3000/api/clientes/${id}`);
-      if (!resp.ok) return flash("Cliente não encontrado.", "danger");
       const c = await resp.json();
 
       clienteEditando = id;
+
       Object.entries({
         clienteNome: c.nome,
         clienteCpf: c.cpf,
@@ -299,20 +448,23 @@ function inicializarCadastroClientes() {
         clienteEmail: c.email,
         clienteObservacao: c.observacao,
       }).forEach(([id, val]) => {
-        const el = document.getElementById(id);
-        if (el) el.value = val || "";
+        document.getElementById(id).value = val || "";
       });
 
       submitBtn.textContent = "Salvar Alterações";
       submitBtn.classList.replace("btn-primary", "btn-warning");
       cancelarBtn.classList.remove("d-none");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
       limparValidacoes();
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       flash("Erro ao carregar cliente.", "danger");
     }
   };
 
+  // ==========================================================
+  // CANCELAR
+  // ==========================================================
   cancelarBtn?.addEventListener("click", () => {
     clienteEditando = null;
     form.reset();
@@ -322,15 +474,21 @@ function inicializarCadastroClientes() {
     limparValidacoes();
   });
 
+  // ==========================================================
+  // SALVAR
+  // ==========================================================
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
     if (!validarCampos())
-      return flash("Por favor, corrija os campos em vermelho.", "danger");
+      return flash("Corrija os campos em vermelho.", "danger");
 
     const dados = Object.fromEntries(new FormData(form).entries());
+
     const url = clienteEditando
       ? `http://localhost:3000/api/clientes/${clienteEditando}`
       : "http://localhost:3000/api/clientes";
+
     const method = clienteEditando ? "PUT" : "POST";
 
     try {
@@ -339,16 +497,19 @@ function inicializarCadastroClientes() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados),
       });
+
       const result = await resp.json();
 
       if (resp.ok) {
-        flash(result.message || "✅ Cliente salvo com sucesso!");
+        flash(result.message || "Cliente salvo!");
         form.reset();
         clienteEditando = null;
+        limparValidacoes();
+
         submitBtn.textContent = "Cadastrar Cliente";
         submitBtn.classList.replace("btn-warning", "btn-primary");
         cancelarBtn.classList.add("d-none");
-        limparValidacoes();
+
         await fetchClientes();
       } else {
         flash(result.message || "Erro ao salvar.", "danger");
@@ -358,90 +519,46 @@ function inicializarCadastroClientes() {
     }
   });
 
-// 🔄 Alternar status ATIVO/INATIVO
-document.addEventListener("click", async (e) => {
-  const btn = e.target.closest(".btn-toggle-status");
-  if (!btn) return;
+  // ==========================================================
+  // ALTERAR STATUS
+  // ==========================================================
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".btn-toggle-status");
+    if (!btn) return;
 
-  const id = btn.dataset.id;
-  const atual = btn.dataset.status;
-  const novoStatus = atual === "ATIVO" ? "INATIVO" : "ATIVO";
+    const id = btn.dataset.id;
+    const atual = btn.dataset.status;
+    const novoStatus = atual === "ATIVO" ? "INATIVO" : "ATIVO";
 
-  if (!confirm(`Deseja realmente marcar este cliente como ${novoStatus}?`))
-    return;
-
-  try {
-    const resp = await fetch(`http://localhost:3000/api/clientes/${id}/status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: novoStatus })
-    });
-
-    const result = await resp.json();
-
-    if (resp.ok) {
-      flash(result.message || "Status atualizado!");
-      fetchClientes(); // recarrega tabela
-    } else {
-      flash(result.message || "Erro ao atualizar status.", "danger");
-    }
-
-  } catch {
-    flash("Erro ao atualizar status do cliente.", "danger");
-  }
-});
-
-  window.alternarStatusCliente = async function (id, btn) {
-  try {
-    let statusAtual = btn.dataset.status; // "ATIVO" ou "INATIVO"
-
-    const novaRota =
-      statusAtual === "ATIVO"
-        ? `http://localhost:3000/api/clientes/${id}/inativar`
-        : `http://localhost:3000/api/clientes/${id}/ativar`;
-
-    const novoStatus =
-      statusAtual === "ATIVO" ? "INATIVO" : "ATIVO";
-
-    const resp = await fetch(novaRota, { method: "PATCH" });
-    const result = await resp.json();
-
-    if (!resp.ok) {
-      flash(result.message || "Erro ao alterar status.", "danger");
+    if (!confirm(`Deseja marcar este cliente como ${novoStatus}?`))
       return;
+
+    try {
+      const resp = await fetch(`http://localhost:3000/api/clientes/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: novoStatus }),
+      });
+
+      const result = await resp.json();
+      flash(result.message);
+
+      fetchClientes();
+    } catch {
+      flash("Erro ao atualizar status.", "danger");
     }
+  });
 
-    flash(result.message || "Status atualizado!");
-
-    // 🔥 atualiza visual do botão imediatamente
-    btn.dataset.status = novoStatus;
-
-    if (novoStatus === "INATIVO") {
-      btn.classList.remove("btn-outline-success");
-      btn.classList.add("btn-outline-danger");
-      btn.setAttribute("title", "Inativar cliente");
-      btn.innerHTML = `<i class="fas fa-user-slash"></i>`;
-    } else {
-      btn.classList.remove("btn-outline-danger");
-      btn.classList.add("btn-outline-success");
-      btn.setAttribute("title", "Ativar cliente");
-      btn.innerHTML = `<i class="fas fa-user-check"></i>`;
-    }
-
-    // recarrega tabela para manter consistência
-    await fetchClientes();
-
-  } catch (err) {
-    console.error(err);
-    flash("Erro ao atualizar status.", "danger");
-  }
-};
+  // ==========================================================
+  // BUSCA DINÂMICA
+  // ==========================================================
   document
     .getElementById("pesquisarInput")
     ?.addEventListener("input", () => {
       currentPage = 1;
       aplicarFiltroEPaginar();
     });
+
   document
     .getElementById("pesquisarBtn")
     ?.addEventListener("click", () => {
@@ -449,6 +566,9 @@ document.addEventListener("click", async (e) => {
       aplicarFiltroEPaginar();
     });
 
+  // ==========================================================
+  // INICIALIZAR
+  // ==========================================================
   fetchClientes();
 }
 // ==========================================================
@@ -499,31 +619,149 @@ function inicializarCadastroProdutos() {
     });
   }
 
-  // Aplica a máscara no campo de preço
   const precoInput = document.getElementById("precoVenda");
   if (precoInput) aplicarMascaraPreco(precoInput);
 
-  // ========== Função de mensagem ==========
+  // ========== Mensagens ==========
   function flash(msg, type = "success", ms = 4000) {
     if (!feedback) return;
     feedback.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
     setTimeout(() => (feedback.innerHTML = ""), ms);
   }
 
-  // ========== Validação ==========
-  function validarCampos() {
-    const nome = form.nome.value.trim();
-    const preco = form.precoVenda.value.trim();
+  // ======================================================================
+  // 🔍 VALIDAÇÃO NO MESMO PADRÃO DO CADASTRO DE CLIENTES
+  // ======================================================================
+  const camposRegrasProduto = {
+    nome: (v) => v.trim() !== "",
+    categoria: (v) => v.trim() !== "",
+    precoVenda: (v) => /^\D*[\d.,]+$/.test(v),
+  };
 
-    const okNome = nome !== "";
-    const okPreco = /^\D*[\d.,]+$/.test(preco);
 
-    form.nome.classList.toggle("is-invalid", !okNome);
-    form.nome.classList.toggle("is-valid", okNome);
-    form.precoVenda.classList.toggle("is-invalid", !okPreco);
-    form.precoVenda.classList.toggle("is-valid", okPreco);
+  // Salva texto original dos labels
+  document.querySelectorAll("label").forEach((lbl) => {
+    if (!lbl.dataset.original) lbl.dataset.original = lbl.innerHTML;
+  });
 
-    return okNome && okPreco;
+  function atualizarLabelProduto(id, valido) {
+    const label = document.querySelector(`label[for="${id}"]`);
+    if (!label) return;
+
+    label.classList.remove("label-valid");
+
+    if (valido) {
+      label.classList.add("label-valid");
+      label.innerHTML = label.dataset.original + " ✓";
+    } else {
+      label.innerHTML = label.dataset.original;
+    }
+  }
+
+  function validarCamposProduto() {
+    let ok = true;
+
+    Object.entries(camposRegrasProduto).forEach(([id, regra]) => {
+      const el = document.getElementById(id);
+      const valor = (el.value || "").trim();
+      const valido = regra(valor);
+
+      // CAMPO VAZIO QUANDO CLICA EM SALVAR → vermelho
+      if (valor === "") {
+        el.classList.remove("is-valid");
+        el.classList.add("is-invalid");
+        atualizarLabelProduto(id, false);
+        ok = false;
+        return;
+      }
+
+      // CAMPO PREENCHIDO CORRETAMENTE
+      if (valido) {
+        el.classList.add("is-valid");
+        el.classList.remove("is-invalid");
+        atualizarLabelProduto(id, true);
+      }
+
+      // CAMPO PREENCHIDO ERRADO
+      else {
+        el.classList.add("is-invalid");
+        el.classList.remove("is-valid");
+        atualizarLabelProduto(id, false);
+        ok = false;
+      }
+    });
+
+    return ok;
+  }
+
+  // Validação em tempo real
+  Object.keys(camposRegrasProduto).forEach((id) => {
+    const el = document.getElementById(id);
+
+    // Enquanto digita
+    el?.addEventListener("input", () => {
+      const val = el.value.trim();
+      const valido = camposRegrasProduto[id](val);
+
+      // Se apagou → reseta
+      if (val === "") {
+        el.classList.remove("is-valid", "is-invalid");
+        atualizarLabelProduto(id, false);
+        return;
+      }
+
+      // Se válido → verde
+      if (valido) {
+        el.classList.add("is-valid");
+        el.classList.remove("is-invalid");
+        atualizarLabelProduto(id, true);
+      }
+
+      // Se inválido → não marca vermelho ainda
+      else {
+        el.classList.remove("is-valid");
+        atualizarLabelProduto(id, false);
+      }
+    });
+
+    // Quando sai do campo (blur)
+    el?.addEventListener("blur", () => {
+      const val = el.value.trim();
+      const valido = camposRegrasProduto[id](val);
+
+      // Se vazio → vermelho
+      if (val === "") {
+        el.classList.add("is-invalid");
+        atualizarLabelProduto(id, false);
+        return;
+      }
+
+      // Se válido → verde
+      if (valido) {
+        el.classList.add("is-valid");
+        el.classList.remove("is-invalid");
+        atualizarLabelProduto(id, true);
+      }
+
+      // Se inválido → vermelho
+      else {
+        el.classList.add("is-invalid");
+        el.classList.remove("is-valid");
+        atualizarLabelProduto(id, false);
+      }
+    });
+  });
+
+
+  function resetarValidacoesProduto() {
+    document
+      .querySelectorAll(".is-valid, .is-invalid")
+      .forEach((el) => el.classList.remove("is-valid", "is-invalid"));
+
+    document.querySelectorAll("label").forEach((lbl) => {
+      lbl.classList.remove("label-valid");
+      lbl.innerHTML = lbl.dataset.original;
+    });
   }
 
   // ========== Buscar Produtos ==========
@@ -539,7 +777,7 @@ function inicializarCadastroProdutos() {
     }
   }
 
-  // ========== Filtro e Paginação ==========
+  // ========== Filtro + Paginação ==========
   function aplicarFiltroEPaginar() {
     const termo =
       (document.getElementById("pesquisarProduto")?.value || "")
@@ -584,7 +822,9 @@ function inicializarCadastroProdutos() {
         <td>${p.idProduto}</td>
         <td>${p.nome}</td>
         <td>${p.categoria || "-"}</td>
-        <td>R$ ${parseFloat(p.precoVenda).toFixed(2).replace(".", ",")}</td>
+        <td>R$ ${parseFloat(p.precoVenda)
+          .toFixed(2)
+          .replace(".", ",")}</td>
         <td class="text-center">
           <button class="btn btn-sm btn-outline-primary me-2" onclick="editarProduto(${p.idProduto})"><i class="fas fa-pencil-alt"></i></button>
           <button class="btn btn-sm btn-outline-danger" onclick="excluirProduto(${p.idProduto})"><i class="fas fa-trash-alt"></i></button>
@@ -641,12 +881,12 @@ function inicializarCadastroProdutos() {
   // ========== CRUD ==========
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!validarCampos())
+
+    if (!validarCamposProduto())
       return flash("⚠️ Corrija os campos em vermelho.", "danger");
 
     const dados = Object.fromEntries(new FormData(form).entries());
 
-    // Remove formatação de preço antes de enviar
     if (dados.precoVenda) {
       dados.precoVenda = dados.precoVenda
         .replace("R$", "")
@@ -674,9 +914,7 @@ function inicializarCadastroProdutos() {
         btnSalvar.textContent = "Salvar Produto";
         btnSalvar.classList.replace("btn-warning", "btn-primary");
         btnCancelar.classList.add("d-none");
-        document
-          .querySelectorAll(".is-valid, .is-invalid")
-          .forEach((el) => el.classList.remove("is-valid", "is-invalid"));
+        resetarValidacoesProduto();
         fetchProdutos();
       } else flash(result.message || "Erro ao salvar.", "danger");
     } catch {
@@ -689,6 +927,7 @@ function inicializarCadastroProdutos() {
     try {
       const resp = await fetch(`http://localhost:3000/api/produtos/${id}`);
       if (!resp.ok) return flash("Produto não encontrado.", "danger");
+
       const p = await resp.json();
 
       form.nome.value = p.nome || "";
@@ -701,6 +940,7 @@ function inicializarCadastroProdutos() {
       btnSalvar.textContent = "Salvar Alterações";
       btnSalvar.classList.replace("btn-primary", "btn-warning");
       btnCancelar.classList.remove("d-none");
+      resetarValidacoesProduto();
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       flash("Erro ao carregar produto.", "danger");
@@ -714,9 +954,7 @@ function inicializarCadastroProdutos() {
     btnSalvar.textContent = "Salvar Produto";
     btnSalvar.classList.replace("btn-warning", "btn-primary");
     btnCancelar.classList.add("d-none");
-    document
-      .querySelectorAll(".is-valid, .is-invalid")
-      .forEach((el) => el.classList.remove("is-valid", "is-invalid"));
+    resetarValidacoesProduto();
   });
 
   // Excluir
@@ -747,6 +985,7 @@ function inicializarCadastroProdutos() {
   // Inicialização
   fetchProdutos();
 }
+
 // ==========================================================
 //  5 - REGISTRO DE VENDAS 
 // ==========================================================
