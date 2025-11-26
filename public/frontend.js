@@ -985,7 +985,6 @@ function inicializarCadastroProdutos() {
   // Inicialização
   fetchProdutos();
 }
-
 // ==========================================================
 //  5 - REGISTRO DE VENDAS 
 // ==========================================================
@@ -2450,6 +2449,32 @@ async function initDashboard() {
   // Carregar inicialmente
   carregarDashboard("mes");
 }
+// ================================
+// 9 - NOTIFICAÇÃO DE CLIENTES INATIVOS
+// ================================
+async function atualizarNotificacaoInativos() {
+  const badge = document.getElementById("notifBadge");
+  if (!badge) return;
+
+  try {
+    const resp = await fetch("http://localhost:3000/api/clientes?statusCliente=INATIVO");
+    const lista = await resp.json();
+
+    if (Array.isArray(lista) && lista.length > 0) {
+      badge.classList.remove("d-none");
+    } else {
+      badge.classList.add("d-none");
+    }
+
+  } catch (err) {
+    console.error("Erro ao verificar notificações:", err);
+    badge.classList.add("d-none");
+  }
+}
+
+// 🔄 Atualiza quando a página carregar
+atualizarNotificacaoInativos();
+
 
 // ==========================================================
 //  EXECUÇÃO AUTOMÁTICA POR PÁGINA
