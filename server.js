@@ -68,7 +68,7 @@ app.listen(PORT, () => {
   console.log(`🌍 Porta: ${PORT}`);
   console.log(
     "📡 Ambiente:",
-    process.env.RENDER === "true" ? "Render" : "Local"
+    process.env.PORT ? "Production (Railway)" : "Local"
   );
   console.log("=================================================");
 });
