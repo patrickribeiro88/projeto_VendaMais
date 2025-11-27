@@ -65,7 +65,7 @@ function inicializarLogin() {
     }
 
     try {
-      const resp = await fetch("http://localhost:3000/api/vendedor/login", {
+      const resp = await fetch("http://projetovendamais-production.up.railway.app/api/vendedor/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, senha }),
@@ -282,7 +282,7 @@ function inicializarCadastroClientes() {
     tabela.innerHTML = "<tr><td colspan='6'>Carregando...</td></tr>";
 
     try {
-      const resp = await fetch("http://localhost:3000/api/clientes");
+      const resp = await fetch("http://projetovendamais-production.up.railway.app/api/clientes");
       const data = await resp.json();
 
       todosClientes = Array.isArray(data) ? data : [];
@@ -427,7 +427,7 @@ function inicializarCadastroClientes() {
   // ==========================================================
   window.editarCliente = async function (id) {
     try {
-      const resp = await fetch(`http://localhost:3000/api/clientes/${id}`);
+      const resp = await fetch(`http://projetovendamais-production.up.railway.app/api/clientes/${id}`);
       const c = await resp.json();
 
       clienteEditando = id;
@@ -486,8 +486,8 @@ function inicializarCadastroClientes() {
     const dados = Object.fromEntries(new FormData(form).entries());
 
     const url = clienteEditando
-      ? `http://localhost:3000/api/clientes/${clienteEditando}`
-      : "http://localhost:3000/api/clientes";
+      ? `http://projetovendamais-production.up.railway.app/api/clientes/${clienteEditando}`
+      : "http://projetovendamais-production.up.railway.app/api/clientes";
 
     const method = clienteEditando ? "PUT" : "POST";
 
@@ -534,7 +534,7 @@ function inicializarCadastroClientes() {
       return;
 
     try {
-      const resp = await fetch(`http://localhost:3000/api/clientes/${id}/status`, {
+      const resp = await fetch(`http://projetovendamais-production.up.railway.app/api/clientes/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: novoStatus }),
@@ -768,7 +768,7 @@ function inicializarCadastroProdutos() {
   async function fetchProdutos() {
     tabela.innerHTML = `<tr><td colspan="5" class="text-center">Carregando...</td></tr>`;
     try {
-      const resp = await fetch("http://localhost:3000/api/produtos");
+      const resp = await fetch("http://projetovendamais-production.up.railway.app/api/produtos");
       const data = await resp.json();
       todosProdutos = Array.isArray(data) ? data : [];
       aplicarFiltroEPaginar();
@@ -895,8 +895,8 @@ function inicializarCadastroProdutos() {
     }
 
     const url = produtoEditando
-      ? `http://localhost:3000/api/produtos/${produtoEditando}`
-      : "http://localhost:3000/api/produtos";
+      ? `http://projetovendamais-production.up.railway.app/api/produtos/${produtoEditando}`
+      : "http://projetovendamais-production.up.railway.app/api/produtos";
     const method = produtoEditando ? "PUT" : "POST";
 
     try {
@@ -925,7 +925,7 @@ function inicializarCadastroProdutos() {
   // Editar
   window.editarProduto = async function (id) {
     try {
-      const resp = await fetch(`http://localhost:3000/api/produtos/${id}`);
+      const resp = await fetch(`http://projetovendamais-production.up.railway.app/api/produtos/${id}`);
       if (!resp.ok) return flash("Produto não encontrado.", "danger");
 
       const p = await resp.json();
@@ -961,7 +961,7 @@ function inicializarCadastroProdutos() {
   window.excluirProduto = async function (id) {
     if (!confirm("Deseja realmente excluir este produto?")) return;
     try {
-      const resp = await fetch(`http://localhost:3000/api/produtos/${id}`, {
+      const resp = await fetch(`http://projetovendamais-production.up.railway.app/api/produtos/${id}`, {
         method: "DELETE",
       });
       const data = await resp.json();
@@ -994,7 +994,7 @@ function inicializarRegistroVendas() {
   // ==========================================================
   //  VARIÁVEIS GERAIS E ELEMENTOS
   // ==========================================================
-  const API_BASE = "http://localhost:3000";
+  const API_BASE = "http://projetovendamais-production.up.railway.app";
 
   const feedback = document.getElementById("feedbackMessage");
   const tabelaVendas = document.getElementById("tabelaVendas");
@@ -1769,7 +1769,7 @@ if (window.location.pathname.includes("consulta.html")) {
 }
 
 async function initConsultaClientes() {
-  const API_BASE = "http://localhost:3000";
+  const API_BASE = "http://projetovendamais-production.up.railway.app";
 
   // Elementos principais
   const tabelaResultados = document.getElementById("tabelaResultadosClientes");
@@ -2103,7 +2103,7 @@ if (window.location.pathname.includes("inativos.html")) {
 }
 
 function initInativos() {
-  const API_BASE = "http://localhost:3000";
+  const API_BASE = "http://projetovendamais-production.up.railway.app";
 
   const tabela = document.getElementById("tabelaInativos");
   const searchInput = document.getElementById("searchInativos");
@@ -2372,7 +2372,7 @@ if (window.location.pathname.includes("dashboard.html")) {
   initDashboard();
 }
 async function initDashboard() {
-  const API_BASE = "http://localhost:3000";
+  const API_BASE = "http://projetovendamais-production.up.railway.app";
 
   // ELEMENTOS DO DASHBOARD — IDs CORRETOS
   const totalVendasEl = document.getElementById("cardTotalVendas");
