@@ -11,9 +11,9 @@ const PORT = process.env.PORT || 3000;
 // 🌐 CORS (Vercel + Local)
 // ======================================
 const allowedOrigins = [
-  "http://localhost:3000",
+  "http://projetovendamais-production.up.railway.app",
   "http://localhost:5173", // caso use Vite local
-  "https://projeto-venda-mais.vercel.app/", // 🔥 SUBSTITUA PELO SEU DOMÍNIO DO VERCEL
+  "https://projeto-venda-mais.vercel.app", // 🔥 SUBSTITUA PELO SEU DOMÍNIO DO VERCEL
 ];
 
 app.use(
